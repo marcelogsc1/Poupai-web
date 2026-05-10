@@ -47,6 +47,12 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Poppins,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased}
 input,button,textarea{font-family:inherit}
+/* Refinos de acabamento visual */
+.hdr,.tabs,.mobile-bottom-nav,.fab,.scroll-btns,.atitle,.mlbl,.auth-logo-wrap{user-select:none;-webkit-user-select:none;caret-color:transparent}
+.hdr *:not(input):not(textarea),.mobile-bottom-nav *,.fab *,.scroll-btns *{caret-color:transparent}
+.atitle{cursor:default}
+@media(min-width:1152px){.hdr{border-right:1px solid rgba(15,23,42,.08)!important;box-shadow:8px 0 22px rgba(15,23,42,.025)}.ct{border-left:none!important}.quick-launch-card{margin-top:8px!important}}
+@media(min-width:860px) and (max-width:1151px){.quick-launch-card{margin-top:8px!important}}
 
 /* Valores numéricos com a mesma família visual do app */
 .value-font,
@@ -263,33 +269,36 @@ input,button,textarea{font-family:inherit}
 .err{text-align:right;flex-shrink:0}
 .era{font-family:\'DM Mono\',monospace;font-size:15px;font-weight:500}
 .eacts{display:flex;gap:6px;margin-top:6px;justify-content:flex-end}
-.gastos-viewbar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(248,250,252,.82);border:1px solid var(--bd);border-radius:14px;padding:8px 10px 8px 14px;margin:-2px 0 12px;box-shadow:var(--shadow-sm)}
-.gastos-viewbar-title{font-size:11px;font-weight:800;color:var(--mt);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
-.gastos-view-toggle{display:flex;gap:4px;background:var(--srf);border:1px solid var(--bd);border-radius:999px;padding:3px;flex-shrink:0}
-.gastos-view-toggle button{border:none;background:transparent;color:var(--mt);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:background .15s,color .15s,box-shadow .15s}
-.gastos-view-toggle button.on{background:var(--blu);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.20)}
-.gastos-view-toggle button:focus-visible,.kanban-card:focus-visible{outline:2px solid var(--blu);outline-offset:2px}
+/* Visualização em colunas (Kanban) */
+.gastos-viewbar,.view-switchbar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(248,250,252,.88);border:1px solid var(--bd);border-radius:14px;padding:8px 10px 8px 14px;margin:-2px 0 12px;box-shadow:var(--shadow-sm)}
+.gastos-viewbar-title,.view-switchbar-title{font-size:11px;font-weight:800;color:var(--mt);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.gastos-view-toggle,.view-toggle{display:flex;gap:4px;background:var(--srf);border:1px solid var(--bd);border-radius:999px;padding:3px;flex-shrink:0}
+.gastos-view-toggle button,.view-toggle button{border:none;background:transparent;color:var(--mt);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:background .15s,color .15s,box-shadow .15s}
+.gastos-view-toggle button.on,.view-toggle button.on{background:var(--blu);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.20)}
+.gastos-view-toggle button:focus-visible,.view-toggle button:focus-visible,.kanban-card:focus-visible{outline:2px solid var(--blu);outline-offset:2px}
 .kanban-wrap{margin-bottom:16px}
-.kanban-board{display:flex;gap:14px;overflow-x:auto;padding:3px 2px 13px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;align-items:stretch}
+.kanban-board{display:flex;gap:14px;overflow-x:auto;padding:3px 2px 13px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;align-items:stretch;overscroll-behavior-inline:contain}
 .kanban-board::-webkit-scrollbar{height:8px}.kanban-board::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:999px}
-.kanban-col{flex:0 0 304px;max-width:330px;scroll-snap-align:start;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);border:1px solid var(--bd);border-radius:18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;max-height:68vh;min-height:180px;overflow:hidden}
-.kanban-col-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:13px 14px 11px;border-bottom:1px solid var(--bd);background:rgba(255,255,255,.82);position:sticky;top:0;z-index:1}
+.kanban-col{--kb-color:var(--blu);--kb-bg:rgba(37,99,235,.08);--kb-bg2:rgba(37,99,235,.03);--kb-card:rgba(255,255,255,.88);--kb-border:rgba(37,99,235,.22);flex:0 0 304px;max-width:330px;scroll-snap-align:start;background:linear-gradient(180deg,var(--kb-bg) 0%,var(--kb-bg2) 100%);border:1px solid var(--kb-border);border-radius:18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;max-height:68vh;min-height:180px;overflow:hidden}
+.kanban-col-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:13px 14px 11px;border-bottom:1px solid var(--kb-border);background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);position:sticky;top:0;z-index:1}
 .kanban-col-title{display:flex;align-items:center;gap:9px;min-width:0}
 .kanban-col-name{font-size:13px;font-weight:800;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:165px}
 .kanban-col-count{font-size:10px;font-weight:800;color:var(--mt2);margin-top:1px;text-transform:uppercase;letter-spacing:.05em}
-.kanban-col-total{font-variant-numeric:tabular-nums;font-size:12px;font-weight:800;white-space:nowrap;text-align:right}
+.kanban-col-total{font-variant-numeric:tabular-nums;font-size:12px;font-weight:800;white-space:nowrap;text-align:right;color:var(--kb-color)}
 .kanban-col-list{padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:9px;flex:1;min-height:0}
-.kanban-card{background:var(--srf);border:1px solid var(--bd);border-radius:14px;padding:11px 12px;box-shadow:0 1px 3px rgba(15,23,42,.04);cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
-.kanban-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:var(--bd2)}
+.kanban-card{background:linear-gradient(180deg,rgba(255,255,255,.94) 0%,var(--kb-card) 100%);border:1px solid var(--kb-border);border-radius:14px;padding:11px 12px;box-shadow:0 1px 3px rgba(15,23,42,.04);cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s,background .12s}
+.kanban-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:var(--kb-color)}
 .kanban-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:7px}
 .kanban-card-title{font-size:13px;font-weight:700;color:var(--txt);line-height:1.35;min-width:0;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.kanban-card-amt{font-variant-numeric:tabular-nums;font-size:13px;font-weight:800;white-space:nowrap;flex-shrink:0}
+.kanban-card-amt{font-variant-numeric:tabular-nums;font-size:13px;font-weight:800;white-space:nowrap;flex-shrink:0;color:var(--kb-color)}
 .kanban-card-meta{font-size:11px;color:var(--mt);line-height:1.45;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.kanban-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:var(--s2);border:1px solid var(--bd);padding:2px 7px;font-size:10.5px;font-weight:700;color:var(--mt)}
-.kanban-card-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--bd)}
+.kanban-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid var(--kb-border);padding:2px 7px;font-size:10.5px;font-weight:700;color:var(--mt)}
+.kanban-card-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--kb-border)}
 .kanban-total-footer{display:flex;justify-content:space-between;align-items:center;background:var(--srf);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow-sm)}
+.dash-kanban .kanban-card{cursor:pointer}.dash-kanban .kanban-card-actions{display:none}
 @media(min-width:1200px){.kanban-col{flex-basis:320px}.kanban-col-name{max-width:180px}}
-@media(max-width:600px){.gastos-viewbar{align-items:flex-start;flex-direction:column;padding:12px;margin-bottom:12px}.gastos-view-toggle{width:100%;display:grid;grid-template-columns:1fr 1fr}.gastos-view-toggle button{justify-content:center}.kanban-board{gap:10px;margin:0 -16px;padding-left:16px;padding-right:16px}.kanban-col{flex-basis:min(86vw,320px);max-height:none}.kanban-col-list{max-height:none;overflow:visible}}
+@media(max-width:600px){.gastos-viewbar,.view-switchbar{align-items:flex-start;flex-direction:column;padding:10px 11px;margin-bottom:12px}.gastos-view-toggle,.view-toggle{width:100%;display:grid;grid-template-columns:1fr 1fr}.gastos-view-toggle button,.view-toggle button{justify-content:center;padding:7px 10px;font-size:11.5px}.kanban-wrap{margin-left:-2px;margin-right:-2px}.kanban-board{gap:9px;margin:0 -12px;padding:2px 12px 12px;scroll-snap-type:x mandatory}.kanban-col{flex:0 0 min(76vw,282px);max-width:min(76vw,282px);border-radius:16px;max-height:calc(100vh - 260px);min-height:260px}.kanban-col-hdr{padding:10px 10px 9px;gap:6px}.kanban-col-title{gap:7px}.kanban-col-title>span{width:24px!important;height:24px!important;border-radius:8px!important}.kanban-col-name{font-size:12px;max-width:128px}.kanban-col-count{font-size:9px}.kanban-col-total{font-size:11px}.kanban-col-list{padding:8px;gap:7px;overflow-y:auto}.kanban-card{border-radius:12px;padding:8px 9px}.kanban-card-top{gap:7px;margin-bottom:5px}.kanban-card-title{font-size:12px;line-height:1.25;-webkit-line-clamp:1}.kanban-card-amt{font-size:12px}.kanban-card-meta{font-size:9.5px;gap:4px;line-height:1.3}.kanban-pill{font-size:9px;padding:1px 5px}.kanban-card-actions{margin-top:6px;padding-top:6px;gap:4px}.kanban-card-actions .bs{font-size:10px;padding:3px 7px}.kanban-total-footer{padding:10px 12px;border-radius:12px}.dash-kanban .kanban-col,.prev-kanban .kanban-col{flex-basis:min(78vw,290px);max-width:min(78vw,290px)}}
+
 .bs{font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;border:none;font-weight:600;transition:opacity 0.2s}
 .bs:hover{opacity:0.8}
 .be{background:var(--blu-l);color:var(--blu)}
@@ -2604,7 +2613,9 @@ function rDash(){
   var catHint = hiddenCats > 0 && !U.dashShowAllCats
     ? '<div style="font-size:11px;color:var(--mt2);margin:-4px 0 8px">Mostrando apenas categorias com gastos, previsões, parcelas ou atalhos fixados.</div>'
     : '';
-  var catBlock = '<div class="sec-hdr"><div class="sec-hdr-lbl">Lançamentos por categoria</div>'+toggleCats+'</div>' + catHint + rows;
+  var viewSwitch = rTabViewSwitch('dash','Alterne o resumo mensal entre lista e colunas por categoria.');
+  var dashCatBody = getViewMode('dash') === 'kanban' ? rDashKanban(actives, st) : rows;
+  var catBlock = '<div class="sec-hdr"><div class="sec-hdr-lbl">Lançamentos por categoria</div>'+toggleCats+'</div>' + catHint + viewSwitch + dashCatBody;
   return '<div class="dash-wrapper"><div>'+cards+quickLaunch+extraBlock+billsBlock+goalsBlock+'</div><div>'+catBlock+'</div></div>';
 }
 
@@ -2622,7 +2633,7 @@ function rPrev(){
     var selIds = Object.keys(sel).filter(function(k){return sel[k];});
     return '<div style="background:var(--blu-l);border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
       +'<span id="bulk-count" style="font-size:13px;font-weight:600;color:var(--blu-d)">'+selIds.length+' selecionado(s)</span>'
-      +'<button class="bs be" onclick="window.bulkSetType(false)">Marcar como Invariável</button>'
+      +'<button class="bs be" onclick="window.bulkSetType(false)">Marcar como Fixo</button>'
       +'<button class="bs" style="background:var(--blu-l);color:var(--blu-d)" onclick="window.bulkSetType(true)">Marcar como Estimativa</button>'
       +'<button class="bs bdl" onclick="window.bulkDeleteSelected()">🗑 Apagar selecionadas</button>'
       +'<button class="bs" style="background:transparent;color:var(--mt);border:1px solid var(--bd)" onclick="U.bulkMode=false;U.bulkSel={};render()">Cancelar</button>'
@@ -2653,7 +2664,7 @@ function rPrev(){
   var importBtn = '<button class="btn-import" onclick="window.openImport(\'prev\')">'+ICO.excel+' Importar previsões</button>';
   var actions = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">'+bulkToggleBtn+importBtn+'</div>';
   if(!fixed.length && !cardPinst.length && !otherInst.length){
-    return msg + emptyStateCard('📅','Comece pelas contas que se repetem todo mês','Registre as contas recorrentes como aluguel, internet, academia, assinaturas, etc. Defina como:<br><br>1️⃣ <b>Invariáveis</b>: têm valor fixo mensal, como aluguel, academia, plano de telefone.<br>2️⃣ <b>Estimativas</b>: valores seguem um padrão, mas podem variar, como mercado, conta de energia, combustível.',
+    return msg + emptyStateCard('📅','Comece pelas contas que se repetem todo mês','Registre as contas recorrentes como aluguel, internet, academia, assinaturas, etc. Defina como:<br><br>1️⃣ <b>Fixos</b>: têm valor fixo mensal, como aluguel, academia, plano de telefone.<br>2️⃣ <b>Estimativas</b>: valores seguem um padrão, mas podem variar, como mercado, conta de energia, combustível.',
       '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn-import" onclick="window.openImport(\'prev\')">'+ICO.excel+' Importar previsões</button><button class="btn-import" onclick="window.openAddPlan()">+ Adicionar manualmente</button></div>')        +'<div style="display:flex;justify-content:center;margin-top:24px;pointer-events:none;user-select:none">'
           +'<img src="data:image/png;base64,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" alt="Mascote" style="width:min(220px,55vw);height:auto;opacity:0.92">'
         +'</div>';
@@ -2691,7 +2702,7 @@ function rPrev(){
   var summaryPanel = '<div class="prev-summary-panel">'
     +'<div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:14px;letter-spacing:-.01em">Resumo do mês</div>'
     +'<div class="prev-summary-row"><span class="prev-summary-lbl">Total previsto</span><span class="prev-summary-val">'+R(totalPrev)+'</span></div>'
-    +'<div class="prev-summary-row"><span class="prev-summary-lbl">Invariáveis</span><span class="prev-summary-val">'+R(totalInv)+'</span></div>'
+    +'<div class="prev-summary-row"><span class="prev-summary-lbl">Fixos</span><span class="prev-summary-val">'+R(totalInv)+'</span></div>'
     +'<div class="prev-summary-row"><span class="prev-summary-lbl">Estimativas</span><span class="prev-summary-val">'+R(totalEst)+'</span></div>'
     +'<div class="prev-summary-row"><span class="prev-summary-lbl">Parcelas</span><span class="prev-summary-val" style="color:var(--pur)">'+R(totalParc)+'</span></div>'
     +'<div class="prev-summary-row" style="margin-top:2px"><span class="prev-summary-lbl" style="font-weight:700;color:var(--txt)">Sobra estimada</span><span class="prev-summary-val" style="color:'+sobraClr+'">'+R(sobra)+'</span></div>'
@@ -2699,8 +2710,12 @@ function rPrev(){
     +catRows
     +'</div>';
 
+  var viewSwitch = rTabViewSwitch('prev','Veja as contas previstas por cards ou em colunas por categoria.');
   var gridBlock = '<div class="prev-grid">' + content + parcelasBlock + '</div>';
-  return msg + actions + bulkBar + '<div class="prev-desktop-wrap">' + gridBlock + summaryPanel + '</div>';
+  var prevBody = getViewMode('prev') === 'kanban'
+    ? rPrevKanban(m)
+    : '<div class="prev-desktop-wrap">' + gridBlock + summaryPanel + '</div>';
+  return msg + actions + bulkBar + viewSwitch + prevBody;
 }
 
 
@@ -4304,7 +4319,7 @@ window.openPrevCatModal = function(gid){
     var selCount = Object.keys(U.bulkSel||{}).filter(function(k){ return U.bulkSel[k]; }).length;
     return '<div id="prev-modal-bulk-bar" style="background:var(--blu-l);border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
       +'<span id="prev-modal-bulk-count" style="font-size:13px;font-weight:600;color:var(--blu-d);flex:1">'+selCount+' selecionado(s)</span>'
-      +'<button class="bs be" onclick="window._prevBulkApply(false)">Marcar como Invariável</button>'
+      +'<button class="bs be" onclick="window._prevBulkApply(false)">Marcar como Fixo</button>'
       +'<button class="bs" style="background:var(--blu-l);color:var(--blu-d)" onclick="window._prevBulkApply(true)">Marcar como Estimativa</button>'
       +'<button class="bs bdl" onclick="window._prevBulkDeleteSelected()">🗑 Apagar selecionadas</button>'
     +'</div>';
@@ -4592,24 +4607,41 @@ function rQEPI(){
 }
 
 
-function gastosViewKey(){ return 'poupai-gastos-view'; }
-function gastosViewMode(){
-  var v = U.gastosView;
+function viewModeKey(tab){ return 'poupai-'+tab+'-view'; }
+function getViewMode(tab){
+  var prop = tab + 'View';
+  var v = U[prop];
   if(!v){
-    try { v = localStorage.getItem(gastosViewKey()) || 'list'; } catch(e) { v = 'list'; }
-    U.gastosView = v;
+    try { v = localStorage.getItem(viewModeKey(tab)) || 'list'; } catch(e) { v = 'list'; }
+    U[prop] = v;
   }
   return v === 'kanban' ? 'kanban' : 'list';
 }
-function rGastosViewSwitch(){
-  var mode = gastosViewMode();
-  return '<div class="gastos-viewbar" role="group" aria-label="Escolher visualização dos gastos">'
-    +'<div><div class="gastos-viewbar-title">Visualização</div><div style="font-size:11px;color:var(--mt);margin-top:1px">Use Kanban para ver os lançamentos agrupados em colunas.</div></div>'
-    +'<div class="gastos-view-toggle">'
-      +'<button type="button" class="'+(mode==='list'?'on':'')+'" aria-pressed="'+(mode==='list'?'true':'false')+'" onclick="window.setGastosView(\'list\')">☰ Lista</button>'
-      +'<button type="button" class="'+(mode==='kanban'?'on':'')+'" aria-pressed="'+(mode==='kanban'?'true':'false')+'" onclick="window.setGastosView(\'kanban\')">▦ Kanban</button>'
+function rTabViewSwitch(tab, help){
+  var mode = getViewMode(tab);
+  return '<div class="view-switchbar" role="group" aria-label="Escolher visualização">'
+    +'<div><div class="view-switchbar-title">Visualização</div><div style="font-size:11px;color:var(--mt);margin-top:1px">'+safeTxt(help||'Alterne entre lista e colunas compactas.')+'</div></div>'
+    +'<div class="view-toggle">'
+      +'<button type="button" class="'+(mode==='list'?'on':'')+'" aria-pressed="'+(mode==='list'?'true':'false')+'" onclick="window.setTabView(\''+tab+'\',\'list\')">☰ Lista</button>'
+      +'<button type="button" class="'+(mode==='kanban'?'on':'')+'" aria-pressed="'+(mode==='kanban'?'true':'false')+'" onclick="window.setTabView(\''+tab+'\',\'kanban\')">▦ Kanban</button>'
     +'</div>'
   +'</div>';
+}
+function gastosViewKey(){ return viewModeKey('gastos'); }
+function gastosViewMode(){ return getViewMode('gastos'); }
+function rGastosViewSwitch(){ return rTabViewSwitch('gastos','Use Kanban para ver os lançamentos agrupados por categoria.'); }
+function rgbaFromHex(color, alpha){
+  var c = String(color||'').trim();
+  var m = c.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if(!m) return 'rgba(37,99,235,'+alpha+')';
+  var h = m[1];
+  if(h.length===3) h = h.split('').map(function(x){return x+x;}).join('');
+  var r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return 'rgba('+r+','+g+','+b+','+alpha+')';
+}
+function kanbanVars(color){
+  color = color || '#2563eb';
+  return '--kb-color:'+color+';--kb-bg:'+rgbaFromHex(color,.10)+';--kb-bg2:'+rgbaFromHex(color,.035)+';--kb-card:'+rgbaFromHex(color,.055)+';--kb-border:'+rgbaFromHex(color,.24)+';border-top:3px solid '+color;
 }
 function rGastosKanban(filt){
   var columns = GR.map(function(g){
@@ -4626,36 +4658,50 @@ function rGastosKanban(filt){
       var dt = exp.date ? new Date(exp.date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : '';
       var title = safeTxt(exp.description || g.label);
       return '<article class="kanban-card" tabindex="0" role="button" aria-label="Editar lançamento '+title+'" onclick="window.openEdit(\''+exp.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.openEdit(\''+exp.id+'\')}">'
-        +'<div class="kanban-card-top">'
-          +'<div class="kanban-card-title">'+title+'</div>'
-          +'<div class="kanban-card-amt" style="color:'+g.color+'">'+R(exp.amount)+'</div>'
-        +'</div>'
-        +'<div class="kanban-card-meta">'
-          +(dt?'<span class="kanban-pill">📅 '+dt+'</span>':'')
-          +(meta?'<span>'+safeTxt(meta)+'</span>':'')
-        +'</div>'
+        +'<div class="kanban-card-top"><div class="kanban-card-title">'+title+'</div><div class="kanban-card-amt">'+R(exp.amount)+'</div></div>'
+        +'<div class="kanban-card-meta">'+(dt?'<span class="kanban-pill">📅 '+dt+'</span>':'')+(meta?'<span>'+safeTxt(meta)+'</span>':'')+'</div>'
         +'<div class="kanban-card-actions" onclick="event.stopPropagation()">'
-          +(isDel
-            ? '<button class="bs bco" onclick="window.delDo(\''+exp.id+'\')">Confirmar</button><button class="bs bca" onclick="window.delX()">Cancelar</button>'
-            : '<button class="bs be" onclick="window.openEdit(\''+exp.id+'\')">Editar</button><button class="bs bdl" onclick="window.delC(\''+exp.id+'\')">Excluir</button>')
-        +'</div>'
-      +'</article>';
+          +(isDel ? '<button class="bs bco" onclick="window.delDo(\''+exp.id+'\')">Confirmar</button><button class="bs bca" onclick="window.delX()">Cancelar</button>' : '<button class="bs be" onclick="window.openEdit(\''+exp.id+'\')">Editar</button><button class="bs bdl" onclick="window.delC(\''+exp.id+'\')">Excluir</button>')
+        +'</div></article>';
     }).join('');
-    return '<section class="kanban-col" aria-labelledby="'+colId+'" style="border-top:3px solid '+g.color+'">'
-      +'<div class="kanban-col-hdr">'
-        +'<div class="kanban-col-title">'+ibadge(g,28)+'<div><div id="'+colId+'" class="kanban-col-name">'+safeTxt(g.label)+'</div><div class="kanban-col-count">'+col.items.length+' lançamento'+(col.items.length===1?'':'s')+'</div></div></div>'
-        +'<div class="kanban-col-total" style="color:'+g.color+'">'+R(col.total)+'</div>'
-      +'</div>'
-      +'<div class="kanban-col-list">'+itemsHtml+'</div>'
-    +'</section>';
+    return '<section class="kanban-col" aria-labelledby="'+colId+'" style="'+kanbanVars(g.color)+'"><div class="kanban-col-hdr"><div class="kanban-col-title">'+ibadge(g,28)+'<div><div id="'+colId+'" class="kanban-col-name">'+safeTxt(g.label)+'</div><div class="kanban-col-count">'+col.items.length+' lançamento'+(col.items.length===1?'':'s')+'</div></div></div><div class="kanban-col-total">'+R(col.total)+'</div></div><div class="kanban-col-list">'+itemsHtml+'</div></section>';
   }).join('');
   var total = filt.reduce(function(s,e){ return s + (Number(e.amount)||0); },0);
-  return '<div class="kanban-wrap">'
-    +'<div class="kanban-board" role="list" aria-label="Gastos agrupados por categoria">'+cards+'</div>'
-    +'<div class="kanban-total-footer"><span style="font-size:13px;color:var(--mt);font-weight:600">Total filtrado</span><span style="font-size:16px;font-weight:800;color:var(--blu);font-variant-numeric:tabular-nums">'+R(total)+'</span></div>'
-  +'</div>';
+  return '<div class="kanban-wrap"><div class="kanban-board" role="list" aria-label="Gastos agrupados por categoria">'+cards+'</div><div class="kanban-total-footer"><span style="font-size:13px;color:var(--mt);font-weight:600">Total filtrado</span><span style="font-size:16px;font-weight:800;color:var(--blu);font-variant-numeric:tabular-nums">'+R(total)+'</span></div></div>';
 }
-
+function rPrevKanban(m){
+  var all = getPlanned(m);
+  var columns = GR.map(function(g){ var items = all.filter(function(i){ return i.group === g.id; }); return {g:g, items:items, total:items.reduce(function(s,i){ return s + (Number(i.amount)||0); },0)}; }).filter(function(c){ return c.items.length; });
+  if(!columns.length) return '';
+  var cols = columns.map(function(col){
+    var g = col.g, colId='prev-kanban-'+safeAttr(g.id);
+    var itemsHtml = col.items.map(function(item){
+      var orig = D.fixedItems.find(function(f){return f.id===item.id;}) || item;
+      var editFn = item.isParcela ? 'window.openInstEdit' : 'window.openPlanEdit';
+      var tag = item.isParcela ? 'parcela' : (isEst(orig) ? 'estimativa' : 'fixo');
+      var due = orig.dueDay ? 'dia '+orig.dueDay : '';
+      return '<article class="kanban-card" tabindex="0" role="button" aria-label="Editar previsão '+safeTxt(item.label)+'" onclick="'+editFn+'(\''+item.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+editFn+'(\''+item.id+'\')}"><div class="kanban-card-top"><div class="kanban-card-title">'+safeTxt(item.label)+'</div><div class="kanban-card-amt">'+R(item.amount)+'</div></div><div class="kanban-card-meta"><span class="kanban-pill">'+tag+'</span>'+(due?'<span class="kanban-pill">📅 '+safeTxt(due)+'</span>':'')+(orig.notes?'<span>'+safeTxt(orig.notes)+'</span>':'')+'</div><div class="kanban-card-actions" onclick="event.stopPropagation()"><button class="bs be" onclick="'+editFn+'(\''+item.id+'\')">Editar</button><button class="bs bdl" onclick="window.openPrevCatModal(\''+g.id+'\')">Ver grupo</button></div></article>';
+    }).join('');
+    return '<section class="kanban-col" aria-labelledby="'+colId+'" style="'+kanbanVars(g.color)+'"><div class="kanban-col-hdr"><div class="kanban-col-title">'+ibadge(g,28)+'<div><div id="'+colId+'" class="kanban-col-name">'+safeTxt(g.label)+'</div><div class="kanban-col-count">'+col.items.length+' item'+(col.items.length===1?'':'s')+'</div></div></div><div class="kanban-col-total">'+R(col.total)+'</div></div><div class="kanban-col-list">'+itemsHtml+'</div></section>';
+  }).join('');
+  var total = all.reduce(function(s,i){ return s + (Number(i.amount)||0); },0);
+  return '<div class="kanban-wrap prev-kanban"><div class="kanban-board" role="list" aria-label="Contas previstas agrupadas por categoria">'+cols+'</div><div class="kanban-total-footer"><span style="font-size:13px;color:var(--mt);font-weight:600">Total previsto</span><span style="font-size:16px;font-weight:800;color:var(--pur);font-variant-numeric:tabular-nums">'+R(total)+'</span></div></div>';
+}
+function rDashKanban(actives, st){
+  var cols = actives.map(function(g){
+    var c = st.cats[g.id] || {p:0,s:0,c:0,real:0};
+    var total = c.s || 0;
+    var pct = c.p > 0 ? Math.min(100,Math.round((total/c.p)*100)) : 0;
+    var over = c.p > 0 && total > c.p;
+    var exps = getExp(U.month).filter(function(e){ return e.group === g.id; });
+    var notes = [];
+    if(c.p>0) notes.push('teto '+R(c.p));
+    if(exps.length) notes.push(exps.length+' lançamento'+(exps.length===1?'':'s'));
+    if(c.c>0) notes.push('comprometido '+R(c.c));
+    return '<section class="kanban-col" style="'+kanbanVars(over?'#ef4444':g.color)+'" aria-label="Resumo '+safeAttr(g.label)+'"><div class="kanban-col-hdr"><div class="kanban-col-title">'+ibadge(g,28)+'<div><div class="kanban-col-name">'+safeTxt(g.label)+'</div><div class="kanban-col-count">categoria</div></div></div><div class="kanban-col-total">'+R(total)+'</div></div><div class="kanban-col-list"><article class="kanban-card" tabindex="0" role="button" onclick="window.openCatModal(\''+g.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.openCatModal(\''+g.id+'\')}"><div class="kanban-card-top"><div class="kanban-card-title">Gasto real do mês</div><div class="kanban-card-amt">'+R(total)+'</div></div><div class="kanban-card-meta">'+(notes.length?notes.map(function(n){return '<span class="kanban-pill">'+safeTxt(n)+'</span>';}).join(''):'<span class="kanban-pill">sem teto definido</span>')+'</div>'+(c.p>0?'<div class="gbr" style="margin-top:8px"><div class="gbf" style="width:'+pct+'%;background:'+(over?'var(--red)':g.color)+'"></div></div>':'')+'</article></div></section>';
+  }).join('');
+  return '<div class="kanban-wrap dash-kanban"><div class="kanban-board" role="list" aria-label="Resumo mensal por categoria">'+cols+'</div></div>';
+}
 function rGastos(){
   var m=U.month;var exps=getExp(m);
   var sorted=exps.slice().sort(function(a,b){return b.date.localeCompare(a.date)||(b.createdAt||'').localeCompare(a.createdAt||'');});
@@ -5114,7 +5160,7 @@ function rAddPlanForm() {
   return'<div class="fs"><div class="fhdr"><button class="fbk" onclick="window.backOrClose()">&#8592; Voltar</button><span class="ftit">Adicionar conta prevista</span></div>'
     +'<div class="fg"><label class="fl">Tipo de conta</label><div style="display:flex;gap:8px">'
       +'<button style="'+btnEst+'" onclick="window.setPlanType(\'est\')">Estimativa</button>'
-      +'<button style="'+btnInv+'" onclick="window.setPlanType(\'inv\')">Invariável</button>'
+      +'<button style="'+btnInv+'" onclick="window.setPlanType(\'inv\')">Fixo</button>'
     +'</div></div>'+hint
     +'<div class="fg"><label class="fl">Valor (R$)</label><input class="fi" id="fpa-a" type="number" placeholder="0,00" inputmode="decimal" style="font-family:monospace;font-size:22px;font-weight:700;color:'+(isInv?'var(--grn-d)':'var(--blu)')+'"></div>'
     +'<div class="fg"><label class="fl">Categoria</label><div class="tg">'+rGrpBtns('apg',U.sel)+'</div></div>'
@@ -5370,7 +5416,7 @@ function rImport(){
   var presetBtns = '<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px">'
     + presetList.map(function(x){ var on=(U.importPreset||'auto')===x.id; return '<button class="chip'+(on?' on':'')+'" style="'+(on?'background:var(--blu)':'')+';flex-shrink:0" onclick="window.setImportPreset(\''+x.id+'\')">'+x.label+'</button>'; }).join('')
     + '</div>';
-  var isEstOption = isPrevMode ? '<div style="margin-bottom:16px;background:var(--srf);padding:12px;border-radius:10px;border:1px solid var(--bd)"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Tipo das contas importadas:</div><label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;cursor:pointer"><input type="radio" name="imp-type" value="est" checked style="accent-color:var(--blu)"> <span><b>Estimativa</b> — valor pode variar, como mercado ou energia</span></label><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-type" value="inv" style="accent-color:var(--grn)"> <span><b>Invariável</b> — valor fixo, como aluguel ou internet</span></label></div>' : '';
+  var isEstOption = isPrevMode ? '<div style="margin-bottom:16px;background:var(--srf);padding:12px;border-radius:10px;border:1px solid var(--bd)"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Tipo das contas importadas:</div><label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;cursor:pointer"><input type="radio" name="imp-type" value="est" checked style="accent-color:var(--blu)"> <span><b>Estimativa</b> — valor pode variar, como mercado ou energia</span></label><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-type" value="inv" style="accent-color:var(--grn)"> <span><b>Fixo</b> — valor fixo, como aluguel ou internet</span></label></div>' : '';
   function catOptions(sel, limited){ var list = limited || GR; return list.map(function(gr){return '<option value="'+safeAttr(gr.id)+'"'+(gr.id===sel?' selected':'')+'>'+safeTxt(gr.label)+'</option>';}).join(''); }
   function investTypeOptions(sel){ var opts=[['cdb_cdi','CDB / % CDI'],['selic','Tesouro Selic'],['ipca','IPCA+'],['pre','Prefixado'],['poupanca','Poupança'],['acoes','Ações'],['fundo','Fundo'],['cripto','Cripto'],['previdencia','Previdência'],['fgts','FGTS'],['outro','Outro']]; return opts.map(function(o){return '<option value="'+safeAttr(o[0])+'"'+(o[0]===sel?' selected':'')+'>'+safeTxt(o[1])+'</option>';}).join(''); }
   var prev = '';
@@ -6029,12 +6075,14 @@ window.startQEMic = function(){
   }, true);
 })();
 window.setFilter=function(f){U.filter=f;render();};
-window.setGastosView=function(mode){
-  mode = mode === 'kanban' ? 'kanban' : 'list';
-  U.gastosView = mode;
-  try { localStorage.setItem(gastosViewKey(), mode); } catch(e) {}
+window.setTabView=function(tab, mode){
+  if(['gastos','prev','dash'].indexOf(tab) < 0) return;
+  var v = mode === 'kanban' ? 'kanban' : 'list';
+  U[tab+'View'] = v;
+  try { localStorage.setItem(viewModeKey(tab), v); } catch(e) {}
   render();
 };
+window.setGastosView=function(mode){ window.setTabView('gastos', mode); };
 window.openAdd=function(){U.scr='add';U.sel='outros';render();};
 window.openAddPlan=function(grp){U.scr='addPlan';U.sel=grp||'outros';render();};
 window.impEditGrp  = function(idx,v){ if(U.importPreview[idx]) U.importPreview[idx].group=v; };
