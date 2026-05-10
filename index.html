@@ -160,6 +160,11 @@ input,button,textarea{font-family:inherit}
 
 .cards-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; width: 100%; }
 .dash-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
+
+.quick-launch-card{width:100%}
+@media(min-width:860px){
+  .quick-launch-card{margin-top:18px!important;margin-bottom:20px!important;}
+}
 .desktop-wide-pane{width:100%;margin:0 auto}
 .tab-pane{width:100%;margin:0 auto}
 .pane-gastos,.pane-goals,.pane-invest,.pane-stats{max-width:100%}
@@ -177,10 +182,11 @@ input,button,textarea{font-family:inherit}
 .stats-kpi-main.big{font-size:15px!important}.stats-kpi-main.mid{font-size:12px!important}
 .stats-kpi-note{font-size:9px!important;font-weight:400!important;color:#94a3b8!important;line-height:1.35!important;margin-top:2px!important}
 .stats-modal-overlay{position:fixed;inset:0;z-index:3000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:18px;animation:overlayFadeIn .18s ease}
-.stats-modal-overlay.hover{pointer-events:none;background:rgba(15,23,42,.38)}
+.stats-modal-overlay.hover{pointer-events:none;background:rgba(15,23,42,.18)}
 .stats-modal{background:#fff;border-radius:24px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.28);animation:catModalIn .18s cubic-bezier(.22,.68,0,1.2)}
 .stats-modal.day{max-width:560px}
-.stats-modal-overlay.hover .stats-modal{pointer-events:auto}
+.stats-modal-overlay.hover .stats-modal{pointer-events:none}
+.stats-modal.hover-compact-card{max-width:380px;max-height:none;overflow:hidden;border-radius:18px;box-shadow:0 14px 38px rgba(15,23,42,.20);animation:catModalIn .12s ease-out}
 .stats-modal-header{display:flex;align-items:center;justify-content:center;padding:16px 54px 14px;border-bottom:1px solid #f1f5f9;position:sticky;top:0;background:#fff;z-index:1;border-radius:24px 24px 0 0}
 .stats-modal-title-row{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
 .stats-modal-header>button:last-child{position:absolute;right:14px;top:14px}
@@ -192,7 +198,10 @@ input,button,textarea{font-family:inherit}
   .stats-charts-grid .bento-kpi-pane{width:142px;padding:14px 12px}
   .stats-charts-grid .bento-kpi-pane.narrow{width:128px;padding:14px 12px}
   .stats-charts-grid svg{max-height:260px}
+  .stats-modal-overlay.hover{align-items:flex-start;justify-content:center;padding-top:78px}
+  .stats-modal-overlay.hover .stats-modal{transform:scale(.96);transform-origin:top center}
 }
+
 @media(max-width:600px){
   .stats-modal-overlay{align-items:flex-end;padding:0;background:rgba(15,23,42,.58)}
   .stats-modal{border-radius:20px 20px 0 0;max-width:100%;max-height:88vh;padding-bottom:env(safe-area-inset-bottom);animation:catSheetIn .22s cubic-bezier(.22,.68,0,1.2)}
@@ -2455,7 +2464,7 @@ function rDash(){
   +'</div>';
 
 
-  var quickLaunch='<button onclick="window.setTab(\'gastos\');setTimeout(function(){window.focusQEI();},180)" style="display:flex;align-items:center;gap:9px;width:100%;background:var(--srf);border:1.5px dashed rgba(34,197,94,0.32);border-radius:14px;padding:11px 16px;cursor:pointer;text-align:left;margin-bottom:16px;transition:border-color 0.18s,background 0.18s;font-family:inherit;-webkit-tap-highlight-color:transparent" onmouseover="this.style.borderColor=\'rgba(34,197,94,0.65)\';this.style.background=\'rgba(34,197,94,0.04)\'" onmouseout="this.style.borderColor=\'rgba(34,197,94,0.32)\';this.style.background=\'var(--srf)\'">'
+  var quickLaunch='<button class="quick-launch-card" onclick="window.setTab(\'gastos\');setTimeout(function(){window.focusQEI();},180)" style="display:flex;align-items:center;gap:9px;width:100%;background:var(--srf);border:1.5px dashed rgba(34,197,94,0.32);border-radius:14px;padding:11px 16px;cursor:pointer;text-align:left;margin-bottom:16px;transition:border-color 0.18s,background 0.18s;font-family:inherit;-webkit-tap-highlight-color:transparent" onmouseover="this.style.borderColor=\'rgba(34,197,94,0.65)\';this.style.background=\'rgba(34,197,94,0.04)\'" onmouseout="this.style.borderColor=\'rgba(34,197,94,0.32)\';this.style.background=\'var(--srf)\'">'
     +'<span style="width:32px;height:32px;border-radius:10px;background:rgba(34,197,94,0.10);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">⚡</span>'
     +'<span style="flex:1;min-width:0">'
       +'<span style="display:block;font-size:13px;font-weight:700;color:var(--txt)">Lançar gasto rápido</span>'
@@ -3712,7 +3721,7 @@ function rStats() {
     window._statsHoverTimer=setTimeout(function(){
       if(type==='month')window.closeMonthModal();
       else window.closeDayModal();
-    },200);
+    },90);
   };
   window._statsModalEnter=function(){
     if(window._statsHoverTimer){clearTimeout(window._statsHoverTimer);window._statsHoverTimer=null;}
@@ -3746,6 +3755,34 @@ function rStats() {
     var alertHTML='';catD.forEach(function(c){if(alertHTML)return;var h6s=0,h6c=0;for(var ai2=1;ai2<=6;ai2++){var pm3=shM(mo,-ai2);if(getExp(pm3).length>0){var sc3=stats(pm3).cats[c.id]||{};h6s+=Math.max(0,Number(sc3.real||sc3.s||0));h6c++;}}var h6a=h6c>0?h6s/h6c:0;if(h6a>100&&c.value>h6a*1.8){alertHTML='<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:12px;color:#92400e;line-height:1.5">\u26a0\ufe0f <b>M\u00eas fora do padr\u00e3o</b><br>'+safeTxt(c.label)+' foi '+(c.value/h6a).toFixed(1)+'\u00d7 a m\u00e9dia dos \u00faltimos meses.</div>';}});
     var prevDis=idx<=0?' style="opacity:.3;pointer-events:none"':'';var nextDis=idx>=(cd.length-1)?' style="opacity:.3;pointer-events:none"':'';
     var modalClick=hoverMode?'':' onclick="if(event.target===this)window.closeMonthModal()"';
+    if(hoverMode){
+      var hCats=catD.slice(0,3).map(function(c){
+        var pctH=catTot>0?Math.round(c.value/catTot*100):0;
+        return '<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid #f1f5f9">'
+          +'<span style="width:7px;height:7px;border-radius:50%;background:'+c.color+';flex-shrink:0"></span>'
+          +'<span style="flex:1;min-width:0;font-size:11.5px;color:#334155;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+safeTxt(c.label)+'</span>'
+          +'<span style="font-size:10.5px;color:#94a3b8">'+pctH+'%</span>'
+          +'<span style="font-size:11.5px;font-weight:600;color:#1e293b;font-variant-numeric:tabular-nums;min-width:74px;text-align:right">'+R(c.value)+'</span>'
+        +'</div>';
+      }).join('');
+      var htmlHover='<div id="month-modal-overlay" class="stats-modal-overlay hover">'
+        +'<div class="stats-modal month hover-compact-card">'
+          +'<div style="padding:14px 16px 13px">'
+            +'<div style="text-align:center;margin-bottom:11px"><div style="font-size:9px;font-weight:700;letter-spacing:.09em;color:#94a3b8;text-transform:uppercase">Resumo do mês</div><div style="font-size:15px;font-weight:800;color:#1e293b">'+safeTxt(mLbl(mo))+'</div></div>'
+            +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
+              +'<div style="background:#f0fdf4;border-radius:10px;padding:8px"><div style="font-size:8.5px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.06em">Receita</div><div style="font-size:12px;font-weight:600;color:#16a34a;font-variant-numeric:tabular-nums">'+R(stM.sal)+'</div></div>'
+              +'<div style="background:#fff7ed;border-radius:10px;padding:8px"><div style="font-size:8.5px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:.06em">Gasto</div><div style="font-size:12px;font-weight:600;color:#f97316;font-variant-numeric:tabular-nums">'+R(stM.gastoReal)+'</div></div>'
+              +'<div style="background:#f8fafc;border-radius:10px;padding:8px"><div style="font-size:8.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em">Sobra</div><div style="font-size:12px;font-weight:600;color:'+sobClrM+';font-variant-numeric:tabular-nums">'+sobSgnM+R(Math.abs(sobM))+'</div></div>'
+              +'<div style="background:#f8fafc;border-radius:10px;padding:8px"><div style="font-size:8.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em">Gastos/dia</div><div style="font-size:12px;font-weight:600;color:#1e293b;font-variant-numeric:tabular-nums">'+R(gpd)+'</div></div>'
+            +'</div>'
+            +(catTot>0?'<div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#94a3b8;text-transform:uppercase;margin-bottom:4px">Top categorias</div>'+hCats:'')
+            +'<div style="font-size:10px;color:#94a3b8;margin-top:9px;text-align:center">Clique na barra para abrir o detalhe completo</div>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+      document.body.insertAdjacentHTML('beforeend',htmlHover);
+      return;
+    }
     var html='<div id="month-modal-overlay" class="stats-modal-overlay'+(hoverMode?' hover':'')+'"'+modalClick+'>'
       +'<div class="stats-modal month" onmouseenter="window._statsModalEnter&&window._statsModalEnter()" onmouseleave="window._statsModalLeave&&window._statsModalLeave(\'month\')" onpointerdown="event.stopPropagation()">'
         +'<div class="stats-modal-header">'
@@ -3887,6 +3924,21 @@ function rStats() {
     }).join('')||'<div style="padding:8px 0;font-size:13px;color:#94a3b8">Nenhum lan\u00e7amento.</div>';
     window.closeDayModal();window.closeMonthModal();
     var modalClick=hoverMode?'':' onclick="if(event.target===this)window.closeDayModal()"';
+    if(hoverMode){
+      var htmlDayHover='<div id="day-modal-overlay" class="stats-modal-overlay hover">'
+        +'<div class="stats-modal day hover-compact-card" style="max-width:340px">'
+          +'<div style="padding:14px 16px 13px">'
+            +(isPk?'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:7px"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block"></span><span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#ef4444;text-transform:uppercase">Pico do mês</span></div>':'')
+            +'<div style="text-align:center;margin-bottom:10px"><div style="font-size:9px;font-weight:700;letter-spacing:.09em;color:#94a3b8;text-transform:uppercase">Gasto do dia</div><div style="font-size:14px;font-weight:800;color:#1e293b;text-transform:capitalize">'+safeTxt(dateStr)+'</div></div>'
+            +'<div style="text-align:center;background:#fef2f2;border-radius:12px;padding:11px 10px;margin-bottom:10px"><div style="font-size:20px;font-weight:700;color:#ef4444;font-variant-numeric:tabular-nums">'+R(dayTot)+'</div><div style="font-size:10.5px;color:#94a3b8;margin-top:1px">'+expsDay.length+' lançamento'+(expsDay.length!==1?'s':'')+(mult2&&parseFloat(mult2)>1?' · '+mult2+'× a média':'')+'</div></div>'
+            +(tcG?'<div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border-radius:10px;padding:9px"><span style="width:8px;height:8px;border-radius:50%;background:'+tcG.color+';flex-shrink:0"></span><div style="flex:1;min-width:0"><div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#94a3b8;text-transform:uppercase">Categoria principal</div><div style="font-size:12px;font-weight:600;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+safeTxt(tcG.label)+' · '+tcPct+'%</div></div></div>':'')
+            +'<div style="font-size:10px;color:#94a3b8;margin-top:9px;text-align:center">Clique na barra para abrir o detalhe completo</div>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+      document.body.insertAdjacentHTML('beforeend',htmlDayHover);
+      return;
+    }
     var html='<div id="day-modal-overlay" class="stats-modal-overlay'+(hoverMode?' hover':'')+'"'+modalClick+'>'
       +'<div class="stats-modal day" onmouseenter="window._statsModalEnter&&window._statsModalEnter()" onmouseleave="window._statsModalLeave&&window._statsModalLeave(\'day\')" onpointerdown="event.stopPropagation()">'
         +(isPk?'<div style="display:flex;align-items:center;gap:6px;padding:12px 16px 0"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block"></span><span style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#ef4444;text-transform:uppercase">Pico do m\u00eas</span></div>':'')
