@@ -1,3 +1,9 @@
 {
-  "public": true
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/__/auth/:path*",
+      "destination": "https://app-gastos-749d2.firebaseapp.com/__/auth/:path*"
+    }
+  ]
 }
