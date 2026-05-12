@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#fffbf7;--srf:#fff;--s2:#f8fafc;--s3:#f1f5f9;
@@ -881,7 +882,7 @@ body.profile-bg{background:var(--bg)!important}
 .slist-texts{flex:1;min-width:0}
 .slist-lbl{font-size:15px;font-weight:700;color:var(--txt);display:block}
 .slist-sub{font-size:12px;color:var(--mt);margin-top:2px;line-height:1.4;display:block}
-.slist-arrow{color:var(--bd2);font-size:22px;flex-shrink:0;font-weight:300;line-height:1;padding-left:4px}
+@media(max-width:580px){.plans-grid{grid-template-columns:1fr!important}}
 /* ── Bento chart layout ─────────────────────────────────────────────────── */
 .bento-row{display:flex;gap:0;min-height:220px}
 .bento-chart-pane{flex:1 1 0;min-width:0;padding:18px 16px 14px}
@@ -933,10 +934,183 @@ body.profile-bg{background:var(--bg)!important}
   .kanban-col-name{max-width:72px!important}
 }
 
+
+/* ===== PoupAí Planos — novo modal/sheet Premium ===== */
+:root {
+  --pp-bg-card:#FFFFFF; --pp-bg-card-2:#FBFAF7; --pp-bg-subtle:#F5F3EE;
+  --pp-border:#ECEAE3; --pp-border-strong:#DCD9D0;
+  --pp-t1:#15140F; --pp-t2:#4D4A42; --pp-t3:#80796B; --pp-t4:#A8A296;
+  --pp-brand:#E5713A; --pp-brand-2:#D45F26; --pp-brand-soft:#FEEFE2;
+  --pp-tint-o-bg:#FEF1E6; --pp-tint-o-fg:#C75A1D;
+  --pp-tint-b-bg:#EAF1FB; --pp-tint-b-fg:#2563A8;
+  --pp-tint-g-bg:#E8F4ED; --pp-tint-g-fg:#1F7A4C;
+  --pp-tint-v-bg:#F0EBFA; --pp-tint-v-fg:#6B47B4;
+  --pp-warn-bg:#FFF7E5; --pp-warn-bd:#F4DDA8; --pp-warn-fg:#7A5510;
+  --pp-shadow-sm:0 1px 2px rgba(20,15,5,.04),0 0 0 1px rgba(20,15,5,.04);
+  --pp-shadow-lg:0 8px 24px rgba(20,15,5,.08),0 24px 64px rgba(20,15,5,.10);
+  --pp-shadow-premium:0 20px 60px rgba(229,113,58,.18),0 8px 24px rgba(14,11,8,.4);
+}
+#plans-overlay.pp-overlay{
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(14,11,8,.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  animation:pp-fade .18s ease-out both;
+  font-family:'Manrope',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  color:var(--pp-t1);
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-0.005em;
+}
+#plans-overlay.pp-desktop{display:flex;align-items:center;justify-content:center;padding:24px;}
+#plans-overlay.pp-mobile{display:flex;align-items:flex-end;justify-content:center;padding:0;}
+@keyframes pp-fade { from { opacity:0; } to { opacity:1; } }
+@keyframes pp-rise { from { opacity:0; transform:translateY(12px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes pp-sheet-in { from { transform:translateY(100%); } to { transform:translateY(0); } }
+#plans-overlay.pp-overlay *,#plans-overlay.pp-overlay *::before,#plans-overlay.pp-overlay *::after{ box-sizing:border-box; }
+#plans-overlay.pp-overlay .pp-mono{ font-family:'Geist Mono',ui-monospace,SFMono-Regular,monospace; font-feature-settings:'tnum'; }
+
+/* Desktop */
+#plans-overlay.pp-desktop .pp-modal{
+  position:relative; width:100%; max-width:1080px; max-height:calc(100vh - 48px);
+  background:#fff; border:1px solid var(--pp-border); border-radius:24px;
+  box-shadow:var(--pp-shadow-lg); overflow:hidden;
+  display:flex; flex-direction:row;
+  animation:pp-rise .22s cubic-bezier(.2,.7,.3,1) both;
+}
+#plans-overlay.pp-desktop .pp-left{ flex:1 1 58%; padding:32px 36px 32px; border-right:1px solid var(--pp-border); overflow-y:auto; }
+#plans-overlay.pp-desktop .pp-right{ flex:0 0 42%; padding:32px 32px 28px; background:var(--pp-bg-card-2); display:flex; flex-direction:column; gap:18px; position:relative; }
+#plans-overlay.pp-desktop .pp-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+#plans-overlay.pp-desktop .pp-logo-row{ display:flex; align-items:center; gap:10px; }
+#plans-overlay.pp-desktop .pp-logo{
+  width:22px; height:22px; border-radius:7px;
+  background:linear-gradient(135deg,#F08A4D 0%,#D45F26 100%);
+  display:inline-flex; align-items:center; justify-content:center; color:#fff;
+  box-shadow:inset 0 -2px 4px rgba(0,0,0,.15),0 2px 6px rgba(212,95,38,.35);
+  flex-shrink:0;
+}
+#plans-overlay.pp-desktop .pp-title{ font-size:18px; font-weight:800; letter-spacing:-0.02em; }
+#plans-overlay.pp-desktop .pp-subtitle{ font-size:13px; color:var(--pp-t3); margin-top:4px; margin-left:32px; }
+#plans-overlay.pp-desktop .pp-close{
+  width:36px; height:36px; border-radius:999px; border:1px solid var(--pp-border);
+  background:#fff; display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--pp-t2); position:absolute; top:20px; right:20px;
+  transition:background .12s, color .12s;
+}
+#plans-overlay.pp-desktop .pp-close:hover{ background:var(--pp-bg-subtle); color:var(--pp-t1); }
+#plans-overlay.pp-desktop .pp-eyebrow{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.18em; color:var(--pp-brand); }
+#plans-overlay.pp-desktop .pp-h1{ font-size:30px; font-weight:800; letter-spacing:-0.025em; line-height:1.08; margin:10px 0 8px; }
+#plans-overlay.pp-desktop .pp-lead{ font-size:14px; color:var(--pp-t2); line-height:1.55; margin:0; text-wrap:pretty; }
+#plans-overlay.pp-desktop .pp-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--pp-t3); }
+#plans-overlay.pp-desktop .pp-feat-list{ margin-top:4px; }
+#plans-overlay.pp-desktop .pp-feat{ display:flex; gap:14px; align-items:flex-start; padding:14px 0; border-bottom:1px dashed var(--pp-border); }
+#plans-overlay.pp-desktop .pp-feat:last-child{ border-bottom:none; }
+#plans-overlay.pp-desktop .pp-badge{ width:38px; height:38px; border-radius:11px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+#plans-overlay.pp-desktop .pp-feat-title{ font-weight:700; font-size:15px; letter-spacing:-0.01em; display:flex; align-items:center; gap:8px; }
+#plans-overlay.pp-desktop .pp-feat-tag{ font-size:10px; padding:2px 7px; border-radius:99px; font-weight:800; background:var(--pp-brand-soft); color:var(--pp-brand-2); letter-spacing:.04em; text-transform:uppercase; }
+#plans-overlay.pp-desktop .pp-feat-desc{ font-size:13px; color:var(--pp-t2); margin-top:4px; line-height:1.5; }
+#plans-overlay.pp-desktop .pp-toggle{ display:inline-flex; padding:4px; border-radius:999px; background:var(--pp-bg-subtle); border:1px solid var(--pp-border); gap:2px; font-size:13px; font-weight:700; }
+#plans-overlay.pp-desktop .pp-toggle button{ padding:8px 16px; border-radius:999px; border:none; cursor:pointer; background:transparent; color:var(--pp-t3); display:inline-flex; align-items:center; gap:8px; transition:all .15s; font-family:inherit; font-weight:inherit; font-size:inherit; }
+#plans-overlay.pp-desktop .pp-toggle button.on{ background:#fff; color:var(--pp-t1); box-shadow:var(--pp-shadow-sm); }
+#plans-overlay.pp-desktop .pp-save{ font-size:10px; padding:2px 6px; border-radius:99px; font-weight:800; background:var(--pp-tint-g-bg); color:var(--pp-tint-g-fg); letter-spacing:.03em; }
+#plans-overlay.pp-desktop .pp-toggle button.on .pp-save{ background:var(--pp-brand-soft); color:var(--pp-brand-2); }
+#plans-overlay.pp-desktop .pp-price{ position:relative; border-radius:18px; padding:22px 22px 20px; overflow:hidden; transition:background .22s, color .22s, box-shadow .22s, border-color .22s; }
+#plans-overlay.pp-desktop .pp-price.dark{ background:linear-gradient(180deg,#1B1410 0%,#0A0807 100%); color:#fff; border:1px solid #2A211A; box-shadow:var(--pp-shadow-premium); }
+#plans-overlay.pp-desktop .pp-price.light{ background:#fff; color:var(--pp-t1); border:1px solid var(--pp-border); box-shadow:var(--pp-shadow-sm); }
+#plans-overlay.pp-desktop .pp-price-glow{ position:absolute; top:0; right:0; width:200px; height:200px; pointer-events:none; background:radial-gradient(circle at top right, rgba(229,113,58,.25), transparent 65%); }
+#plans-overlay.pp-desktop .pp-price-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; position:relative; }
+#plans-overlay.pp-desktop .pp-price-eyebrow{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; }
+#plans-overlay.pp-desktop .pp-price.dark .pp-price-eyebrow{ color:#A8A296; }
+#plans-overlay.pp-desktop .pp-price.light .pp-price-eyebrow{ color:var(--pp-t3); }
+#plans-overlay.pp-desktop .pp-pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+#plans-overlay.pp-desktop .pp-pill.brand{ background:var(--pp-brand); color:#fff; }
+#plans-overlay.pp-desktop .pp-pill.muted{ background:var(--pp-tint-b-bg); color:var(--pp-tint-b-fg); }
+#plans-overlay.pp-desktop .pp-price-num{ position:relative; margin-top:12px; display:flex; align-items:baseline; gap:6px; }
+#plans-overlay.pp-desktop .pp-price-big{ font-size:42px; font-weight:700; letter-spacing:-0.03em; }
+#plans-overlay.pp-desktop .pp-price-unit{ font-size:15px; }
+#plans-overlay.pp-desktop .pp-price.dark .pp-price-unit{ color:#A8A296; }
+#plans-overlay.pp-desktop .pp-price.light .pp-price-unit{ color:var(--pp-t3); }
+#plans-overlay.pp-desktop .pp-price-sub{ position:relative; font-size:13px; margin-top:6px; }
+#plans-overlay.pp-desktop .pp-price.dark .pp-price-sub{ color:#C7C2B5; }
+#plans-overlay.pp-desktop .pp-price.light .pp-price-sub{ color:var(--pp-t2); }
+#plans-overlay.pp-desktop .pp-btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:999px; padding:14px 22px; font-family:inherit; font-size:15px; font-weight:700; letter-spacing:-0.01em; border:none; cursor:pointer; transition:background .15s, transform .12s; width:100%; margin-top:18px; background:var(--pp-brand); color:#fff; }
+#plans-overlay.pp-desktop .pp-btn:hover{ background:var(--pp-brand-2); }
+#plans-overlay.pp-desktop .pp-btn:active{ transform:translateY(1px); }
+#plans-overlay.pp-desktop .pp-trial{ background:var(--pp-warn-bg); border:1px solid var(--pp-warn-bd); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; font-size:13px; }
+#plans-overlay.pp-desktop .pp-trial-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+#plans-overlay.pp-desktop .pp-trial-left{ display:flex; align-items:center; gap:10px; min-width:0; color:var(--pp-warn-fg); font-weight:700; }
+#plans-overlay.pp-desktop .pp-trial-dot{ width:8px; height:8px; border-radius:50%; background:#E5A02C; flex-shrink:0; box-shadow:0 0 0 4px rgba(229,160,44,.18); }
+#plans-overlay.pp-desktop .pp-trial-days{ font-size:12px; font-weight:700; color:var(--pp-warn-fg); white-space:nowrap; }
+#plans-overlay.pp-desktop .pp-trial-bar{ height:4px; background:rgba(122,85,16,.15); border-radius:99px; overflow:hidden; }
+#plans-overlay.pp-desktop .pp-trial-bar > div{ height:100%; background:var(--pp-warn-fg); opacity:.75; border-radius:99px; }
+#plans-overlay.pp-desktop .pp-trust{ display:flex; flex-direction:column; gap:8px; font-size:12.5px; color:var(--pp-t3); }
+#plans-overlay.pp-desktop .pp-trust div{ display:flex; align-items:center; gap:8px; }
+#plans-overlay.pp-desktop .pp-foot{ font-size:11.5px; color:var(--pp-t4); line-height:1.5; margin-top:auto; }
+
+/* Mobile */
+#plans-overlay.pp-mobile .pp-sheet{ position:relative; width:100%; max-width:520px; max-height:92vh; overflow-y:auto; background:#fff; border-radius:24px 24px 0 0; box-shadow:0 -8px 28px rgba(20,15,5,.18); animation:pp-sheet-in .26s cubic-bezier(.2,.7,.3,1) both; padding-bottom:env(safe-area-inset-bottom); }
+#plans-overlay.pp-mobile .pp-sheet::-webkit-scrollbar{ width:0; height:0; }
+#plans-overlay.pp-mobile .pp-grabber{ display:flex; justify-content:center; padding-top:8px; }
+#plans-overlay.pp-mobile .pp-grabber > div{ width:36px; height:4px; border-radius:99px; background:#D9D5CC; }
+#plans-overlay.pp-mobile .pp-content{ padding:14px 20px 28px; }
+#plans-overlay.pp-mobile .pp-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+#plans-overlay.pp-mobile .pp-logo-row{ display:flex; align-items:center; gap:10px; }
+#plans-overlay.pp-mobile .pp-logo{ width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#F08A4D 0%,#D45F26 100%); display:inline-flex; align-items:center; justify-content:center; color:#fff; box-shadow:inset 0 -2px 4px rgba(0,0,0,.15),0 2px 6px rgba(212,95,38,.35); flex-shrink:0; }
+#plans-overlay.pp-mobile .pp-title{ font-size:18px; font-weight:800; letter-spacing:-0.02em; }
+#plans-overlay.pp-mobile .pp-subtitle{ font-size:13px; color:var(--pp-t3); margin-top:4px; margin-left:30px; }
+#plans-overlay.pp-mobile .pp-close{ width:36px; height:36px; border-radius:999px; border:1px solid var(--pp-border); background:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--pp-t2); flex-shrink:0; }
+#plans-overlay.pp-mobile .pp-close:active{ background:var(--pp-bg-subtle); }
+#plans-overlay.pp-mobile .pp-hero{ margin-top:22px; margin-bottom:18px; text-align:center; padding:0 4px; }
+#plans-overlay.pp-mobile .pp-eyebrow{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.18em; color:var(--pp-brand); }
+#plans-overlay.pp-mobile .pp-h1{ font-size:26px; font-weight:800; letter-spacing:-0.025em; line-height:1.1; margin:10px 0 10px; color:var(--pp-t1); }
+#plans-overlay.pp-mobile .pp-lead{ font-size:14px; color:var(--pp-t2); line-height:1.5; margin:0; text-wrap:pretty; }
+#plans-overlay.pp-mobile .pp-section-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+#plans-overlay.pp-mobile .pp-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--pp-t3); }
+#plans-overlay.pp-mobile .pp-count{ font-size:11px; font-weight:700; color:var(--pp-t3); }
+#plans-overlay.pp-mobile .pp-cards{ display:flex; flex-direction:column; gap:10px; }
+#plans-overlay.pp-mobile .pp-card{ display:flex; gap:12px; align-items:flex-start; padding:14px; background:#fff; border:1px solid var(--pp-border); border-radius:14px; }
+#plans-overlay.pp-mobile .pp-badge{ width:40px; height:40px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+#plans-overlay.pp-mobile .pp-card-title{ font-weight:700; font-size:14.5px; color:var(--pp-t1); letter-spacing:-0.01em; }
+#plans-overlay.pp-mobile .pp-card-desc{ font-size:12.5px; color:var(--pp-t2); margin-top:3px; line-height:1.45; }
+#plans-overlay.pp-mobile .pp-prices{ margin-top:22px; display:flex; flex-direction:column; gap:12px; }
+#plans-overlay.pp-mobile .pp-anual{ position:relative; border-radius:16px; padding:18px 20px; background:linear-gradient(135deg,#1B1410 0%,#0A0807 100%); color:#fff; overflow:hidden; box-shadow:0 12px 40px rgba(229,113,58,.18),0 6px 18px rgba(14,11,8,.35); }
+#plans-overlay.pp-mobile .pp-anual-glow{ position:absolute; top:0; right:0; width:160px; height:160px; pointer-events:none; background:radial-gradient(circle at top right, rgba(229,113,58,.22), transparent 70%); }
+#plans-overlay.pp-mobile .pp-anual-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; position:relative; }
+#plans-overlay.pp-mobile .pp-anual-eyebrow{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#C7C2B5; }
+#plans-overlay.pp-mobile .pp-anual-num{ display:flex; align-items:baseline; gap:6px; margin-top:6px; }
+#plans-overlay.pp-mobile .pp-anual-big{ font-size:28px; font-weight:700; letter-spacing:-0.02em; }
+#plans-overlay.pp-mobile .pp-anual-unit{ color:#A8A296; font-size:14px; }
+#plans-overlay.pp-mobile .pp-anual-sub{ font-size:12px; color:#A8A296; margin-top:4px; }
+#plans-overlay.pp-mobile .pp-pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:var(--pp-brand); color:#fff; flex-shrink:0; }
+#plans-overlay.pp-mobile .pp-mensal{ background:#fff; border:1px solid var(--pp-border); border-radius:16px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+#plans-overlay.pp-mobile .pp-mensal-eyebrow{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--pp-t3); }
+#plans-overlay.pp-mobile .pp-mensal-num{ display:flex; align-items:baseline; gap:6px; margin-top:6px; }
+#plans-overlay.pp-mobile .pp-mensal-big{ font-size:24px; font-weight:700; letter-spacing:-0.02em; color:var(--pp-t1); }
+#plans-overlay.pp-mobile .pp-mensal-unit{ color:var(--pp-t3); font-size:14px; }
+#plans-overlay.pp-mobile .pp-mensal-sub{ font-size:12px; color:var(--pp-t3); margin-top:4px; }
+#plans-overlay.pp-mobile .pp-mensal-btn{ padding:10px 16px; border-radius:999px; border:1px solid var(--pp-border-strong); background:#fff; font:inherit; font-size:13px; font-weight:700; color:var(--pp-t1); cursor:pointer; flex-shrink:0; }
+#plans-overlay.pp-mobile .pp-mensal-btn:active{ background:var(--pp-bg-subtle); }
+#plans-overlay.pp-mobile .pp-btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:16px; border-radius:999px; padding:16px 24px; font-family:inherit; font-size:15px; font-weight:700; letter-spacing:-0.01em; border:none; cursor:pointer; transition:background .15s, transform .12s; background:var(--pp-brand); color:#fff; }
+#plans-overlay.pp-mobile .pp-btn:active{ background:var(--pp-brand-2); transform:translateY(1px); }
+#plans-overlay.pp-mobile .pp-reassure{ margin-top:18px; padding-top:18px; border-top:1px solid var(--pp-border); display:flex; flex-direction:column; gap:14px; }
+#plans-overlay.pp-mobile .pp-trial{ background:var(--pp-warn-bg); border:1px solid var(--pp-warn-bd); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; font-size:13px; }
+#plans-overlay.pp-mobile .pp-trial-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+#plans-overlay.pp-mobile .pp-trial-left{ display:flex; align-items:center; gap:10px; min-width:0; color:var(--pp-warn-fg); font-weight:700; }
+#plans-overlay.pp-mobile .pp-trial-dot{ width:8px; height:8px; border-radius:50%; background:#E5A02C; flex-shrink:0; box-shadow:0 0 0 4px rgba(229,160,44,.18); }
+#plans-overlay.pp-mobile .pp-trial-days{ font-size:12px; font-weight:700; color:var(--pp-warn-fg); white-space:nowrap; }
+#plans-overlay.pp-mobile .pp-trial-bar{ height:4px; background:rgba(122,85,16,.15); border-radius:99px; overflow:hidden; }
+#plans-overlay.pp-mobile .pp-trial-bar > div{ height:100%; background:var(--pp-warn-fg); opacity:.75; border-radius:99px; }
+#plans-overlay.pp-mobile .pp-trust{ display:flex; flex-direction:column; gap:10px; }
+#plans-overlay.pp-mobile .pp-trust-row{ display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--pp-t2); }
+#plans-overlay.pp-mobile .pp-trust-ico{ width:22px; height:22px; border-radius:99px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+#plans-overlay.pp-mobile .pp-trust-ico.ok{ background:var(--pp-tint-g-bg); color:var(--pp-tint-g-fg); }
+#plans-overlay.pp-mobile .pp-trust-ico.muted{ background:var(--pp-bg-subtle); color:var(--pp-t2); }
+#plans-overlay.pp-mobile .pp-foot{ font-size:12px; color:var(--pp-t3); line-height:1.5; }
+@media (max-width:420px){#plans-overlay.pp-mobile .pp-pill{font-size:10px;padding:4px 8px}#plans-overlay.pp-mobile .pp-mensal{padding:16px 16px}#plans-overlay.pp-mobile .pp-anual{padding:17px 16px}}
+
 </style>
 </head>
 <body>
-<div id="app" data-logged="false"><div class="boot-loading" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;color:#64748b;font:500 14px Poppins,system-ui,sans-serif">Carregando PoupAí...</div></div>
+<div id="app" data-logged="false"></div>
 <script>
 window.__poupaiBootTimer=setTimeout(function(){
   var app=document.getElementById('app');
@@ -1218,18 +1392,226 @@ function premiumPlanState(){
   return {kind:'free', badge:'Plano gratuito', tone:'red', title:'Seu teste gratuito terminou', detail:'Você continua com o controle financeiro básico, mas os recursos avançados ficam no Premium.'};
 }
 
-function premiumFeatureCards(){
+function ppPlansIcons(){
+  return {
+    chart:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><rect x="6" y="11" width="3" height="6" rx="1"/><rect x="11" y="7" width="3" height="10" rx="1"/><rect x="16" y="13" width="3" height="4" rx="1"/></svg>',
+    trend:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 5-6 5 5"/><path d="M15 9h5v5"/></svg>',
+    wallet:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7v10a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H6a2 2 0 0 1 0-4h11"/><circle cx="16" cy="13" r="1.4" fill="currentColor"/></svg>',
+    target:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>',
+    x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    checkSmall:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    spark:'<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.7 5.3L19 9l-5.3 1.7L12 16l-1.7-5.3L5 9l5.3-1.7L12 2z"/></svg>',
+    shield:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/></svg>',
+    logo:'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.7 6.1 6.6.7-5 4.5 1.5 6.5L12 16.6 6.2 19.8l1.5-6.5-5-4.5 6.6-.7L12 2z"/></svg>'
+  };
+}
+
+function ppPlansFeatures(){
   return [
-    ['💚','Investimentos e caixinhas','Acompanhe quanto você tem guardado, rendimentos estimados, liquidez, retiradas e impacto dos investimentos na sua sobra do mês.'],
-    ['🎯','Metas com plano de avanço','Crie objetivos, veja quanto falta, simule quanto guardar por mês e acompanhe depósitos feitos em cada meta.'],
-    ['📊','Análises inteligentes','Receba um diagnóstico do mês com score financeiro, alertas, gráficos, categorias que pesam mais e leitura clara da sua evolução.']
-  ].map(function(f){
-    return '<div style="background:#fff;border:1px solid var(--bd);border-radius:16px;padding:14px;text-align:left;box-shadow:var(--shadow-sm)">'
-      +'<div style="font-size:22px;margin-bottom:8px">'+f[0]+'</div>'
-      +'<div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:5px">'+safeTxt(f[1])+'</div>'
-      +'<div style="font-size:12px;color:var(--mt);line-height:1.55">'+safeTxt(f[2])+'</div>'
-    +'</div>';
-  }).join('');
+    { icon:'chart', bg:'var(--pp-tint-o-bg)', fg:'var(--pp-tint-o-fg)', title:'Balanço financeiro inteligente', desc:'Veja se o mês está no azul ou vermelho, com score, alertas e leitura clara do que pesou no orçamento.' },
+    { icon:'trend', bg:'var(--pp-tint-b-bg)', fg:'var(--pp-tint-b-fg)', title:'Análises e gráficos', desc:'Gastos por categoria, evolução mensal e comparativos para entender onde seu dinheiro vai de verdade.' },
+    { icon:'wallet', bg:'var(--pp-tint-g-bg)', fg:'var(--pp-tint-g-fg)', title:'Investimentos e patrimônio', desc:'Acompanhe tudo que você tem guardado, rendimentos estimados e impacto na sobra do mês.' },
+    { icon:'target', bg:'var(--pp-tint-v-bg)', fg:'var(--pp-tint-v-fg)', title:'Metas com progresso real', desc:'Defina objetivos, simule quanto guardar por mês e veja o avanço de cada meta com depósitos registrados.' }
+  ];
+}
+
+function ppPlansTrialMarkup(daysLeft, totalDays){
+  if(daysLeft == null) return '';
+  totalDays = totalDays || 15;
+  var pct = Math.max(6, ((totalDays - daysLeft) / totalDays) * 100);
+  var dayWord = daysLeft === 1 ? 'dia' : 'dias';
+  var remWord = daysLeft === 1 ? 'restante' : 'restantes';
+  return '<div class="pp-trial">'
+    +'<div class="pp-trial-row">'
+      +'<div class="pp-trial-left"><span class="pp-trial-dot"></span><span>Você está no teste gratuito</span></div>'
+      +'<div class="pp-trial-days">'+daysLeft+' '+dayWord+' '+remWord+'</div>'
+    +'</div>'
+    +'<div class="pp-trial-bar"><div style="width:'+pct+'%"></div></div>'
+  +'</div>';
+}
+
+function ppPlansFeatureRow(f, I){
+  return '<div class="pp-feat">'
+    +'<div class="pp-badge" style="background:'+f.bg+'; color:'+f.fg+'">'+I[f.icon]+'</div>'
+    +'<div style="min-width:0; flex:1">'
+      +'<div class="pp-feat-title">'+f.title+' <span class="pp-feat-tag">Premium</span></div>'
+      +'<div class="pp-feat-desc">'+f.desc+'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function ppPlansFeatureCard(f, I){
+  return '<div class="pp-card">'
+    +'<div class="pp-badge" style="background:'+f.bg+'; color:'+f.fg+'">'+I[f.icon]+'</div>'
+    +'<div style="min-width:0; flex:1">'
+      +'<div class="pp-card-title">'+f.title+'</div>'
+      +'<div class="pp-card-desc">'+f.desc+'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function ppPlansDesktopPriceMarkup(billing){
+  var I = ppPlansIcons();
+  var isAnnual = billing === 'anual';
+  var cls = isAnnual ? 'pp-price dark' : 'pp-price light';
+  var glow = isAnnual ? '<div class="pp-price-glow"></div>' : '';
+  var label = isAnnual ? 'Plano Anual' : 'Plano Mensal';
+  var pillCls = isAnnual ? 'pp-pill brand' : 'pp-pill muted';
+  var pillTxt = isAnnual ? (I.spark+' -24% no ano') : 'Mais flexível';
+  var big = isAnnual ? 'R$ 135' : 'R$ 14,90';
+  var unit = isAnnual ? '/ano' : '/mês';
+  var sub = isAnnual ? 'R$ 11,25/mês — equivale a 3 meses grátis' : 'Cancela quando quiser, sem fidelidade';
+  var cta = isAnnual ? 'Assinar Plano Anual' : 'Assinar Plano Mensal';
+  return '<div class="'+cls+'">'+glow
+    +'<div class="pp-price-row">'
+      +'<div class="pp-price-eyebrow">'+label+'</div>'
+      +'<span class="'+pillCls+'">'+pillTxt+'</span>'
+    +'</div>'
+    +'<div class="pp-price-num"><span class="pp-mono pp-price-big">'+big+'</span><span class="pp-price-unit">'+unit+'</span></div>'
+    +'<div class="pp-price-sub">'+sub+'</div>'
+    +'<button class="pp-btn" data-pp-action="subscribe">'+cta+' '+I.arrow+'</button>'
+  +'</div>';
+}
+
+function ppPlansDesktopMarkup(opts, billing){
+  var I = ppPlansIcons();
+  var features = ppPlansFeatures();
+  return '<div class="pp-modal" role="dialog" aria-modal="true" aria-labelledby="pp-title">'
+    +'<div class="pp-left">'
+      +'<div class="pp-head">'
+        +'<div>'
+          +'<div class="pp-logo-row"><span class="pp-logo">'+I.logo+'</span><span class="pp-title" id="pp-title">Planos do PoupAí</span></div>'
+          +'<div class="pp-subtitle">Compare o gratuito com o Premium</div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="margin-top:28px">'
+        +'<div class="pp-eyebrow">'+I.spark+' POUPAÍ PREMIUM</div>'
+        +'<h1 class="pp-h1">Vá além do registro de gastos e entenda sua situação financeira de verdade</h1>'
+        +'<p class="pp-lead">Desbloqueie as ferramentas que transformam o app em um painel de decisões.</p>'
+      +'</div>'
+      +'<div style="margin-top:24px">'
+        +'<div class="pp-label" style="margin-bottom:4px">Vantagens exclusivas</div>'
+        +'<div class="pp-feat-list">'+features.map(function(f){return ppPlansFeatureRow(f, I);}).join('')+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="pp-right">'
+      +'<button class="pp-close" data-pp-action="close" aria-label="Fechar">'+I.x+'</button>'
+      +'<div>'
+        +'<div class="pp-label" style="margin-bottom:10px">Escolha o ciclo</div>'
+        +'<div class="pp-toggle" role="tablist">'
+          +'<button data-pp-billing="mensal" class="'+(billing==='mensal'?'on':'')+'">Mensal</button>'
+          +'<button data-pp-billing="anual" class="'+(billing==='anual'?'on':'')+'">Anual <span class="pp-save">-24%</span></button>'
+        +'</div>'
+      +'</div>'
+      +'<div data-pp-price-card>'+ppPlansDesktopPriceMarkup(billing)+'</div>'
+      +ppPlansTrialMarkup(opts.trialDaysLeft, opts.trialTotalDays)
+      +'<div class="pp-trust">'
+        +'<div>'+I.check+'<span>Acesso imediato a todas as vantagens</span></div>'
+        +'<div>'+I.check+'<span>Cancela quando quiser, sem multa</span></div>'
+        +'<div>'+I.shield+'<span>Pagamento seguro via Stripe</span></div>'
+      +'</div>'
+      +'<div class="pp-foot">Use o mesmo e-mail da sua conta PoupAí no Stripe para liberar o Premium automaticamente.</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function ppPlansMobileMarkup(opts){
+  var I = ppPlansIcons();
+  var features = ppPlansFeatures();
+  return '<div class="pp-sheet" role="dialog" aria-modal="true" aria-labelledby="pp-title">'
+    +'<div class="pp-grabber" data-pp-grab><div></div></div>'
+    +'<div class="pp-content">'
+      +'<div class="pp-head">'
+        +'<div>'
+          +'<div class="pp-logo-row"><span class="pp-logo">'+I.logo+'</span><span class="pp-title" id="pp-title">Planos do PoupAí</span></div>'
+          +'<div class="pp-subtitle">Compare o gratuito com o Premium</div>'
+        +'</div>'
+        +'<button class="pp-close" data-pp-action="close" aria-label="Fechar">'+I.x+'</button>'
+      +'</div>'
+      +'<div class="pp-hero">'
+        +'<div class="pp-eyebrow">'+I.spark+' POUPAÍ PREMIUM</div>'
+        +'<h1 class="pp-h1">Vá além do registro de gastos e entenda sua situação financeira de verdade</h1>'
+        +'<p class="pp-lead">Desbloqueie as ferramentas que transformam o app em um painel de decisões.</p>'
+      +'</div>'
+      +'<div>'
+        +'<div class="pp-section-head"><span class="pp-label">Vantagens exclusivas</span><span class="pp-count">4 recursos</span></div>'
+        +'<div class="pp-cards">'+features.map(function(f){return ppPlansFeatureCard(f, I);}).join('')+'</div>'
+      +'</div>'
+      +'<div class="pp-prices">'
+        +'<div class="pp-anual">'
+          +'<div class="pp-anual-glow"></div>'
+          +'<div class="pp-anual-row">'
+            +'<div>'
+              +'<div class="pp-anual-eyebrow">Plano Anual</div>'
+              +'<div class="pp-anual-num"><span class="pp-mono pp-anual-big">R$ 135</span><span class="pp-anual-unit">/ano</span></div>'
+              +'<div class="pp-anual-sub"><span class="pp-mono">R$ 11,25</span>/mês · equivale a 3 meses grátis</div>'
+            +'</div>'
+            +'<span class="pp-pill">'+I.spark+' Melhor escolha</span>'
+          +'</div>'
+        +'</div>'
+        +'<div class="pp-mensal">'
+          +'<div>'
+            +'<div class="pp-mensal-eyebrow">Plano Mensal</div>'
+            +'<div class="pp-mensal-num"><span class="pp-mono pp-mensal-big">R$ 14,90</span><span class="pp-mensal-unit">/mês</span></div>'
+            +'<div class="pp-mensal-sub">Sem fidelidade · cancela quando quiser</div>'
+          +'</div>'
+          +'<button class="pp-mensal-btn" data-pp-action="subscribe-mensal">Assinar</button>'
+        +'</div>'
+      +'</div>'
+      +'<button class="pp-btn" data-pp-action="subscribe-anual">Assinar Plano Anual '+I.arrow+'</button>'
+      +'<div class="pp-reassure">'
+        +ppPlansTrialMarkup(opts.trialDaysLeft, opts.trialTotalDays)
+        +'<div class="pp-trust">'
+          +'<div class="pp-trust-row"><span class="pp-trust-ico ok">'+I.checkSmall+'</span><span>Acesso imediato a todas as vantagens</span></div>'
+          +'<div class="pp-trust-row"><span class="pp-trust-ico ok">'+I.checkSmall+'</span><span>Cancela quando quiser, sem multa</span></div>'
+          +'<div class="pp-trust-row"><span class="pp-trust-ico muted">'+I.shield+'</span><span>Pagamento seguro via Stripe</span></div>'
+        +'</div>'
+        +'<div class="pp-foot">Use o mesmo e-mail da sua conta PoupAí no Stripe para liberar o Premium automaticamente.</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function ppCheckoutFallbackModal(url, plan){
+  window._closeModal('checkout-fallback-overlay');
+  var planLabel = plan === 'mensal' ? 'Plano Mensal' : 'Plano Anual';
+  var ov = document.createElement('div');
+  ov.id = 'checkout-fallback-overlay';
+  ov.className = 'cat-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.56);display:flex;align-items:center;justify-content:center;padding:18px';
+  ov.innerHTML = '<div style="width:100%;max-width:420px;background:#fff;border-radius:20px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.22);position:relative">'
+    +'<button onclick="window._closeModal(\'checkout-fallback-overlay\')" aria-label="Fechar" style="position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:999px;border:1px solid var(--bd);background:#fff;color:var(--mt);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>'
+    +'<div style="font-size:18px;font-weight:800;color:var(--txt);letter-spacing:-.02em;padding-right:34px">Abrir pagamento seguro</div>'
+    +'<div style="font-size:13px;color:var(--mt);line-height:1.55;margin-top:8px">O navegador bloqueou a abertura automática do checkout do Stripe para o '+planLabel+'. Toque no botão abaixo para abrir em uma nova aba.</div>'
+    +'<a href="'+safeAttr(url)+'" target="_blank" rel="noopener noreferrer" onclick="window._closeModal(\'checkout-fallback-overlay\')" style="display:flex;align-items:center;justify-content:center;width:100%;margin-top:16px;padding:14px 18px;border-radius:999px;background:#E5713A;color:#fff;text-decoration:none;font-size:14px;font-weight:800;box-sizing:border-box">Abrir checkout do Stripe</a>'
+    +'<button onclick="window._closeModal(\'checkout-fallback-overlay\')" style="width:100%;margin-top:10px;padding:12px;border-radius:999px;border:1px solid var(--bd);background:#fff;color:var(--mt);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Voltar ao PoupAí</button>'
+  +'</div>';
+  ov.addEventListener('click', function(e){ if(e.target === ov) window._closeModal('checkout-fallback-overlay'); });
+  document.body.appendChild(ov);
+}
+
+function ppPlansCheckout(plan){
+  var url = plan === 'mensal' ? PREMIUM_MONTHLY_URL : PREMIUM_ANNUAL_URL;
+  window._closeModal('plans-overlay');
+  var opened = null;
+  try {
+    opened = window.open(url, '_blank');
+    if(opened) {
+      try { opened.opener = null; } catch(e){}
+      try { opened.focus(); } catch(e){}
+      return;
+    }
+  } catch(e) { opened = null; }
+
+  // Não usamos window.location.href aqui. Em alguns navegadores mobile,
+  // window.open pode abrir o Stripe fora do app e ainda retornar null;
+  // redirecionar a janela atual causava a tela de pagamento presa dentro do PoupAí.
+  setTimeout(function(){
+    var stillHere = document.visibilityState !== 'hidden' && (!document.hasFocus || document.hasFocus());
+    if(stillHere && !document.getElementById('checkout-fallback-overlay')) ppCheckoutFallbackModal(url, plan);
+  }, 650);
 }
 
 function premiumStatusCard(){
@@ -1246,30 +1628,6 @@ function premiumStatusCard(){
   +'</div>';
 }
 
-function premiumCheckoutButtons(){
-  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">'
-    +'<a href="'+PREMIUM_MONTHLY_URL+'" target="_blank" rel="noopener noreferrer" style="display:block;background:#ff9b5d;color:#fff;border-radius:14px;padding:14px 12px;text-align:center;text-decoration:none;font-size:13px;font-weight:900;box-shadow:0 8px 18px rgba(249,115,22,.22)"><span style="display:block;font-size:11px;opacity:.9;margin-bottom:3px">Mensal</span>'+PREMIUM_MONTHLY_PRICE+'</a>'
-    +'<a href="'+PREMIUM_ANNUAL_URL+'" target="_blank" rel="noopener noreferrer" style="display:block;background:#2c1a0e;color:#fff;border-radius:14px;padding:14px 12px;text-align:center;text-decoration:none;font-size:13px;font-weight:900;box-shadow:0 8px 18px rgba(44,26,14,.18)"><span style="display:block;font-size:11px;opacity:.9;margin-bottom:3px">Anual</span>'+PREMIUM_ANNUAL_PRICE+'</a>'
-  +'</div>'
-  +'<div style="font-size:11px;color:var(--mt);line-height:1.45;margin-top:10px;text-align:center">Use no Stripe o mesmo e-mail da sua conta PoupAí para liberar o Premium automaticamente após a confirmação do pagamento.</div>';
-}
-
-function rPlansContent(){
-  return '<div style="padding:0 2px 2px">'
-    + premiumStatusCard()
-    + '<div style="background:linear-gradient(135deg,#fff7ed,#fff);border:1px solid #fed7aa;border-radius:18px;padding:18px;margin-bottom:14px;text-align:left">'
-      +'<div style="font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#c2410c;margin-bottom:7px">PoupAí Premium</div>'
-      +'<div style="font-size:22px;font-weight:900;letter-spacing:-.04em;color:#1a120a;margin-bottom:8px">Menos achismo. Mais clareza sobre o seu dinheiro.</div>'
-      +'<div style="font-size:13px;color:#7a5a3e;line-height:1.6">O Premium libera as áreas que transformam o app de um controle de gastos em um painel de decisão: patrimônio guardado, metas, evolução e diagnóstico financeiro do mês.</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px">'+premiumFeatureCards()+'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'
-      +'<div style="background:var(--s2);border:1px solid var(--bd);border-radius:16px;padding:14px;text-align:left"><div style="font-size:13px;font-weight:800;margin-bottom:8px">Gratuito</div><div style="font-size:12px;color:var(--mt);line-height:1.7">Controle de gastos, contas previstas, parcelas, categorias, importações e visão geral do mês.</div></div>'
-      +'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:14px;text-align:left"><div style="font-size:13px;font-weight:800;color:#c2410c;margin-bottom:8px">Premium</div><div style="font-size:12px;color:#7a5a3e;line-height:1.7">Tudo do gratuito, mais investimentos, caixinhas, metas, análises, score e leitura estratégica do seu mês.</div></div>'
-    +'</div>'
-    + premiumCheckoutButtons()
-  +'</div>';
-}
 
 function rPaywall(tabName) {
   var names = {
@@ -2169,26 +2527,141 @@ function renderFromSnapshot(){
 
 // ── Detecção de idioma e sugestão de tradução ───────────────────────────────
 function _getLang(){ return ((navigator.language||navigator.userLanguage||'pt').split('-')[0]).toLowerCase(); }
-function _needsTranslate(){ var l=_getLang(); return l!=='pt'&&!localStorage.getItem('poupai-translate-dismissed'); }
-window.openTranslateMenu=function(){
-  var old=document.getElementById('_translate_tip'); if(old){old.remove();return;}
-  var lang=_getLang();
-  var names={en:'English',es:'Espa\u00f1ol',fr:'Fran\u00e7ais',de:'Deutsch',it:'Italiano'};
-  var targetName=names[lang]||lang.toUpperCase();
-  var gtUrl='https://translate.google.com/translate?sl=pt&tl='+lang+'&u='+encodeURIComponent(location.href);
-  var tip=document.createElement('div'); tip.id='_translate_tip';
-  tip.innerHTML='<div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:6px">Traduzir este app</div>'
-    +'<div style="font-size:11.5px;color:#64748b;margin-bottom:10px;line-height:1.5">Seu navegador pode traduzir automaticamente. Clique com o bot\u00e3o direito e escolha <b>Traduzir</b>.</div>'
-    +'<a href="'+gtUrl+'" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;background:#4285f4;color:#fff;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:700;text-decoration:none;margin-bottom:8px">'
-    +'<span style="font-size:14px">\uD83C\uDF10</span> Google Translate ('+targetName+')</a>'
-    +'<button onclick="localStorage.setItem(\'poupai-translate-dismissed\',\'1\');document.getElementById(\'_translate_tip\').remove();render()" style="width:100%;background:#f1f5f9;border:none;border-radius:8px;padding:7px;font-size:11px;color:#94a3b8;cursor:pointer;font-family:inherit">Dispensar</button>';
-  tip.style.cssText='position:fixed;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;width:248px;box-shadow:0 12px 36px rgba(0,0,0,.18);font-family:Poppins,system-ui,sans-serif';
-  document.body.appendChild(tip);
-  var btn=document.getElementById('_translate_btn');
-  if(btn){var r=btn.getBoundingClientRect();var left=Math.max(8,Math.min(r.left,window.innerWidth-260));tip.style.left=left+'px';tip.style.top=(r.bottom+6)+'px';}
-  else{tip.style.top='60px';tip.style.right='10px';}
-  function closeTip(ev){if(!tip.contains(ev.target)&&ev.target.id!=='_translate_btn'){tip.remove();document.removeEventListener('click',closeTip,true);}}
-  setTimeout(function(){document.addEventListener('click',closeTip,true);},40);
+function _needsTranslate(){ return _getLang()!=='pt'&&!localStorage.getItem('poupai-tr-off'); }
+function _gtLang(){ var lang=_getLang(); var map={zh:'zh-CN'}; return map[lang]||lang; }
+window._gtLoaded=false;
+window._gtActive=false;
+window._gtSeq=0;
+window._gtTimer=null;
+
+function _gtClearTimer(){
+  if(window._gtTimer){ clearTimeout(window._gtTimer); window._gtTimer=null; }
+}
+function _gtSetCombo(value){
+  var sel=document.querySelector('.goog-te-combo');
+  if(!sel) return false;
+  sel.value=value;
+  sel.dispatchEvent(new Event('change',{bubbles:true}));
+  return true;
+}
+function _gtClearCookie(){
+  try{
+    var host=(location.hostname||'').replace(/^\./,'');
+    var domains=[''];
+    if(host){
+      domains.push(host,'.'+host);
+      var parts=host.split('.');
+      if(parts.length>2) domains.push('.'+parts.slice(-2).join('.'));
+    }
+    domains=[...new Set(domains)];
+    domains.forEach(function(domain){
+      var d=domain?'; domain='+domain:'';
+      document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'+d;
+      document.cookie='googtrans=/pt/pt; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'+d;
+      document.cookie='googtrans=/auto/pt; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'+d;
+    });
+    try{ localStorage.removeItem('googtrans'); sessionStorage.removeItem('googtrans'); }catch(e){}
+  }catch(e){}
+}
+function _gtRemoveArtifacts(){
+  ['google_translate_element','goog-gt-tt'].forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
+  document.querySelectorAll('iframe.goog-te-banner-frame, iframe.goog-te-menu-frame, iframe.skiptranslate, .goog-te-banner-frame, .goog-te-menu-frame, .goog-te-balloon-frame, .goog-tooltip, .skiptranslate').forEach(function(el){ try{ el.remove(); }catch(e){} });
+  document.documentElement.classList.remove('translated-ltr','translated-rtl');
+  document.body.classList.remove('translated-ltr','translated-rtl');
+  document.documentElement.style.top='';
+  document.body.style.top='';
+}
+function _gtEnsureShell(){
+  var el=document.getElementById('google_translate_element');
+  if(!el){
+    el=document.createElement('div');
+    el.id='google_translate_element';
+    el.style.cssText='position:fixed;top:-999px;left:-999px;opacity:0;pointer-events:none;width:1px;height:1px;overflow:hidden';
+    document.body.appendChild(el);
+  }
+  if(!document.getElementById('poupai-gt-style')){
+    var style=document.createElement('style');
+    style.id='poupai-gt-style';
+    style.textContent='.goog-te-banner-frame,.skiptranslate{display:none!important}body{top:0!important}.goog-te-gadget{display:none!important}';
+    document.head.appendChild(style);
+  }
+}
+function _gtScheduleApply(seq,delay,attempt){
+  _gtClearTimer();
+  attempt=attempt||0;
+  window._gtTimer=setTimeout(function(){
+    window._gtTimer=null;
+    if(seq!==window._gtSeq||!window._gtActive) return;
+    var ok=_gtSetCombo(_gtLang());
+    if(!ok && attempt<18) _gtScheduleApply(seq,attempt<4?160:300,attempt+1);
+  },delay||80);
+}
+function _gtInitWidget(seq){
+  if(seq!==window._gtSeq||!window._gtActive) return;
+  _gtEnsureShell();
+  if(document.querySelector('.goog-te-combo')){ _gtScheduleApply(seq,80); return; }
+  if(window.google&&window.google.translate&&window.google.translate.TranslateElement){
+    try{
+      new window.google.translate.TranslateElement({
+        pageLanguage:'pt',
+        includedLanguages:'en,es,fr,de,it,ja,zh-CN,ar',
+        autoDisplay:false
+      },'google_translate_element');
+      _gtScheduleApply(seq,450);
+    }catch(e){ _gtScheduleApply(seq,450); }
+  }
+}
+function _gtDeactivate(){
+  var seq=++window._gtSeq;
+  window._gtActive=false;
+  _gtClearTimer();
+  _gtSetCombo('pt');
+  _gtSetCombo('');
+  _gtClearCookie();
+  _gtRemoveArtifacts();
+  try{ sessionStorage.setItem('poupai-gt-reset-pt','1'); }catch(e){}
+  render();
+  setTimeout(function(){
+    if(seq!==window._gtSeq||window._gtActive) return;
+    _gtClearCookie();
+    _gtRemoveArtifacts();
+    // O Google Translate mantém MutationObservers internos; o reset completo da página é o único
+    // caminho estável para encerrar a tradução depois que ela foi aplicada no DOM atual.
+    location.reload();
+  },90);
+}
+function _gtBootReset(){
+  try{
+    if(sessionStorage.getItem('poupai-gt-reset-pt')){
+      sessionStorage.removeItem('poupai-gt-reset-pt');
+      _gtClearCookie();
+      setTimeout(_gtRemoveArtifacts,0);
+    }
+  }catch(e){}
+}
+_gtBootReset();
+window._gtAfterRender=function(){
+  if(window._gtActive) _gtScheduleApply(window._gtSeq,120);
+};
+window.activateGoogleTranslate=function(){
+  if(window._gtActive){ _gtDeactivate(); return; }
+  window._gtActive=true;
+  var seq=++window._gtSeq;
+  render();
+  _gtEnsureShell();
+  if(window.google&&window.google.translate&&window.google.translate.TranslateElement){
+    _gtInitWidget(seq);
+  }else{
+    window.googleTranslateElementInit=function(){ window._gtLoaded=true; _gtInitWidget(seq); };
+    if(!document.getElementById('poupai-gt-script')){
+      var s=document.createElement('script');
+      s.id='poupai-gt-script';
+      s.src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.head.appendChild(s);
+    }else{
+      _gtScheduleApply(seq,450);
+    }
+  }
 };
 // ── Avatar local do usuário ──────────────────────────────────────────────
 function _avatarKey(uid){ return uid ? 'poupai-avatar:'+uid : null; }
@@ -2297,6 +2770,7 @@ function render(){
         '</div>' +
         formHtml +
       '</div>';
+    if(typeof window._gtAfterRender==='function') window._gtAfterRender();
     markDataRendered();
     return;
   }
@@ -2320,6 +2794,7 @@ function render(){
 
   if(U.scr==='profile') document.body.classList.add('profile-bg');
   else document.body.classList.remove('profile-bg');
+  if(typeof window._gtAfterRender==='function') window._gtAfterRender();
   markDataRendered();
 }
 
@@ -2630,12 +3105,13 @@ function rHdr(){
   var notifBtn = '<button title="Avisos e dicas" onclick="window.openNotifications()" style="background:rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.13);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:background 0.15s;flex-shrink:0;position:relative" onmouseover="this.style.background=\'rgba(0,0,0,0.13)\'" onmouseout="this.style.background=\'rgba(0,0,0,0.07)\'">🔔'+(_showNotifDot?'<span class="notif-badge-dot" style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:1.5px solid var(--dk-bg)"></span>':'')+'</button>';
   var obBtn = '<button title="Guia de uso" onclick="window.openOnboarding()" style="background:rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.13);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:800;color:rgba(26,18,10,0.5);font-family:inherit;transition:all 0.15s;flex-shrink:0" onmouseover="this.style.color=\'rgba(26,18,10,0.9)\';this.style.borderColor=\'rgba(0,0,0,0.3)\'" onmouseout="this.style.color=\'rgba(26,18,10,0.5)\';this.style.borderColor=\'rgba(0,0,0,0.13)\'">?</button>';
 
-  var translateBtn=_needsTranslate()
-    ?'<button id="_translate_btn" onclick="window.openTranslateMenu()" title="Translate"'
-    +' style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.12);border-radius:99px;'
+  var tIsActive=!!window._gtActive;
+  var translateBtn=_needsTranslate()||tIsActive
+    ?'<button id="_translate_btn" onclick="window.activateGoogleTranslate()" title="'+(tIsActive?'Voltar ao portugu\u00eas':'Translate this page')+'"'
+    +' style="background:'+(tIsActive?'rgba(37,99,235,0.12)':'rgba(0,0,0,0.06)')+';border:1px solid '+(tIsActive?'rgba(37,99,235,0.3)':'rgba(0,0,0,0.12)')+';border-radius:99px;'
     +'padding:3px 8px 3px 6px;display:flex;align-items:center;gap:3px;cursor:pointer;'
-    +'font-size:10px;font-weight:700;color:rgba(26,18,10,0.65);flex-shrink:0;line-height:1;">'
-    +'\uD83C\uDF10 '+_getLang().toUpperCase()+'</button>':'';
+    +'font-size:10px;font-weight:700;color:'+(tIsActive?'#1d4ed8':'rgba(26,18,10,0.65)')+';flex-shrink:0;line-height:1;">'
+    +'\uD83C\uDF10 '+(tIsActive?'PT':_getLang().toUpperCase())+'</button>':'';
   return'<div class="hdr" id="main-hdr"><div class="htop"><span class="atitle">PoupAí</span><div class="htop-r" style="display:flex;align-items:center;gap:6px">'+offlineBadge+syncBadge+translateBtn+notifBtn+obBtn+bdgBtn+'</div></div><div class="mnav"><button class="mb" onclick="window.shiftMon(-1)">&#8249;</button><span class="mlbl" onclick="window.openMonthPicker()" style="cursor:pointer" title="Selecionar mês">'+mLbl(m)+'</span><button class="mb" onclick="window.shiftMon(1)">&#8250;</button></div><div class="tetos">'+tetoCard+sobraCard+extraCards+'</div><div class="tabs">'+tabs.map(function(t){return'<button class="tab'+(U.tab===t[0]?' on':'')+'" onclick="window.setTab(\''+t[0]+'\')" style="display:flex;flex-direction:column;align-items:center;gap:2px">'+(TAB_ICO[t[0]]||'')+'<span>'+t[1]+'</span></button>';}).join('')+'</div></div>';
 }
 
@@ -6908,20 +7384,77 @@ window.openConfigModal = function(section){
   document.body.appendChild(el.firstChild);
 };
 
-window.openPlansModal = function(){
+window.openPlansModal = function(opts){
+  opts = opts || {};
+  var trialLeft = (opts.trialDaysLeft !== undefined) ? opts.trialDaysLeft : ((!userPremium && trialDaysLeft() > 0) ? trialDaysLeft() : null);
+  var trialTotal = opts.trialTotalDays || 15;
+  var onSelectPlan = opts.onSelectPlan || ppPlansCheckout;
+  var useMobile = window.matchMedia && window.matchMedia('(max-width: 820px), (orientation: portrait)').matches;
   window._closeModal('plans-overlay');
+
   var overlay = document.createElement('div');
   overlay.id = 'plans-overlay';
-  overlay.className = 'cat-overlay';
-  overlay.addEventListener('click', function(e){ if(e.target === overlay) window._closeModal('plans-overlay'); });
-  overlay.innerHTML = '<div class="cat-modal" style="max-width:760px;width:100%;max-height:88vh">'
-    +'<div class="cat-modal-hdr">'
-      +'<div><div style="font-size:17px;font-weight:900">⭐ Planos do PoupAí</div><div style="font-size:12px;color:var(--mt);margin-top:2px">Compare o gratuito com o Premium</div></div>'
-      +'<button class="cat-modal-close" onclick="window._closeModal(\'plans-overlay\')">✕</button>'
-    +'</div>'
-    +'<div class="cat-modal-body" style="padding-top:4px">'+rPlansContent()+'</div>'
-  +'</div>';
+  overlay.className = 'cat-overlay pp-overlay ' + (useMobile ? 'pp-mobile' : 'pp-desktop');
+  var billing = 'anual';
+  var modalOpts = { trialDaysLeft: trialLeft, trialTotalDays: trialTotal };
+  overlay.innerHTML = useMobile ? ppPlansMobileMarkup(modalOpts) : ppPlansDesktopMarkup(modalOpts, billing);
   document.body.appendChild(overlay);
+
+  function closePlansModal(){
+    if(window.__plansEscHandler){ document.removeEventListener('keydown', window.__plansEscHandler); window.__plansEscHandler = null; }
+    window._closeModal('plans-overlay');
+  }
+  function setBilling(next){
+    billing = next;
+    var priceWrap = overlay.querySelector('[data-pp-price-card]');
+    if(priceWrap) priceWrap.innerHTML = ppPlansDesktopPriceMarkup(billing);
+    overlay.querySelectorAll('[data-pp-billing]').forEach(function(btn){
+      btn.classList.toggle('on', btn.getAttribute('data-pp-billing') === billing);
+    });
+  }
+
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) return closePlansModal();
+    var act = e.target.closest('[data-pp-action]');
+    if(act){
+      var action = act.getAttribute('data-pp-action');
+      if(action === 'close') return closePlansModal();
+      if(action === 'subscribe') return onSelectPlan(billing);
+      if(action === 'subscribe-anual') return onSelectPlan('anual');
+      if(action === 'subscribe-mensal') return onSelectPlan('mensal');
+    }
+    var bill = e.target.closest('[data-pp-billing]');
+    if(bill) setBilling(bill.getAttribute('data-pp-billing'));
+  });
+
+  if(useMobile){
+    var sheet = overlay.querySelector('.pp-sheet');
+    var grab = overlay.querySelector('[data-pp-grab]');
+    var startY = null, deltaY = 0;
+    if(sheet && grab){
+      grab.addEventListener('touchstart', function(e){ startY = e.touches[0].clientY; deltaY = 0; sheet.style.transition = 'none'; }, { passive:true });
+      grab.addEventListener('touchmove', function(e){
+        if(startY == null) return;
+        deltaY = Math.max(0, e.touches[0].clientY - startY);
+        sheet.style.transform = 'translateY(' + deltaY + 'px)';
+      }, { passive:true });
+      grab.addEventListener('touchend', function(){
+        if(startY == null) return;
+        sheet.style.transition = '';
+        if(deltaY > 120) closePlansModal();
+        else sheet.style.transform = '';
+        startY = null;
+      });
+    }
+  }
+
+  if(window.__plansEscHandler) document.removeEventListener('keydown', window.__plansEscHandler);
+  window.__plansEscHandler = function(e){
+    if(e.key !== 'Escape') return;
+    if(document.getElementById('plans-overlay')) closePlansModal();
+    else { document.removeEventListener('keydown', window.__plansEscHandler); window.__plansEscHandler = null; }
+  };
+  document.addEventListener('keydown', window.__plansEscHandler);
 };
 
 window.openSimulator = function(){
