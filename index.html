@@ -1356,7 +1356,7 @@ let U = {
   tab:'dash', month:mM(), filter:'all', filterBank:'all', filterDate:null, del:null, eid:null, sel:'outros', 
   scr:'main', qe:'', parsed:null, planEd:null, delPlan:null, importPreview:[],
   authMode: 'login', importTarget: 'expenses', editGoalId: null,
-  dashCat: null, bulkMode: false, bulkSel: {}, secMsg: null, delExtra: null, configSection:'conta', gastosInvOpen:false, gastosParcOpen:false, gastosView:'', dashShowAllCats:false, investEd:null, investDel:null,
+  dashCat: null, bulkMode: false, bulkSel: {}, secMsg: null, delExtra: null, configSection:'conta', gastosInvOpen:false, gastosParcOpen:false, gastosView:'', dashShowAllCats:false, investEd:null, investDel:null, statsRange:6,
 };
 let isCloud = false;
 let userId = null;
@@ -1616,15 +1616,44 @@ function ppPlansCheckout(plan){
 
 function premiumStatusCard(){
   var st = premiumPlanState();
-  var color = st.tone==='grn'?'var(--grn-d)':st.tone==='amb'?'#92400e':'var(--red)';
-  var bg = st.tone==='grn'?'var(--grn-l)':st.tone==='amb'?'var(--amb-l)':'var(--red-l)';
-  var border = st.tone==='grn'?'#bbf7d0':st.tone==='amb'?'#fde68a':'#fecaca';
-  return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:16px;padding:14px 16px;margin-bottom:14px;text-align:left">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px">'
-      +'<div style="font-size:14px;font-weight:800;color:'+color+'">'+safeTxt(st.title)+'</div>'
-      +'<span style="font-size:11px;font-weight:900;color:'+color+';background:rgba(255,255,255,.55);border:1px solid '+border+';border-radius:999px;padding:4px 9px;white-space:nowrap">'+safeTxt(st.badge)+'</span>'
+  if(st.kind==='premium'){
+    return '<div style="background:linear-gradient(135deg,#1e1510 0%,#0d0a07 100%);border-radius:16px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 8px 28px rgba(229,113,58,.16),0 4px 12px rgba(14,11,8,.22)">'
+      +'<div style="position:absolute;top:0;right:0;width:160px;height:160px;pointer-events:none;background:radial-gradient(circle at top right,rgba(229,113,58,.2),transparent 65%)"></div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1">'
+        +'<div style="display:flex;align-items:center;gap:12px">'
+          +'<div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#F08A4D,#D45F26);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 -2px 4px rgba(0,0,0,.15),0 2px 8px rgba(212,95,38,.4)"><span style="font-size:20px;line-height:1">⭐</span></div>'
+          +'<div>'
+            +'<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2">'+safeTxt(st.title)+'</div>'
+            +'<div style="font-size:11.5px;color:#A8A296;margin-top:3px;line-height:1.3">'+safeTxt(st.detail)+'</div>'
+          +'</div>'
+        +'</div>'
+        +'<span style="font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--pp-brand);color:#fff;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;flex-shrink:0">'+safeTxt(st.badge)+'</span>'
+      +'</div>'
+    +'</div>';
+  }
+  if(st.kind==='trial'){
+    var days=trialDaysLeft();
+    var pct=Math.round(Math.max(5,Math.min(100,(days/15)*100)));
+    return '<div style="background:var(--pp-warn-bg);border:1px solid var(--pp-warn-bd);border-radius:14px;padding:14px 16px;margin-bottom:14px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">'
+        +'<div style="display:flex;align-items:center;gap:8px;min-width:0">'
+          +'<div style="width:8px;height:8px;border-radius:50%;background:#E5A02C;flex-shrink:0;box-shadow:0 0 0 4px rgba(229,160,44,.18)"></div>'
+          +'<div style="font-size:13px;font-weight:700;color:var(--pp-warn-fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+safeTxt(st.title)+'</div>'
+        +'</div>'
+        +'<span style="font-size:11px;font-weight:800;color:var(--pp-warn-fg);white-space:nowrap;flex-shrink:0">'+days+' dia'+(days===1?'':'s')+' restante'+(days===1?'':'s')+'</span>'
+      +'</div>'
+      +'<div style="height:4px;background:rgba(122,85,16,.15);border-radius:99px;overflow:hidden;margin-bottom:8px">'
+        +'<div style="height:100%;width:'+pct+'%;background:var(--pp-warn-fg);opacity:.75;border-radius:99px;transition:width .4s ease"></div>'
+      +'</div>'
+      +'<div style="font-size:12px;color:#92400e;line-height:1.45">'+safeTxt(st.detail)+'</div>'
+    +'</div>';
+  }
+  return '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px 16px;margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">'
+      +'<div style="font-size:14px;font-weight:800;color:var(--red);letter-spacing:-.01em">'+safeTxt(st.title)+'</div>'
+      +'<span style="font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;background:#fee2e2;color:var(--red);border:1px solid #fecaca;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">Gratuito</span>'
     +'</div>'
-    +'<div style="font-size:12px;color:var(--mt);line-height:1.5">'+safeTxt(st.detail)+'</div>'
+    +'<div style="font-size:12px;color:#991b1b;line-height:1.45">'+safeTxt(st.detail)+'</div>'
   +'</div>';
 }
 
@@ -2385,12 +2414,12 @@ function stats(m){
     extraInc: extraInc,
     sp: totalManual,
     committed: totalCommitted,
-    realSpent: totalReal,
+    realSpent: gastoReal,
     gastoReal: gastoReal,
     expTotal: expTotal,
     invTotal: invTotalR,
     parcTotal: parcTotalR,
-    realSav: sal - totalReal,
+    realSav: sal - gastoReal,
     projSav: sal - totalCommitted,
     cats: cats
   };
@@ -4086,11 +4115,11 @@ function buildInsights(stCur, stPrev, m) {
   if(sal > 0) {
     var rate = Math.round((sobra / sal) * 100);
     if(rate >= 20)
-      insights.push({ico:'🎉', txt:'Taxa de sobra de '+rate+'% — margem forte para poupar, investir ou antecipar metas.', good:true});
+      insights.push({ico:'🎉', txt:'Sobra sobre receita de '+rate+'% — margem forte para poupar, investir ou antecipar metas.', good:true});
     else if(rate >= 10)
-      insights.push({ico:'✅', txt:'Taxa de sobra de '+rate+'%. Boa margem, mas ainda há espaço para fortalecer a reserva.', good:true});
+      insights.push({ico:'✅', txt:'Sobra sobre receita de '+rate+'%. Boa margem, mas ainda há espaço para fortalecer a reserva.', good:true});
     else if(rate >= 0)
-      insights.push({ico:'📉', txt:'Taxa de sobra de '+rate+'%. O mês fechou positivo, porém com pouca folga.', good:false});
+      insights.push({ico:'📉', txt:'Sobra sobre receita de '+rate+'%. O mês fechou positivo, porém com pouca folga.', good:false});
     else
       insights.push({ico:'⚠️', txt:'O gasto real ultrapassou a receita em '+R(Math.abs(sobra))+'. Priorize cortar excessos ou revisar fixos.', good:false});
   }
@@ -4106,7 +4135,7 @@ function buildInsights(stCur, stPrev, m) {
 
   // 3. Maior categoria
   var catArr = Object.keys(stCur.cats || {})
-    .map(function(k){return{id:k,v:stCur.cats[k].s,p:stCur.cats[k].p};})
+    .map(function(k){return{id:k,v:Math.max(0,Number(stCur.cats[k].real||stCur.cats[k].s||0)),p:stCur.cats[k].p};})
     .filter(function(x){return x.v>0;})
     .sort(function(a,b){return b.v-a.v;});
   if(catArr.length && gasto > 0) {
@@ -4147,12 +4176,13 @@ function rBalanceModal(stCur, stPrev, m, score, sl) {
   var varPct   = stCur.gastoReal > 0 ? Math.round((avulsosTotal / stCur.gastoReal)*100) : 0;
   var savRate  = stCur.sal > 0 ? (stCur.realSav / stCur.sal * 100).toFixed(1) : '0';
 
-  // Top 5 categories
-  var catArr = Object.keys(stCur.cats)
-    .map(function(k){ var g2 = gBy(k); return{label:g2.label,color:g2.color,v:stCur.cats[k].s,p:stCur.cats[k].p}; })
-    .filter(function(x){return x.v>0;})
-    .sort(function(a,b){return b.v-a.v;})
-    .slice(0,6);
+  // Top categories
+  var allCatArr = Object.keys(stCur.cats)
+    .map(function(k){ var g2 = gBy(k); return{id:k,label:g2.label,color:g2.color,v:Math.max(0,Number(stCur.cats[k].real||stCur.cats[k].s||0)),p:stCur.cats[k].p}; });
+  if(Math.max(0,Number(stCur.parcTotal||0))>0){allCatArr.push({id:'parcelas',label:'Parcelas',color:'#8b5cf6',v:Math.max(0,Number(stCur.parcTotal||0)),p:0});}
+  allCatArr = allCatArr.filter(function(x){return x.v>0;})
+    .sort(function(a,b){return b.v-a.v;});
+  var catArr = allCatArr.slice(0,6);
   var catMax = catArr.length ? catArr[0].v : 1;
   var catRows = catArr.map(function(c){
     var bw = Math.round((c.v/catMax)*100);
@@ -4186,6 +4216,103 @@ function rBalanceModal(stCur, stPrev, m, score, sl) {
       +'<div style="font-size:10px;color:var(--mt)">'+dowNames[i]+'</div>'
     +'</div>';
   }).join('');
+  var sal = Math.max(0, Number(stCur.sal || 0));
+  var gastoReal = Math.max(0, Number(stCur.gastoReal || 0));
+  var sobraReal = sal - gastoReal;
+  var estruturalTotal = Math.max(0, Number(stCur.invTotal || 0)) + Math.max(0, Number(stCur.parcTotal || 0));
+  var folgaEstrutural = sal - estruturalTotal;
+  var estruturalPct = sal > 0 ? Math.round((estruturalTotal / sal) * 100) : null;
+  var avulsoPctFolga = folgaEstrutural > 0 ? Math.round((avulsosTotal / folgaEstrutural) * 100) : null;
+  var sobraCobreGastos = gastoReal > 0 ? Math.round((sobraReal / gastoReal) * 100) : null;
+
+  var plannedSpend = 0, plannedLimit = 0, overBudgetTotal = 0, overBudgetCount = 0, nearBudgetCount = 0, unplannedSpend = 0;
+  GR.forEach(function(g){
+    var c = stCur.cats[g.id] || {};
+    var spent = Math.max(0, Number(c.real || c.s || 0));
+    var planned = Math.max(0, Number(c.p || 0));
+    if(spent <= 0) return;
+    if(planned > 0){
+      plannedSpend += spent; plannedLimit += planned;
+      if(spent > planned){ overBudgetTotal += spent - planned; overBudgetCount++; }
+      else if(spent >= planned * 0.85){ nearBudgetCount++; }
+    } else {
+      unplannedSpend += spent;
+    }
+  });
+
+  var prevGasto = Math.max(0, Number((stPrev || {}).gastoReal || 0));
+  var prevSobra = Math.max(0, Number((stPrev || {}).realSav || 0));
+  var gastoDiff = prevGasto > 0 ? gastoReal - prevGasto : null;
+  var gastoDiffPct = prevGasto > 0 ? Math.round((gastoDiff / prevGasto) * 100) : null;
+  var sobraDiff = (stPrev && Number.isFinite(Number(stPrev.realSav))) ? sobraReal - Number(stPrev.realSav || 0) : null;
+
+  function advMetric(label, value, sub, color){
+    return '<div style="background:var(--s2);border-radius:12px;padding:12px 14px;min-width:0">'
+      +'<div style="font-size:10px;color:var(--mt);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">'+label+'</div>'
+      +'<div style="font-size:15px;font-weight:800;color:'+color+'">'+value+'</div>'
+      +'<div style="font-size:11px;color:var(--mt);line-height:1.35;margin-top:3px">'+sub+'</div>'
+    +'</div>';
+  }
+  function advObs(ico, title, txt, color){
+    return '<div style="display:flex;gap:10px;align-items:flex-start;border:1px solid var(--bd);border-left:3px solid '+color+';border-radius:12px;padding:10px 12px;background:#fff;margin-bottom:8px">'
+      +'<span style="font-size:15px;line-height:1.35;flex-shrink:0">'+ico+'</span>'
+      +'<div style="min-width:0"><div style="font-size:12px;font-weight:800;color:var(--txt);margin-bottom:2px">'+title+'</div><div style="font-size:12px;color:var(--mt);line-height:1.45">'+txt+'</div></div>'
+    +'</div>';
+  }
+
+  var margemSub = sobraCobreGastos === null
+    ? 'sem gasto real registrado'
+    : (sobraReal >= 0 ? 'equivale a '+sobraCobreGastos+'% do gasto real do mês' : 'déficit do mês, receita menor que gastos');
+  var folgaSub = sal > 0
+    ? 'receita menos invariáveis e parcelas'
+    : 'cadastre uma receita para calcular';
+  var avulsoSub = avulsoPctFolga === null
+    ? (folgaEstrutural <= 0 ? 'sem folga antes dos gastos avulsos' : 'sem gastos avulsos registrados')
+    : 'dos recursos livres após fixos e parcelas';
+  var tetoSub = plannedLimit > 0
+    ? (overBudgetTotal > 0 ? overBudgetCount+' categoria(s) acima do teto' : (nearBudgetCount > 0 ? nearBudgetCount+' categoria(s) perto do teto' : 'categorias com teto seguem dentro do previsto'))
+    : 'sem tetos suficientes para medir aderência';
+
+  var advancedMetrics = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px">'
+    + advMetric('Folga após fixos', R(folgaEstrutural), folgaSub, folgaEstrutural>=0?'var(--grn)':'var(--red)')
+    + advMetric('Avulsos sobre folga', avulsoPctFolga===null?'—':avulsoPctFolga+'%', avulsoSub, avulsoPctFolga===null?'var(--mt)':avulsoPctFolga>85?'var(--red)':avulsoPctFolga>60?'var(--amb)':'var(--grn)')
+    + advMetric('Estouro de tetos', overBudgetTotal>0?R(overBudgetTotal):'R$ 0,00', tetoSub, overBudgetTotal>0?'var(--red)':plannedLimit>0?'var(--grn)':'var(--mt)')
+    + advMetric('Sobra cobre gastos', sobraCobreGastos===null?'—':sobraCobreGastos+'%', margemSub, sobraReal>=0?'var(--grn)':'var(--red)')
+  +'</div>';
+
+  var advancedObs = [];
+  if(sal <= 0){
+    advancedObs.push(advObs('⚠️','Base incompleta','Há gastos no mês, mas a receita não foi cadastrada. Sem receita, comprometimento e sobra não ficam confiáveis.','var(--amb)'));
+  } else if(sobraReal < 0){
+    advancedObs.push(advObs('🔴','Déficit no mês','Os gastos superaram a receita em '+R(Math.abs(sobraReal))+'. Este é o principal ponto de atenção do balanço.','var(--red)'));
+  } else {
+    advancedObs.push(advObs('💵','Margem real do mês','Depois dos gastos registrados, sobraram '+R(sobraReal)+', ou '+savRate+'% da receita.','var(--grn)'));
+  }
+  if(estruturalPct !== null){
+    if(estruturalPct > 80) advancedObs.push(advObs('🏗️','Estrutura pesada','Invariáveis e parcelas ocupam '+estruturalPct+'% da renda. Mesmo antes dos gastos avulsos, a margem já fica apertada.','var(--red)'));
+    else if(estruturalPct > 60) advancedObs.push(advObs('📌','Atenção aos compromissos','Invariáveis e parcelas ocupam '+estruturalPct+'% da renda. Ainda há folga, mas imprevistos podem pressionar o mês.','var(--amb)'));
+    else advancedObs.push(advObs('✅','Compromissos sob controle','Invariáveis e parcelas ocupam '+estruturalPct+'% da renda, mantendo uma estrutura mais administrável.','var(--grn)'));
+  }
+  if(gastoDiff !== null){
+    var gdAbs = R(Math.abs(gastoDiff));
+    advancedObs.push(advObs(gastoDiff > 0 ? '📈' : '📉', 'Comparativo de gastos', gastoDiff === 0 ? 'Os gastos ficaram estáveis em relação ao mês anterior.' : 'Os gastos '+(gastoDiff > 0 ? 'subiram' : 'caíram')+' '+Math.abs(gastoDiffPct)+'% vs. mês anterior, diferença de '+gdAbs+'.', gastoDiff > 0 ? 'var(--red)' : 'var(--grn)'));
+  }
+  if(sobraDiff !== null && prevGasto > 0){
+    advancedObs.push(advObs(sobraDiff >= 0 ? '🟢' : '🟠', 'Evolução da sobra', sobraDiff === 0 ? 'A sobra ficou igual ao mês anterior.' : 'A sobra '+(sobraDiff > 0 ? 'aumentou' : 'diminuiu')+' '+R(Math.abs(sobraDiff))+' em relação ao mês anterior.', sobraDiff >= 0 ? 'var(--grn)' : 'var(--amb)'));
+  }
+  if(allCatArr.length && gastoReal > 0){
+    var topImpact = allCatArr[0];
+    var topPct = Math.round((topImpact.v / gastoReal) * 100);
+    var topMsg = safeTxt(topImpact.label)+' concentra '+topPct+'% do gasto real do mês ('+R(topImpact.v)+'). '+(topPct >= 35 ? 'É uma concentração alta e merece revisão detalhada.' : 'É a maior frente de gasto, mas sem concentração extrema.');
+    advancedObs.push(advObs('🔎','Categoria de maior impacto',topMsg,topPct >= 35 ? 'var(--amb)' : 'var(--blu)'));
+  }
+  if(overBudgetTotal > 0){
+    advancedObs.push(advObs('🚧','Limites ultrapassados','Categorias com teto definido passaram do previsto em '+R(overBudgetTotal)+'. Esse valor explica parte da pressão do mês.','var(--red)'));
+  } else if(plannedLimit > 0){
+    advancedObs.push(advObs('🧾','Planejado dentro do limite','Nas categorias com teto definido, não houve estouro do limite registrado.','var(--grn)'));
+  }
+  var advancedObsHTML = advancedObs.slice(0,6).join('');
+
 
   var html = '<div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:16px;letter-spacing:-.02em">Balanço detalhado</div>'
     // Score
@@ -4198,9 +4325,13 @@ function rBalanceModal(stCur, stPrev, m, score, sl) {
       +'<div>'
         +'<div style="font-size:16px;font-weight:800;color:'+sl.color+'">'+sl.label+'</div>'
         +'<div style="font-size:12px;color:var(--mt);margin-top:2px">Saúde financeira do mês</div>'
-        +'<div style="font-size:11px;color:var(--mt2);margin-top:4px">Taxa de poupança: <b>'+savRate+'%</b> · Comprometido: <b>'+Math.round(stCur.committed/Math.max(1,stCur.sal)*100)+'%</b></div>'
+        +'<div style="font-size:11px;color:var(--mt2);margin-top:4px">Sobra sobre receita: <b>'+savRate+'%</b> · Comprometido: <b>'+Math.round(stCur.committed/Math.max(1,stCur.sal)*100)+'%</b></div>'
       +'</div>'
     +'</div>'
+    +'<div style="font-size:12px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Diagnóstico avançado</div>'
+    +advancedMetrics
+    +'<div style="font-size:12px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Observações importantes</div>'
+    +'<div style="margin-bottom:18px">'+advancedObsHTML+'</div>'
     // Fixo x variável
     +'<div style="font-size:12px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Fixo × Variável</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">'
@@ -4227,11 +4358,13 @@ function rBalanceModal(stCur, stPrev, m, score, sl) {
 }
 
 window.openBalanceModal = function(stCur, stPrev, m, score, sl) {
+  var existing = document.getElementById('balance-modal-overlay');
+  if(existing) existing.remove();
   var ov = document.createElement('div');
   ov.id = 'balance-modal-overlay';
-  ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:320;display:flex;align-items:flex-end;justify-content:center;padding:0';
+  ov.className = 'stats-modal-overlay';
   ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
-  ov.innerHTML = '<div style="background:var(--srf);border-radius:22px 22px 0 0;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;padding:24px 20px 32px;box-shadow:0 -8px 40px rgba(0,0,0,.18)">'
+  ov.innerHTML = '<div class="stats-modal balance" onpointerdown="event.stopPropagation()" style="width:100%;max-width:920px;padding:26px 28px 32px;overflow-y:auto">'
     + rBalanceModal(stCur, stPrev, m, score, sl)
   + '</div>';
   document.body.appendChild(ov);
@@ -4253,14 +4386,18 @@ function rStats() {
   var totalSav = 0; var activeCnt = 0;
   var chartData = activeMs.map(function(mo) {
     var s = (mo === m) ? stCur : stats(mo);
-    var hasData = getExp(mo).length > 0;
-    if(hasData){ totalSav += s.realSav; activeCnt++; }
     var totalGastoMes = Math.max(0, Number(s.gastoReal || 0));
+    var hasData = getExp(mo).length > 0 || totalGastoMes > 0;
+    if(hasData){ totalSav += s.realSav; activeCnt++; }
     var topCats = GR.map(function(g){
       var c = s.cats[g.id] || {};
       var value = Math.max(0, Number(c.real || c.s || 0));
       return {id:g.id, label:g.label, color:g.color, value:value};
-    }).filter(function(x){return x.value > 0;}).sort(function(a,b){return b.value-a.value;}).slice(0,4).map(function(x){
+    });
+    if(Math.max(0, Number(s.parcTotal || 0)) > 0){
+      topCats.push({id:'parcelas', label:'Parcelas', color:'#8b5cf6', value:Math.max(0, Number(s.parcTotal || 0))});
+    }
+    topCats = topCats.filter(function(x){return x.value > 0;}).sort(function(a,b){return b.value-a.value;}).slice(0,4).map(function(x){
       x.pctGasto = totalGastoMes > 0 ? Math.round((x.value/totalGastoMes)*100) : 0;
       x.pctReceita = s.sal > 0 ? Math.round((x.value/s.sal)*100) : 0;
       return x;
@@ -4309,10 +4446,10 @@ function rStats() {
     + [
       {label:'Receita total',    value:R(stCur.sal),      color:'var(--grn)', sub:'salários + extras'},
       {label:'Gasto Real',       value:R(stCur.gastoReal),color:'var(--txt)', sub:'avulsos + fixos + parcelas'},
-      {label:'Sobra do mês',     value:R(stCur.realSav),  color:stCur.realSav>=0?'var(--grn)':'var(--red)', sub:'meta: '+R(D.config.targetSavings)},
-      {label:'Var. mês anterior',value:varPct!==null?(varPct>=0?'▲ +'+varPct+'%':'▼ '+varPct+'%'):'—',
+      {label:'Sobra do mês',     value:R(stCur.realSav),  color:stCur.realSav>=0?'var(--grn)':'var(--red)', sub:'receita - gastos reais'},
+      {label:'Gastos vs mês anterior',value:varPct!==null?(varPct>=0?'▲ +'+varPct+'%':'▼ '+varPct+'%'):'—',
        color:varPct===null?'var(--mt)':varPct>0?'var(--red)':'var(--grn)',
-       sub:varPct!==null?(varPct>0?R(stCur.gastoReal-stPrev.gastoReal)+' a mais':R(stPrev.gastoReal-stCur.gastoReal)+' a menos'):'sem histórico'},
+       sub:varPct!==null?(varPct>0?R(stCur.gastoReal-stPrev.gastoReal)+' a mais em gastos':R(stPrev.gastoReal-stCur.gastoReal)+' a menos em gastos'):'sem histórico'},
     ].map(function(k){
       return '<div class="sc" style="border-top:3px solid '+k.color+'">'
         +'<div class="sl">'+k.label+'</div>'
@@ -4392,9 +4529,9 @@ function rStats() {
       +(varTxt2?'<div class="stats-kpi-note" style="color:'+varClr2+'">'+varTxt2+'</div>':'')
     +'</div>'
     +'<div style="padding-bottom:10px;border-bottom:1px solid #f1f5f9;margin-bottom:10px">'
-      +'<div class="stats-kpi-label">Taxa de poupan\u00e7a</div>'
+      +'<div class="stats-kpi-label">Sobra sobre receita</div>'
       +'<div class="stats-kpi-main mid" style="color:'+(txPoupanca>=0?'#16a34a':'#dc2626')+'">'+txPoupanca+'%</div>'
-      +'<div class="stats-kpi-note">'+(txPoupanca>=20?'\u2705 meta atingida':txPoupanca>=10?'perto da meta':'abaixo de 20% recomendado')+'</div>'
+      +'<div class="stats-kpi-note">'+'parte da receita que ainda não virou gasto'+'</div>'
     +'</div>'
     +'<div style="padding-bottom:10px;border-bottom:1px solid #f1f5f9;margin-bottom:10px">'
       +'<div class="stats-kpi-label">Tend\u00eancia de gastos</div>'
@@ -4415,11 +4552,14 @@ function rStats() {
     for(var ai=1;ai<=6;ai++){var pm2=shM(mo,-ai);if(getExp(pm2).length>0){avg6s+=stats(pm2).gastoReal;avg6c++;}}
     var avg6=avg6c>0?Math.round(avg6s/avg6c):null;
     var dIM=new Date(parseInt(mo.split('-')[0],10),parseInt(mo.split('-')[1],10),0).getDate();
-    var todMM=new Date();var isCMM=todMM.getFullYear()+'-'+String(todMM.getMonth()+1).padStart(2,'0')===mo;
-    var actDM=isCMM?todMM.getDate():dIM;var gpd=actDM>0?(stM.gastoReal/actDM):0;
-    var sobM=stM.sal-stM.gastoReal;var txP=stM.sal>0?((sobM/stM.sal)*100).toFixed(1):0;
+    var dayMapM={};getExp(mo).forEach(function(e){var dd=parseInt(e.date.split('-')[2],10);dayMapM[dd]=(dayMapM[dd]||0)+e.amount;});
+    var topDayM=null,topDayAmtM=0;Object.keys(dayMapM).forEach(function(k){if(dayMapM[k]>topDayAmtM){topDayAmtM=dayMapM[k];topDayM=parseInt(k,10);}});
+    var topDayTxt=topDayM?R(topDayAmtM)+' em '+new Date(mo+'-'+String(topDayM).padStart(2,'0')+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}).replace('.',''):'—';
+    var sobM=Number(stM.realSav || (stM.sal-stM.gastoReal));var txP=stM.sal>0?((sobM/stM.sal)*100).toFixed(1):0;
     var sobClrM=sobM>=0?'#16a34a':'#dc2626';var sobSgnM=sobM>=0?'+':'';
-    var catD=GR.map(function(g){var c=stM.cats[g.id]||{};var v=Math.max(0,Number(c.real||c.s||0));return{id:g.id,label:g.label,color:g.color,value:v};}).filter(function(x){return x.value>0;}).sort(function(a,b){return b.value-a.value;});
+    var catD=GR.map(function(g){var c=stM.cats[g.id]||{};var v=Math.max(0,Number(c.real||c.s||0));return{id:g.id,label:g.label,color:g.color,value:v};});
+    if(Math.max(0,Number(stM.parcTotal||0))>0){catD.push({id:'parcelas',label:'Parcelas',color:'#8b5cf6',value:Math.max(0,Number(stM.parcTotal||0))});}
+    catD=catD.filter(function(x){return x.value>0;}).sort(function(a,b){return b.value-a.value;});
     var catTot=catD.reduce(function(s,d){return s+d.value;},0);
     var stackBar=catTot>0?catD.map(function(c){return'<div style="flex:'+(c.value/catTot)+';background:'+c.color+';height:100%;min-width:2px"></div>';}).join(''):'<div style="flex:1;background:#e2e8f0;height:100%"></div>';
     var catRows=catD.slice(0,6).map(function(c){var pct=catTot>0?Math.round(c.value/catTot*100):0;return'<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9"><div style="width:8px;height:8px;border-radius:50%;background:'+c.color+';flex-shrink:0"></div><span style="flex:1;font-size:12.5px;font-weight:500;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+safeTxt(c.label)+'</span><span style="font-size:11px;color:#94a3b8;width:28px;text-align:right">'+pct+'%</span><span style="font-family:DM Mono,monospace;font-size:12.5px;font-weight:700;color:#1e293b;min-width:76px;text-align:right">'+R(c.value)+'</span></div>';}).join('');
@@ -4440,14 +4580,14 @@ function rStats() {
             +'<div style="background:#f0fdf4;border-radius:10px;padding:8px 5px;text-align:center"><div style="font-size:7.5px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Receita</div><div style="font-size:12px;font-weight:800;color:#16a34a;font-family:DM Mono,monospace">'+R(stM.sal)+'</div></div>'
             +'<div style="background:#fff7ed;border-radius:10px;padding:8px 5px;text-align:center"><div style="font-size:7.5px;font-weight:700;color:#f97316;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Gasto</div><div style="font-size:12px;font-weight:800;color:#f97316;font-family:DM Mono,monospace">'+R(stM.gastoReal)+'</div></div>'
             +'<div style="background:#f8fafc;border-radius:10px;padding:8px 5px;text-align:center"><div style="font-size:7.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Sobra</div><div style="font-size:12px;font-weight:800;color:'+sobClrM+';font-family:DM Mono,monospace">'+sobSgnM+R(Math.abs(sobM))+'</div></div>'
-            +'<div style="background:#f8fafc;border-radius:10px;padding:8px 5px;text-align:center"><div style="font-size:7.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Poupan\u00e7a</div><div style="font-size:12px;font-weight:800;color:'+sobClrM+';font-family:DM Mono,monospace">'+txP+'%</div></div>'
+            +'<div style="background:#f8fafc;border-radius:10px;padding:8px 5px;text-align:center"><div style="font-size:7.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Sobra %</div><div style="font-size:12px;font-weight:800;color:'+sobClrM+';font-family:DM Mono,monospace">'+txP+'%</div></div>'
           +'</div>'
           +(catTot>0?'<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span style="font-size:9.5px;font-weight:800;letter-spacing:.09em;color:#94a3b8;text-transform:uppercase">Por categoria</span><span style="font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:#1e293b">'+R(catTot)+'</span></div><div style="display:flex;height:6px;border-radius:99px;overflow:hidden;margin-bottom:10px;gap:1px">'+stackBar+'</div>'+catRows+'</div>':'')
           +'<div style="background:#f8fafc;border-radius:12px;padding:11px 12px">'
             +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.09em;color:#94a3b8;text-transform:uppercase;margin-bottom:8px">Comparativo</div>'
-            +'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e8ecf0"><span style="font-size:12.5px;color:#475569">vs. m\u00eas anterior</span><span style="font-size:13px;font-weight:700;font-family:DM Mono,monospace;color:'+(varM===null?'#94a3b8':varM>0?'#dc2626':'#16a34a')+'">'+(varM===null?'\u2014':(varM>0?'+':'')+R(stM.gastoReal-stPM.gastoReal))+'</span></div>'
-            +'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e8ecf0"><span style="font-size:12.5px;color:#475569">vs. m\u00e9dia 6 meses</span><span style="font-size:13px;font-weight:700;font-family:DM Mono,monospace;color:'+(avg6===null?'#94a3b8':stM.gastoReal>avg6?'#dc2626':'#16a34a')+'">'+(avg6===null?'\u2014':(stM.gastoReal>avg6?'+':'')+R(stM.gastoReal-(avg6||0)))+'</span></div>'
-            +'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0"><span style="font-size:12.5px;color:#475569">Gastos/dia</span><span style="font-size:13px;font-weight:700;font-family:DM Mono,monospace;color:#1e293b">'+R(gpd)+'</span></div>'
+            +'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e8ecf0"><span style="font-size:12.5px;color:#475569">Gasto vs. m\u00eas anterior</span><span style="font-size:13px;font-weight:700;font-family:DM Mono,monospace;color:'+(varM===null?'#94a3b8':varM>0?'#dc2626':'#16a34a')+'">'+(varM===null?'\u2014':(varM>0?'+':'')+R(stM.gastoReal-stPM.gastoReal))+'</span></div>'
+            +'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e8ecf0"><span style="font-size:12.5px;color:#475569">Gasto vs. m\u00e9dia 6 meses</span><span style="font-size:13px;font-weight:700;font-family:DM Mono,monospace;color:'+(avg6===null?'#94a3b8':stM.gastoReal>avg6?'#dc2626':'#16a34a')+'">'+(avg6===null?'\u2014':(stM.gastoReal>avg6?'+':'')+R(stM.gastoReal-(avg6||0)))+'</span></div>'
+            +'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0"><span style="font-size:12.5px;color:#475569">Maior dia de gasto</span><span style="font-size:13px;font-weight:700;font-family:DM Mono,monospace;color:#1e293b">'+topDayTxt+'</span></div>'
           +'</div>'
           +alertHTML
           +'<button onclick="window._statsGoGastos()" style="width:100%;margin-top:12px;padding:12px;background:#f97316;color:#fff;border:none;border-radius:12px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">Ver lan\u00e7amentos \u2192</button>'
@@ -4516,6 +4656,7 @@ function rStats() {
     +dGrid+'<line x1="'+dPL+'" x2="'+(dPL+dCW)+'" y1="'+dBase+'" y2="'+dBase+'" stroke="#cbd5e1" stroke-width="1.5"/>'
     +dBars+dHits+'</svg>';
   var total7=0; for(var d7=todayDay;d7>=Math.max(1,todayDay-6);d7--){ total7+=(dayAmts[d7]||0); }
+  var daysWithExpense=Object.keys(dayAmts).filter(function(k){return parseInt(k,10)<=todayDay && dayAmts[k]>0;}).length;
   var avgDayV=todayDay>0?Math.round(stCur.gastoReal/todayDay):0;
   var hist3s=0,hist3c=0;
   for(var h3=1;h3<=3;h3++){var hm=shM(m,-h3);var hEx=getExp(hm);if(hEx.length>0){var hdys=new Date(parseInt(hm.split('-')[0],10),parseInt(hm.split('-')[1],10),0).getDate();var htot=hEx.reduce(function(s,e){return s+e.amount;},0);hist3s+=htot/hdys;hist3c++;}}
@@ -4539,9 +4680,9 @@ function rStats() {
       +'<div class="stats-kpi-main mid" style="color:#1e293b">'+R(total7)+'</div>'
     +'</div>'
     +'<div>'
-      +'<div class="stats-kpi-label">M\u00e9dia/dia</div>'
-      +'<div class="stats-kpi-main mid" style="color:#1e293b">'+R(avgDayV)+'</div>'
-      +(avgVarPct2!==null?'<div class="stats-kpi-note" style="color:'+(avgVarPct2<=0?'#16a34a':'#dc2626')+'">'+(avgVarPct2<=0?'\u2193 '+Math.abs(avgVarPct2)+'% abaixo':'\u2191 '+avgVarPct2+'% acima')+' da m\u00e9dia hist\u00f3rica</div>':'')
+      +'<div class="stats-kpi-label">Dias com gasto</div>'
+      +'<div class="stats-kpi-main mid" style="color:#1e293b">'+daysWithExpense+' de '+todayDay+'</div>'
+      +'<div class="stats-kpi-note">'+expsCur.length+' lançamento'+(expsCur.length===1?'':'s')+' no mês</div>'
     +'</div>';
   window._statsExpsCur=expsCur;window._statsDayAmts=dayAmts;window._statsTopDay=topDayNum;window._statsAvgDayV=avgDayV;
   window.openDayModal=function(dayNum){
@@ -4571,7 +4712,7 @@ function rStats() {
         +(isPk?'<div style="display:flex;align-items:center;gap:6px;padding:12px 16px 0"><span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block"></span><span style="font-size:10px;font-weight:800;letter-spacing:.1em;color:#ef4444;text-transform:uppercase">Pico do m\u00eas</span></div>':'')
         +'<div style="padding:'+(isPk?'8':'16')+'px 16px 0;display:flex;justify-content:space-between;align-items:flex-start">'
           +'<div><div style="font-size:17px;font-weight:800;color:#1e293b;letter-spacing:-.02em;text-transform:capitalize">'+safeTxt(dateStr)+'</div>'
-          +((expsDay.length>0||mult2)?'<div style="font-size:11.5px;color:#94a3b8;margin-top:2px">'+expsDay.length+' lan\u00e7amento'+(expsDay.length!==1?'s':'')+(mult2&&parseFloat(mult2)>1?' \u00b7 '+mult2+'\u00d7 a m\u00e9dia di\u00e1ria':'')+'</div>':'')+'</div>'
+          +(expsDay.length>0?'<div style="font-size:11.5px;color:#94a3b8;margin-top:2px">'+expsDay.length+' lan\u00e7amento'+(expsDay.length!==1?'s':'')+'</div>':'')+'</div>'
           +'<button onclick="window.closeDayModal()" style="width:28px;height:28px;border:none;border-radius:8px;background:#f1f5f9;font-size:16px;cursor:pointer;color:#94a3b8;flex-shrink:0;margin-left:8px">\u00d7</button>'
         +'</div>'
         +'<div style="padding:10px 16px 4px"><div style="font-size:30px;font-weight:900;color:#ef4444;font-family:DM Mono,monospace;letter-spacing:-.03em">'+R(dayTot)+'</div><div style="font-size:11.5px;color:#94a3b8;margin-bottom:12px">de gastos no dia</div></div>'
@@ -4616,16 +4757,43 @@ function rStats() {
     +'</div>';
   }).join('')||'<div style="font-size:13px;color:var(--mt);padding:8px 0">Nenhum gasto registrado.</div>';
 
-  // Resumo acumulado
-  var resumoHTML='<div class="sg">'
-    +'<div class="sc"><div class="sl">Sobra média mensal</div><div class="sv" style="color:'+(avgSav>=0?'var(--grn)':'var(--red)')+'">'+R(avgSav)+'</div><div class="ss">'+(activeCnt>0?'Média de '+activeCnt+' mês(es)':'Sem dados ainda')+'</div></div>'
-    +'<div class="sc"><div class="sl">Total acumulado</div><div class="sv" style="color:'+(totalSav>=0?'var(--txt)':'var(--red)')+'">'+R(totalSav)+'</div><div class="ss">Soma dos meses registrados</div></div>'
+  // Resumo dos últimos meses — baseado nos mesmos números da Visão Geral: gasto real e sobra do mês
+  window._statsRangeSeries = chartData.filter(function(d){return d.hasData;});
+  function buildStatsRangeSummary(){
+    var statsRange=Math.max(2,Math.min(6,Number(U.statsRange||6)));
+    var rangeData=(window._statsRangeSeries||[]).slice(-statsRange);
+    var rangeCnt=rangeData.length;
+    var rangeSaved=rangeData.reduce(function(s,d){return s+d.sav;},0);
+    var rangeSpent=rangeData.reduce(function(s,d){return s+d.gasto;},0);
+    var rangeBtns=[2,3,4,5,6].map(function(n){return'<button type="button" onclick="return window.setStatsRange(event,'+n+')" style="padding:6px 10px;border-radius:999px;border:1px solid '+(statsRange===n?'var(--grn)':'var(--bd)')+';background:'+(statsRange===n?'var(--grn-l)':'var(--srf)')+';color:'+(statsRange===n?'var(--grn-d)':'var(--mt)')+';font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">'+n+'m</button>';}).join('');
+    return '<div id="stats-range-summary" class="card" style="margin-bottom:16px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap"><div><div style="font-size:14px;font-weight:700;color:var(--txt)">Resumo dos últimos meses</div><div style="font-size:11px;color:var(--mt);margin-top:2px">baseado em gasto real e sobra atual de cada mês</div></div><div style="display:flex;gap:6px;align-items:center">'+rangeBtns+'</div></div>'
+      +'<div class="sg" style="margin-bottom:0">'
+        +'<div class="sc"><div class="sl">Total economizado</div><div class="sv" style="color:'+(rangeSaved>=0?'var(--grn)':'var(--red)')+'">'+R(rangeSaved)+'</div><div class="ss">sobra somada de '+rangeCnt+' mês(es)</div></div>'
+        +'<div class="sc"><div class="sl">Total de gastos</div><div class="sv" style="color:var(--txt)">'+R(rangeSpent)+'</div><div class="ss">gasto real somado no período</div></div>'
+      +'</div>'
     +'</div>';
+  }
+  window.renderStatsRangeSummary = buildStatsRangeSummary;
+  window.setStatsRange=function(ev,n){
+    if(ev && typeof ev.preventDefault==='function') ev.preventDefault();
+    if(ev && typeof ev.stopPropagation==='function') ev.stopPropagation();
+    U.statsRange=Math.max(2,Math.min(6,Number(n)||6));
+    var target=document.getElementById('stats-range-summary');
+    if(target && typeof window.renderStatsRangeSummary==='function'){
+      target.outerHTML=window.renderStatsRangeSummary();
+      return false;
+    }
+    render();
+    return false;
+  };
+  var resumoHTML=buildStatsRangeSummary();
 
   // Donut chart por categoria
-  var catData=GR.filter(function(g){return stCur.cats[g.id]&&stCur.cats[g.id].s>0;})
-    .map(function(g){return{id:g.id,label:g.label,color:g.color,value:stCur.cats[g.id].s};})
-    .sort(function(a,b){return b.value-a.value;});
+  var catData=GR.map(function(g){var c=stCur.cats[g.id]||{};return{id:g.id,label:g.label,color:g.color,value:Math.max(0,Number(c.real||c.s||0))};})
+    .filter(function(x){return x.value>0;});
+  if(Math.max(0,Number(stCur.parcTotal||0))>0){catData.push({id:'parcelas',label:'Parcelas',color:'#8b5cf6',value:Math.max(0,Number(stCur.parcTotal||0))});}
+  catData=catData.sort(function(a,b){return b.value-a.value;});
   var catTotal=catData.reduce(function(s,d){return s+d.value;},0);
   var SZ=160,cx=80,cy=80,r=58,sw=22;
   var ang=-Math.PI/2; var arcs='';
@@ -4697,7 +4865,7 @@ function rBalanco(m, st, score, sl, insights) {
     if(c.p > 0 && c.s > c.p) alertas.push({type:'over', msg:'<b>'+g.label+'</b>: gastou '+R(c.s)+' de '+R(c.p)+' previsto (+'+(((c.s-c.p)/c.p)*100).toFixed(0)+'%)', color:'var(--red)'});
     else if(c.p > 0 && c.s > c.p * 0.85) alertas.push({type:'warn', msg:'<b>'+g.label+'</b>: '+R(c.s)+' de '+R(c.p)+' ('+((c.s/c.p)*100).toFixed(0)+'% do limite)', color:'var(--amb)'});
   });
-  if(sal > 0 && parseFloat(taxaPoupanca) < 10) alertas.push({type:'warn', msg:'Taxa de poupança abaixo de 10% do salário.', color:'var(--amb)'});
+  if(sal > 0 && parseFloat(taxaPoupanca) < 10) alertas.push({type:'warn', msg:'Sobra abaixo de 10% da receita.', color:'var(--amb)'});
   if(sal > 0 && gasto > sal) alertas.push({type:'over', msg:'Gasto real ultrapassou a receita mensal em '+R(gasto-sal)+'.', color:'var(--red)'});
 
   var alertHTML = alertas.length
@@ -4731,13 +4899,13 @@ function rBalanco(m, st, score, sl, insights) {
       +'<div style="flex:1">'
         +'<div style="font-size:10px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px">Score financeiro inteligente</div>'
         +'<div style="font-size:20px;font-weight:900;color:'+sl.color+';letter-spacing:-.02em">'+sl.label+'</div>'
-        +'<div style="font-size:12px;color:var(--mt);margin-top:3px">Poupança: <b>'+taxaPoupanca+'%</b> · Comprometimento: <b>'+taxaGasto+'%</b></div>'
+        +'<div style="font-size:12px;color:var(--mt);margin-top:3px">Sobra sobre receita: <b>'+taxaPoupanca+'%</b> · Gastos sobre receita: <b>'+taxaGasto+'%</b></div>'
       +'</div>'
     +'</div>'
     +(insightsHTML?'<div style="margin-bottom:14px">'+insightsHTML+'</div>':'')
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'
       +'<div style="background:var(--s2);border-radius:10px;padding:12px">'
-        +'<div style="font-size:11px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Taxa de poupança</div>'
+        +'<div style="font-size:11px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Sobra sobre receita</div>'
         +'<div style="font-size:22px;font-weight:800;color:'+(parseFloat(taxaPoupanca)>=10?'var(--grn)':'var(--red)')+'">'+taxaPoupanca+'%</div>'
         +'<div style="font-size:11px;color:var(--mt2);margin-top:2px">'+R(sobra)+' sobrando</div>'
       +'</div>'
@@ -5103,7 +5271,7 @@ window.exportPDF = function(){
     +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Total comprometido</div><div style="'+valStyle+';color:#f59e0b">'+R(st.committed)+'</div><div style="'+sub2Style+'">Teto mensal do orçamento</div></div>'
     +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Livre no orçamento</div><div style="'+valStyle+';color:'+(livre>=0?'#16a34a':'#dc2626')+'">'+R(livre)+'</div><div style="'+sub2Style+'">Receita – comprometido</div></div>'
     +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Gasto avulso</div><div style="'+valStyle+'">'+R(st.expTotal)+'</div><div style="'+sub2Style+'">'+exps.length+' lançamento'+(exps.length!==1?'s':'')+'</div></div>'
-    +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Taxa de poupança</div><div style="'+valStyle+';color:'+(parseFloat(savRate)>=20?'#16a34a':parseFloat(savRate)>=10?'#f59e0b':'#dc2626')+'">'+savRate+'%</div><div style="'+sub2Style+'">Receita – gasto real</div></div>'
+    +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Sobra sobre receita</div><div style="'+valStyle+';color:'+(parseFloat(savRate)>=20?'#16a34a':parseFloat(savRate)>=10?'#f59e0b':'#dc2626')+'">'+savRate+'%</div><div style="'+sub2Style+'">Receita – gasto real</div></div>'
     +'</div>'
 
     // Categorias
@@ -5920,24 +6088,66 @@ function rConfig(){
   var targetSection = '<div class="card"><div class="sec" style="margin-top:0">Alvo financeiro</div><div class="cfgr"><div class="cfgl"><div class="cfgn">Meta de poupança</div><div class="cfgs">Quanto deve sobrar: '+R(tot)+' − '+R(tot-tgt)+'</div></div><input class="cfgi" type="number" id="ts-s" value="'+tgt+'" onblur="window.saveTargetS(this.value)"></div></div>';
 
   var planState = premiumPlanState();
-  var cancelBtn = planState.kind==='premium'
-    ? '<div class="cfgr" style="border-top:1px solid var(--bd);padding-top:12px;margin-top:4px">'
-        +'<div class="cfgl"><div class="cfgn">Cancelar assinatura</div><div class="cfgs">Você perderá acesso ao Premium ao fim do período atual</div></div>'
-        +'<button style="width:auto;margin:0;padding:8px 16px;background:var(--red-l);color:var(--red);border:1px solid #fecaca;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="window.openCancelSubscriptionModal()">Cancelar plano</button>'
+  var I2=ppPlansIcons();
+  var feats2=ppPlansFeatures();
+  var premFeatRows=feats2.slice(0,3).map(function(f){
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--pp-border)">'
+      +'<div style="width:34px;height:34px;border-radius:10px;background:'+f.bg+';color:'+f.fg+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+I2[f.icon]+'</div>'
+      +'<div>'
+        +'<div style="font-size:13px;font-weight:700;color:var(--pp-t1);letter-spacing:-.01em;line-height:1.2">'+safeTxt(f.title)+'</div>'
+        +'<div style="font-size:12px;color:var(--pp-t2);margin-top:3px;line-height:1.4">'+safeTxt(f.desc)+'</div>'
       +'</div>'
-    : '';
-
-  var planSection = '<div class="card">'
+    +'</div>';
+  }).join('');
+  var premPriceCards='<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">'
+    +'<div style="border-radius:14px;padding:16px 18px;background:linear-gradient(135deg,#1e1510 0%,#0d0a07 100%);position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(229,113,58,.14),0 4px 12px rgba(14,11,8,.22)">'
+      +'<div style="position:absolute;top:0;right:0;width:120px;height:120px;pointer-events:none;background:radial-gradient(circle at top right,rgba(229,113,58,.2),transparent 70%)"></div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">'
+        +'<div>'
+          +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#A8A296;margin-bottom:6px">Premium anual</div>'
+          +'<div style="display:flex;align-items:baseline;gap:5px">'
+            +'<span style="font-size:24px;font-weight:700;letter-spacing:-.025em;color:#fff">R$ 135</span>'
+            +'<span style="font-size:13px;color:#A8A296">/ano</span>'
+          +'</div>'
+          +'<div style="font-size:11px;color:#A8A296;margin-top:3px">R$ 11,25/mês · economize 25%</div>'
+        +'</div>'
+        +'<span style="font-size:10px;font-weight:800;padding:5px 10px;border-radius:999px;background:var(--pp-brand);color:#fff;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Melhor</span>'
+      +'</div>'
+    +'</div>'
+    +'<div style="border-radius:14px;padding:16px 18px;background:#fff;border:1px solid var(--pp-border);display:flex;align-items:center;justify-content:space-between;gap:12px">'
+      +'<div>'
+        +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--pp-t3);margin-bottom:6px">Premium mensal</div>'
+        +'<div style="display:flex;align-items:baseline;gap:5px">'
+          +'<span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--pp-t1)">R$ 14,90</span>'
+          +'<span style="font-size:13px;color:var(--pp-t3)">/mês</span>'
+        +'</div>'
+        +'<div style="font-size:11px;color:var(--pp-t3);margin-top:3px">Flexível, cancele quando quiser</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+  var planTrustRow='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:11.5px;color:var(--pp-t3);margin-bottom:14px">'
+    +'<span style="display:inline-flex;align-items:center;gap:5px">'
+      +'<span style="width:16px;height:16px;border-radius:50%;background:var(--pp-tint-g-bg);color:var(--pp-tint-g-fg);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">'+I2.checkSmall+'</span>'
+      +'Cancele quando quiser</span>'
+    +'<span style="display:inline-flex;align-items:center;gap:5px">'
+      +'<span style="width:16px;height:16px;border-radius:50%;background:var(--pp-tint-g-bg);color:var(--pp-tint-g-fg);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">'+I2.checkSmall+'</span>'
+      +'Acesso imediato após o pagamento</span>'
+  +'</div>';
+  var planSection='<div class="card">'
     +'<div class="sec" style="margin-top:0">Plano e assinatura</div>'
     +premiumStatusCard()
-    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px">'
-      +'<div style="background:var(--s2);border:1px solid var(--bd);border-radius:14px;padding:13px"><div class="sl">Plano atual</div><div style="font-size:16px;font-weight:900;color:var(--txt)">'+safeTxt(planState.badge)+'</div></div>'
-      +'<div style="background:var(--s2);border:1px solid var(--bd);border-radius:14px;padding:13px"><div class="sl">Premium mensal</div><div style="font-size:16px;font-weight:900;color:#c2410c">'+PREMIUM_MONTHLY_PRICE+'</div></div>'
-      +'<div style="background:var(--s2);border:1px solid var(--bd);border-radius:14px;padding:13px"><div class="sl">Premium anual</div><div style="font-size:16px;font-weight:900;color:#1a120a">'+PREMIUM_ANNUAL_PRICE+'</div></div>'
-    +'</div>'
-    +'<div class="notice" style="font-size:12px;margin-bottom:12px">O Premium libera as áreas de decisão do app: investimentos e caixinhas, metas financeiras e análises inteligentes. O plano gratuito continua com o controle básico de gastos.</div>'
-    +'<button class="bblu" onclick="window.openPlansModal()">Ver planos, valores e vantagens</button>'
-    +cancelBtn
+    +(planState.kind==='premium'
+      ?'<div style="margin-bottom:16px">'+premFeatRows+'</div>'
+        +'<button style="width:100%;border:1px solid var(--pp-border-strong);background:#fff;color:var(--pp-t1);border-radius:999px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s" onclick="window.openPlansModal()">Ver planos e benefícios</button>'
+        +'<div style="border-top:1px solid var(--pp-border);padding-top:14px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">'
+          +'<div>'
+            +'<div style="font-size:13px;font-weight:700;color:var(--pp-t1)">Cancelar assinatura</div>'
+            +'<div style="font-size:11.5px;color:var(--pp-t3);margin-top:2px">Você perderá acesso ao Premium ao fim do período atual</div>'
+          +'</div>'
+          +'<button style="padding:8px 14px;background:var(--red-l);color:var(--red);border:1px solid #fecaca;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0" onclick="window.openCancelSubscriptionModal()">Cancelar plano</button>'
+        +'</div>'
+      :premPriceCards+planTrustRow+'<button style="width:100%;background:var(--pp-brand);color:#fff;border:none;border-radius:999px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;box-shadow:0 4px 14px rgba(229,113,58,.28)" onclick="window.openPlansModal()">Ver planos, valores e vantagens</button>'
+    )
     +'</div>';
 
   var contaSection = '<div class="card">'
