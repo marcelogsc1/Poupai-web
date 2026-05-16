@@ -1565,6 +1565,20 @@ const KW={
   outros:['pix','saque','correio','cartorio','cartório','documento','xerox','impressao','impressão','taxa','tarifa','servico','serviço','outros'],
 };
 
+const PAYMENT_BANKS=['','Nubank','Inter','C6','Bradesco','Itaú','Santander','Banco do Brasil','Caixa','PicPay','Mercado Pago','BTG','XP','Outro'];
+const PAYMENT_TYPES=['','Débito','Crédito','Pix','Dinheiro','Boleto','Outro'];
+function selectOptions(list, selected){
+  selected = selected || '';
+  return list.map(function(v){
+    var label = v || 'Não informado';
+    return '<option value="'+safeAttr(v)+'"'+(v===selected?' selected':'')+'>'+safeTxt(label)+'</option>';
+  }).join('');
+}
+function paymentFieldsHtml(prefix, bank, pay){
+  bank = bank || ''; pay = pay || '';
+  return '<div class="g2"><div><label class="fl">Banco/cartão</label><select class="fi" id="'+prefix+'-bank" onchange="window.paymentFieldChanged && window.paymentFieldChanged(\''+prefix+'\')">'+selectOptions(PAYMENT_BANKS, bank)+'</select></div><div><label class="fl">Forma de pagamento</label><select class="fi" id="'+prefix+'-pay" onchange="window.paymentFieldChanged && window.paymentFieldChanged(\''+prefix+'\')">'+selectOptions(PAYMENT_TYPES, pay)+'</select></div></div>';
+}
+
 function readPaymentFields(prefix){
   var bankEl=document.getElementById(prefix+'-bank');
   var payEl=document.getElementById(prefix+'-pay');
