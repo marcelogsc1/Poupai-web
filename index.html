@@ -349,8 +349,8 @@ input,button,textarea{font-family:inherit}
 .fsub{font-size:13px;color:var(--mt);margin-top:2px}
 .fg{margin-bottom:16px}
 .fl{display:block;font-size:12px;font-weight:700;color:var(--mt);margin-bottom:6px;letter-spacing:.02em}
-.fi{width:100%;padding:12px 14px;border:1px solid var(--bd);border-radius:10px;font-size:15px;background:var(--srf);color:var(--txt);transition:border-color 0.2s}
-.fi:focus{outline:none;border-color:var(--blu);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--bd2);border-radius:10px;font-size:15px;background:var(--s3);color:var(--txt);transition:border-color 0.2s,background 0.15s}
+.fi:focus{outline:none;border-color:var(--blu);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:#fff}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .tg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .tb{padding:8px 14px;border-radius:8px;border:1px solid var(--bd);cursor:pointer;font-size:13px;font-weight:500;background:var(--srf);color:var(--mt);transition:all .15s;display:flex;align-items:center;gap:6px}
@@ -369,8 +369,8 @@ input,button,textarea{font-family:inherit}
 .cfgl{flex:1}
 .cfgn{font-size:14px;font-weight:500}
 .cfgs{font-size:12px;color:var(--mt);margin-top:4px}
-.cfgi{border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-family:monospace;font-weight:700;font-size:14px;text-align:right;width:130px;background:var(--srf);color:var(--txt)}
-.cfgi:focus{outline:none;border-color:var(--blu)}
+.cfgi{border:1.5px solid var(--bd2);border-radius:8px;padding:8px 12px;font-family:monospace;font-weight:700;font-size:14px;text-align:right;width:130px;background:var(--s3);color:var(--txt)}
+.cfgi:focus{outline:none;border-color:var(--blu);background:#fff}
 
 .notice{background:var(--blu-l);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;font-size:13px;color:var(--blu-d);margin-bottom:16px;line-height:1.5}
 .empty{text-align:center;padding:48px 16px;color:var(--mt)}
@@ -921,7 +921,7 @@ body.profile-bg #app{max-width:none!important;width:100%!important;min-height:10
 .cfg-v2-overlay{background:rgba(15,15,14,.62)!important;padding:0!important;align-items:center!important;justify-content:center!important;z-index:260!important}
 .cfg-v2-modal{width:min(1440px,calc(100vw - 64px));height:min(860px,calc(100vh - 38px));background:#fff;border-radius:4px;box-shadow:0 24px 80px rgba(0,0,0,.28);overflow:auto;font-family:Inter,system-ui,-apple-system,sans-serif;color:#211b16}
 .cfg-v2-shell{min-height:100%;padding:42px 44px 36px;background:#fff}.cfg-v2-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}.cfg-v2-gear{width:44px;height:44px;border-radius:13px;background:#fff2e8;color:#f26118;display:flex;align-items:center;justify-content:center}.cfg-v2-close{width:54px;height:54px;border:none;border-radius:50%;background:#f7f2ec;color:#211b16;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,transform .12s}.cfg-v2-close:hover{background:#f0e8df}.cfg-v2-close:active{transform:scale(.98)}
-.cfg-v2-back{height:56px;padding:0 26px;border:1.5px solid #eadfd2;background:#fff;border-radius:14px;color:#211b16;font-size:22px;font-weight:650;font-family:inherit;display:inline-flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.02);margin-bottom:28px}.cfg-v2-layout{display:grid;grid-template-columns:440px minmax(0,1fr);gap:34px;align-items:start}.cfg-v2-sidebar{display:flex;flex-direction:column;gap:18px}.cfg-v2-side-btn{width:100%;border:none;background:transparent;border-radius:18px;padding:20px 22px;min-height:96px;display:flex;align-items:center;gap:20px;text-align:left;font-family:inherit;cursor:pointer;color:#211b16;transition:background .15s,box-shadow .15s,transform .12s}.cfg-v2-side-btn:hover{background:#fff8f2}.cfg-v2-side-btn.on{background:#fff1e6}.cfg-v2-side-ico{width:60px;height:60px;border-radius:16px;background:#fbf6ef;border:1px solid #efe4d8;color:#473c32;display:flex;align-items:center;justify-content:center;flex:0 0 60px}.cfg-v2-side-btn.on .cfg-v2-side-ico{background:#fff;border-color:#f3e4d5;box-shadow:0 5px 14px rgba(89,53,23,.08);color:#f26118}.cfg-v2-side-title{display:block;font-size:24px;font-weight:850;letter-spacing:-.03em;line-height:1.05;color:#211b16}.cfg-v2-side-desc{display:block;margin-top:10px;font-size:17px;color:#b1a494;line-height:1.2}.cfg-v2-side-btn.on .cfg-v2-side-title,.cfg-v2-side-btn.on .cfg-v2-side-desc{color:#f26118}.cfg-v2-side-arrow{margin-left:auto;color:#f26118;display:flex;align-items:center;opacity:0}.cfg-v2-side-btn.on .cfg-v2-side-arrow{opacity:1}.cfg-v2-pane{min-width:0}.cfg-v2-card{background:#fff;border:1.5px solid #eadfd2;border-radius:28px;padding:36px 36px 34px;min-height:620px}.cfg-v2-card .card{box-shadow:none;border:0;border-radius:0;padding:0;margin:0;background:transparent}.cfg-v2-card > .card + .card{margin-top:30px;padding-top:28px;border-top:1px solid #eee5da}.cfg-v2-card .sec{font-size:17px;font-weight:850;letter-spacing:.22em;color:#887e73;text-transform:uppercase;margin:0 0 36px;justify-content:flex-start}.cfg-v2-card .cfgr{padding:22px 0;border-bottom:1px solid #eee5da}.cfg-v2-card .cfgr:first-of-type{padding-top:0}.cfg-v2-card .cfgn{font-size:24px;font-weight:750;color:#211b16;letter-spacing:-.025em}.cfg-v2-card .cfgs{font-size:19px;color:#897f74;margin-top:10px;line-height:1.3}.cfg-v2-card .cfgi{border:none;background:transparent;width:220px;max-width:100%;font-size:18px;font-weight:600;color:#211b16;text-align:right}.cfg-v2-card .cfgi::placeholder{color:#b8b0a8}.cfg-v2-card .bs,.cfg-v2-card .btn-export{border-radius:10px}.cfg-v2-section-title{font-size:17px;font-weight:850;letter-spacing:.22em;color:#887e73;text-transform:uppercase;margin:0 0 36px}.cfg-v2-status{font-size:18px;font-weight:850;color:#15803d;white-space:nowrap}.cfg-v2-muted-status{font-size:18px;font-weight:850;color:#7a6f64;white-space:nowrap}.cfg-v2-hidden-title{display:none}
+.cfg-v2-back{height:56px;padding:0 26px;border:1.5px solid #eadfd2;background:#fff;border-radius:14px;color:#211b16;font-size:22px;font-weight:650;font-family:inherit;display:inline-flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.02);margin-bottom:28px}.cfg-v2-layout{display:grid;grid-template-columns:440px minmax(0,1fr);gap:34px;align-items:start}.cfg-v2-sidebar{display:flex;flex-direction:column;gap:18px}.cfg-v2-side-btn{width:100%;border:none;background:transparent;border-radius:18px;padding:20px 22px;min-height:96px;display:flex;align-items:center;gap:20px;text-align:left;font-family:inherit;cursor:pointer;color:#211b16;transition:background .15s,box-shadow .15s,transform .12s}.cfg-v2-side-btn:hover{background:#fff8f2}.cfg-v2-side-btn.on{background:#fff1e6}.cfg-v2-side-ico{width:60px;height:60px;border-radius:16px;background:#fbf6ef;border:1px solid #efe4d8;color:#473c32;display:flex;align-items:center;justify-content:center;flex:0 0 60px}.cfg-v2-side-btn.on .cfg-v2-side-ico{background:#fff;border-color:#f3e4d5;box-shadow:0 5px 14px rgba(89,53,23,.08);color:#f26118}.cfg-v2-side-title{display:block;font-size:24px;font-weight:850;letter-spacing:-.03em;line-height:1.05;color:#211b16}.cfg-v2-side-desc{display:block;margin-top:10px;font-size:17px;color:#b1a494;line-height:1.2}.cfg-v2-side-btn.on .cfg-v2-side-title,.cfg-v2-side-btn.on .cfg-v2-side-desc{color:#f26118}.cfg-v2-side-arrow{margin-left:auto;color:#f26118;display:flex;align-items:center;opacity:0}.cfg-v2-side-btn.on .cfg-v2-side-arrow{opacity:1}.cfg-v2-pane{min-width:0}.cfg-v2-card{background:#fff;border:1.5px solid #eadfd2;border-radius:28px;padding:36px 36px 34px;min-height:620px}.cfg-v2-card .card{box-shadow:none;border:0;border-radius:0;padding:0;margin:0;background:transparent}.cfg-v2-card > .card + .card{margin-top:30px;padding-top:28px;border-top:1px solid #eee5da}.cfg-v2-card .sec{font-size:17px;font-weight:850;letter-spacing:.22em;color:#887e73;text-transform:uppercase;margin:0 0 36px;justify-content:flex-start}.cfg-v2-card .cfgr{padding:22px 0;border-bottom:1px solid #eee5da}.cfg-v2-card .cfgr:first-of-type{padding-top:0}.cfg-v2-card .cfgn{font-size:24px;font-weight:750;color:#211b16;letter-spacing:-.025em}.cfg-v2-card .cfgs{font-size:19px;color:#897f74;margin-top:10px;line-height:1.3}.cfg-v2-card .cfgi{border:1.5px solid #d6ccc3;background:#f7f2ed;border-radius:8px;width:220px;max-width:100%;font-size:18px;font-weight:600;color:#211b16;text-align:right}.cfg-v2-card .cfgi::placeholder{color:#b8b0a8}.cfg-v2-card .cfgi:focus{outline:none;border-color:#ea580c;background:#fff}.cfg-v2-card .bs,.cfg-v2-card .btn-export{border-radius:10px}.cfg-v2-section-title{font-size:17px;font-weight:850;letter-spacing:.22em;color:#887e73;text-transform:uppercase;margin:0 0 36px}.cfg-v2-status{font-size:18px;font-weight:850;color:#15803d;white-space:nowrap}.cfg-v2-muted-status{font-size:18px;font-weight:850;color:#7a6f64;white-space:nowrap}.cfg-v2-hidden-title{display:none}
 @media(max-width:860px){
   .cfg-v2-overlay{align-items:center!important;padding:0!important}.cfg-v2-modal{width:min(730px,calc(100vw - 22px));height:auto;max-height:calc(100vh - 34px);border-radius:3px}.cfg-v2-shell{padding:38px 28px 0}.cfg-v2-top{margin-bottom:24px}.cfg-v2-gear{width:46px;height:46px}.cfg-v2-close{width:54px;height:54px}.cfg-v2-back{height:58px;font-size:23px;padding:0 26px;margin-bottom:36px;border-radius:15px}.cfg-v2-layout{display:block}.cfg-v2-sidebar{display:flex;flex-direction:row;gap:0;overflow-x:auto;background:#f9f3ec;border:1.5px solid #efe4d7;border-radius:30px;padding:8px;margin-bottom:28px;scrollbar-width:none}.cfg-v2-sidebar::-webkit-scrollbar{display:none}.cfg-v2-side-btn{flex:0 0 126px;min-height:104px;border-radius:24px;padding:17px 10px 14px;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}.cfg-v2-side-ico{width:34px;height:34px;border:none;background:transparent;border-radius:0;box-shadow:none!important}.cfg-v2-side-title{font-size:18px;max-width:104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}.cfg-v2-side-desc,.cfg-v2-side-arrow{display:none}.cfg-v2-side-btn.on{background:#fff;box-shadow:0 7px 18px rgba(60,39,20,.10)}.cfg-v2-card{border-radius:26px;padding:34px 30px;min-height:560px}.cfg-v2-section-title,.cfg-v2-card .sec{font-size:18px;margin-bottom:34px}.cfg-v2-card .cfgr{padding:24px 0}.cfg-v2-card .cfgn{font-size:25px}.cfg-v2-card .cfgs{font-size:21px;margin-top:8px}.cfg-v2-card .cfgi{font-size:17px;text-align:left;width:100%}.cfg-v2-status,.cfg-v2-muted-status{font-size:21px}.cfg-v2-card .cfgr{gap:18px}.cfg-v2-card .cfgr .cfgl{min-width:0}.cfg-v2-card .cfgr>div:last-child{flex-shrink:0}
 }
@@ -1626,7 +1626,7 @@ const INIT={
     salaries:[{id:'s1',label:'Renda Principal',amount:0},{id:'s2',label:'Renda Extra',amount:0}],
     tetos:{},
     targetSavings:0,
-    headerCards:[],
+    headerCards:null,
     categoryLabels:{},
     categoryColors:{},
     categoryKeywords:{},
@@ -2003,6 +2003,12 @@ try {
 var _isOnline = navigator.onLine;
 var _fromCache = false;
 var _hasPendingWrites = false;
+// Timestamp da última versão confirmada pelo servidor. Usado para impedir que
+// um sset() com dados mais antigos sobrescreva dados mais recentes no Firestore.
+var _serverDataUpdatedAt = 0;
+// Timestamp da última escrita local ainda aguardando confirmação real do servidor.
+// Evita que um snapshot antigo do servidor substitua uma alteração recém-salva no app.
+var _pendingLocalSaveAt = 0;
 
 function _showConnectionToast(msg, color, duration){
   var old = document.getElementById('conn-toast');
@@ -2074,15 +2080,36 @@ function startUserDataListener(user){
       if (docSnap.exists()) {
         pendingGoogleNoData = false;
         clearGoogleIntent();
-        var incoming = (docSnap.data() || {}).data || JSON.parse(JSON.stringify(INIT));
-        // Se veio do servidor (não cache), atualiza. Se cache e D já existe, mantém D.
+        var docData = docSnap.data() || {};
+        var incoming = docData.data || JSON.parse(JSON.stringify(INIT));
+        // Captura o timestamp de atualização do servidor (usado como versão para anti-rollback).
+        // Se houver uma escrita local pendente, snapshots antigos do servidor são ignorados
+        // para não desfazer alterações recém-feitas, como os cards fixados no header.
+        var serverUpdatedAt = Number(docData.dataUpdatedAt || 0) || 0;
+        if (!_fromCache && !_hasPendingWrites && _pendingLocalSaveAt) {
+          if (!serverUpdatedAt || serverUpdatedAt < _pendingLocalSaveAt) {
+            console.warn('[PoupAí] snapshot antigo ignorado: servidor=' + serverUpdatedAt + ' pendente=' + _pendingLocalSaveAt);
+            return;
+          }
+          _pendingLocalSaveAt = 0;
+        }
+        if (!_fromCache && serverUpdatedAt) _serverDataUpdatedAt = Math.max(_serverDataUpdatedAt || 0, serverUpdatedAt);
+        // Se veio do servidor (não cache), atualiza sempre.
+        // Se veio do cache e D ainda não existe (primeira carga), usa o cache SÓ para exibição,
+        // mas NUNCA escreve de volta no Firestore dados vindos do cache — isso evita sobrescrever
+        // dados mais novos no servidor com um snapshot antigo do IndexedDB.
         if (!_fromCache || !D) {
           D = incoming;
-          if(normalizeDataText()) { setDoc(doc(db, "users", activeUid), { data: D }, { merge: true }).catch(function(){}); } // fire-and-forget: normaliza dados legados
           _cacheUserLocalData(D, activeUid);
+          // Normalização (adiciona campos novos ausentes) só é escrita no Firestore quando
+          // os dados vêm do servidor confirmado. Se vier do cache, a normalização roda
+          // apenas localmente (para o app funcionar) mas não persiste, evitando sobrescrever
+          // dados recentes com um snapshot antigo que ainda não tem o campo novo.
+          // Normalização de schema roda apenas em memória. Não gravamos {data:D}
+          // automaticamente, porque isso poderia reenviar um snapshot antigo como verdade.
+          normalizeDataText();
         }
         // Lê campos de premium/trial do documento
-        var docData = docSnap.data() || {};
         userPremium = docData.premium === true;
         userTrialStart = docData.trialStart || null;
         if (!userTrialStart && user) {
@@ -2110,6 +2137,24 @@ function startUserDataListener(user){
         }
         renderFromSnapshot();
       } else {
+        // Documento não existe no Firestore.
+        // SEGURANÇA CRÍTICA: só tratar como novo usuário se a resposta veio do servidor,
+        // não do cache. Se veio do cache, pode ser falso negativo (documento existe no servidor
+        // mas ainda não foi carregado). Nesse caso, aguardamos o snapshot do servidor.
+        if (_fromCache) {
+          // Cache diz que documento não existe, mas o servidor ainda não confirmou.
+          // NUNCA criar/sobrescrever documento com base nisso.
+          // Se houver dados no localStorage do usuário, exibe enquanto aguarda servidor.
+          var _cacheLocalFallback = _readUserLocalData(activeUid);
+          if (_cacheLocalFallback && !D) {
+            D = _cacheLocalFallback;
+            normalizeDataText(); // apenas em memória, sem escrever no Firestore
+            renderFromSnapshot();
+          }
+          console.warn('[PoupAí] docSnap não existe no cache — aguardando confirmação do servidor antes de criar documento.');
+          return;
+        }
+
         var googleIntent = getGoogleIntent();
         var signedWithGoogle = userHasProvider(user, 'google.com');
         if (signedWithGoogle && googleIntent !== 'signup') {
@@ -2124,12 +2169,15 @@ function startUserDataListener(user){
 
         pendingGoogleNoData = false;
         clearGoogleIntent();
+        // Servidor confirmou que não existe documento: usuário realmente novo.
+        // Usa localStorage como base se houver (migração), senão INIT limpo.
         D = _readUserLocalData(activeUid) || JSON.parse(JSON.stringify(INIT));
         _cacheUserLocalData(D, activeUid);
         var trialStart = new Date().toISOString();
         userTrialStart = trialStart;
         userPremium = false;
-        setDoc(doc(db, "users", activeUid), { data: D, email: user.email, trialStart: trialStart, premium: false }).catch(function(){}); // fire-and-forget: criação de novo usuário
+        // merge:true como segurança adicional, evita sobrescrever campos que possam existir
+        setDoc(doc(db, "users", activeUid), { data: D, email: user.email, trialStart: trialStart, premium: false }, { merge: true }).catch(function(){}); // fire-and-forget: criação de novo usuário
         renderFromSnapshot();
         // Novo usuário: mostra onboarding
         if (!D.onboarded) {
@@ -2185,8 +2233,39 @@ async function sset(v) {
   var activeUid = userId;
   if(activeUid) _cacheUserLocalData(v, activeUid);
   if (isCloud && activeUid) {
-    try { await setDoc(doc(db, "users", activeUid), { data: v }, { merge: true }); } catch(e) {}
+    // Proteção anti-rollback: cada sset grava o timestamp atual junto com os dados.
+    var now = Date.now();
+    if (_serverDataUpdatedAt && now < _serverDataUpdatedAt) {
+      console.warn('[PoupAí] sset bloqueado: relógio local (' + now + ') atrás do servidor (' + _serverDataUpdatedAt + ').');
+      return;
+    }
+    _serverDataUpdatedAt = Math.max(_serverDataUpdatedAt || 0, now);
+    _pendingLocalSaveAt = now;
+    try {
+      await setDoc(doc(db, "users", activeUid), { data: v, dataUpdatedAt: now }, { merge: true });
+      // Feedback visual discreto de auto-save
+      _showSavedToast();
+    } catch(e) {}
   }
+}
+
+function _showSavedToast(){
+  var existing = document.getElementById('poupai-saved-toast');
+  if(existing) { clearTimeout(existing._t); existing.remove(); }
+  var t = document.createElement('div');
+  t.id = 'poupai-saved-toast';
+  t.textContent = '✓ Salvo';
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(22,163,74,.92);color:#fff;font-size:13px;font-weight:700;padding:7px 16px;border-radius:999px;z-index:99999;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;font-family:Inter,system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.15)';
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  t._t = setTimeout(function(){
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(8px)';
+    setTimeout(function(){ if(t.parentNode) t.remove(); }, 200);
+  }, 1800);
 }
 
 function showAuthMsg(msg, ok) {
@@ -3404,7 +3483,7 @@ function rHdr(){
         var remTxt = pC > 0 ? (ov2 ? 'passou '+fmtShort(sC-pC) : 'falta '+fmtShort(Math.max(0,pC-sC))) : (sC > 0 ? 'sem teto definido' : 'defina um teto');
         return tc(g2.label,sC,pC,pct2,ov2,remTxt,'Gasto real nesta categoria comparado ao teto definido em Ajustes. A barra mostra o quanto do teto já foi consumido.');
       }).join('')
-    : '<div class="tc" style="cursor:pointer;border:1px dashed rgba(255,255,255,0.22);background:rgba(255,255,255,0.03);min-width:160px" onclick="window.openConfigModal()" title="Personalizar atalhos">'
+    : '<div class="tc" style="cursor:pointer;border:1px dashed rgba(255,255,255,0.22);background:rgba(255,255,255,0.03);min-width:160px" onclick="window.openConfigModal(\'usabilidade\');setTimeout(function(){var el=document.getElementById(\'header-cards-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},120)" title="Personalizar atalhos">'
       +'<div class="tclbl">Atalhos rápidos</div>'
       +'<div style="font-size:18px;opacity:0.35;line-height:1;margin:6px 0 4px">＋</div>'
       +'<div style="font-size:10px;color:var(--dk-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Configurar em ⚙️ Ajustes</div>'
@@ -6391,8 +6470,10 @@ function rConfig(){
     + '</div>';
 
   var curHCards=D.config.headerCards;
-  var hCardCats=(curHCards===undefined||curHCards===null)?['mercado','lanches']:curHCards;
-  var headerCardSection='<div class="card">'
+  // Na tela de configurações mostramos apenas escolhas reais do usuário.
+  // O padrão visual Mercado/Lanches é usado somente no header quando nada foi personalizado.
+  var hCardCats=Array.isArray(curHCards)?curHCards:[];
+  var headerCardSection='<div class="card" id="header-cards-section">'
     +'<div class="sec" style="margin-top:0">Cards de atalho no topo</div>'
     +'<div style="margin-bottom:12px"><div class="cfgn">Categorias fixadas no cabeçalho</div>'
     +'<div class="cfgs">Escolha até 2 categorias para monitorar rapidamente.</div></div>'
@@ -7545,8 +7626,8 @@ window.toggleAbatimento=function(instId){
 window.openAddInst=function(){U.scr='addInst';render();};
 
 window.toggleHeaderCard=function(catId){
-  var cur=D.config.headerCards;
-  var cards=(cur===undefined||cur===null)?['mercado','lanches']:cur.slice();
+  if(!D || !D.config) return;
+  var cards=Array.isArray(D.config.headerCards)?D.config.headerCards.slice():[];
   var idx=cards.indexOf(catId);
   if(idx!==-1){
     cards.splice(idx,1);
@@ -7554,11 +7635,17 @@ window.toggleHeaderCard=function(catId){
     cards.push(catId);
   } else {
     U.secMsg={ok:false,txt:'Máximo de 2 atalhos. Remova um antes de adicionar outro.'};
-    render(); return;
+    refreshConfigPanel({preserveScroll:true});
+    return;
   }
-  U.secMsg=null;
+  U.secMsg={ok:true,txt:cards.length?'Atalhos do cabeçalho atualizados.':'Atalhos removidos. Você pode escolher até 2 categorias.'};
   D.config.headerCards=cards;
-  sset(D); render();
+  if(userId) _cacheUserLocalData(D, userId);
+  // Atualiza visualmente sem fechar o modal e sem depender do snapshot do Firestore.
+  sset(D);
+  refreshGroups();
+  refreshMainHeader();
+  refreshConfigPanel({preserveScroll:true});
 };
 
 window.scrollPage=function(dir){
@@ -7931,10 +8018,30 @@ window.mpSelect = function(m){
   render();
 };
 
-function refreshConfigPanel(){
+function refreshMainHeader(){
+  var hdr = document.getElementById('main-hdr');
+  if(!hdr || !D) return;
+  var tmp = document.createElement('div');
+  tmp.innerHTML = rHdr();
+  var next = tmp.firstElementChild;
+  if(next) hdr.replaceWith(next);
+  markDataRendered();
+}
+
+function refreshConfigPanel(opts){
+  opts = opts || {};
   var body = document.getElementById('cfg-modal-body');
   if(body){
+    var pane = body.querySelector('.cfg-v2-pane');
+    var modal = body;
+    var paneScroll = pane ? pane.scrollTop : 0;
+    var modalScroll = modal ? modal.scrollTop : 0;
     body.innerHTML = rConfig();
+    if(opts.preserveScroll){
+      var pane2 = body.querySelector('.cfg-v2-pane');
+      if(pane2) pane2.scrollTop = paneScroll;
+      if(modal) modal.scrollTop = modalScroll;
+    }
   } else {
     render();
   }
