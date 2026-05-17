@@ -18,6 +18,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- Geist Mono e Manrope substituídos por Inter -->
+<script>
+(function(){
+  try{
+    var mode = localStorage.getItem('poupai-theme-mode') || 'auto';
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
+    document.documentElement.setAttribute('data-theme-mode', mode);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }catch(e){}
+})();
+</script>
 <style>
 :root{
   --bg:#fffbf7;--srf:#fff;--s2:#f8fafc;--s3:#f1f5f9;
@@ -689,6 +700,21 @@ input,button,textarea{font-family:inherit}
 /* Centralização do Login e Fluxo de Autenticação */
 .auth-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; text-align:center; width:100%; background:#fffbf7; }
 html.login-bg,html.login-bg body,html.login-bg #app { background:#fffbf7 !important; }
+/* Quando a tela de login está ativa, neutraliza as variáveis do dark mode
+   para que todo o auth-wrap e auth-card renderizem sempre no tema claro */
+html.login-bg[data-theme="dark"],
+html.login-bg[data-theme="dark"] body {
+  color-scheme: light !important;
+  --bg:#fffbf7 !important;
+  --srf:#fff !important;
+  --s2:#f8fafc !important;
+  --s3:#f1f5f9 !important;
+  --bd:#e2e8f0 !important;
+  --bd2:#cbd5e1 !important;
+  --txt:#1a120a !important;
+  --mt:#64748b !important;
+  --mt2:#94a3b8 !important;
+}
 .auth-card { background:#fff; border:none; border-radius:22px; padding:36px 28px 32px; width:100%; max-width:380px; box-shadow:0 8px 40px rgba(180,80,0,0.10), 0 1.5px 6px rgba(0,0,0,0.04); }
 .auth-logo-wrap { width:72px; height:72px; border-radius:20px; background:linear-gradient(145deg,#ff9b5d,#f97316); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 4px 18px rgba(249,115,22,0.30); overflow:hidden; }
 .auth-logo-wrap img { width:100%; height:100%; object-fit:cover; }
@@ -1387,6 +1413,553 @@ body.profile-bg #app{max-width:none!important;width:100%!important;min-height:10
   .cfg-v2-side-title{font-size:10.2px!important;max-width:60px!important}
 }
 
+/* ── Tema escuro do PoupAí ────────────────────────────────────────────────── */
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#100c09;
+  --srf:#1b1511;
+  --s2:#241b15;
+  --s3:#2c221b;
+  --bd:#3c3028;
+  --bd2:#5a493d;
+  --txt:#fff7ef;
+  --mt:#c7b5a6;
+  --mt2:#988677;
+  --grn:#4ade80;
+  --grn-l:#12301e;
+  --grn-d:#86efac;
+  --blu:#78a3ff;
+  --blu-l:#17243f;
+  --blu-d:#a9c2ff;
+  --red:#fb7185;
+  --red-l:#35151b;
+  --amb:#fbbf24;
+  --amb-l:#33240d;
+  --pur:#a78bfa;
+  --pur-l:#271f3a;
+  --accent:#7dd3fc;
+  --dk-bg:#7a3b12;
+  --dk-card:rgba(255,255,255,.12);
+  --dk-border:rgba(255,255,255,.13);
+  --dk-txt:#fff7ef;
+  --dk-muted:rgba(255,241,226,.76);
+  --dk-dim:rgba(255,241,226,.56);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.22);
+  --shadow-md:0 4px 14px rgba(0,0,0,.34),0 2px 4px rgba(0,0,0,.26);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.42),0 2px 8px rgba(0,0,0,.30);
+  --pp-bg-card:#1b1511;
+  --pp-bg-card-2:#211912;
+  --pp-bg-subtle:#2c221b;
+  --pp-border:#3c3028;
+  --pp-border-strong:#5a493d;
+  --pp-t1:#fff7ef;
+  --pp-t2:#d6c5b7;
+  --pp-t3:#a99788;
+  --pp-t4:#7f6f62;
+  --pp-brand:#ff9b5d;
+  --pp-brand-2:#f97316;
+  --pp-brand-soft:#3a2417;
+  --pp-tint-o-bg:#3a2417;
+  --pp-tint-o-fg:#ffb27a;
+  --pp-tint-b-bg:#17243f;
+  --pp-tint-b-fg:#9fc1ff;
+  --pp-tint-g-bg:#12301e;
+  --pp-tint-g-fg:#86efac;
+  --pp-tint-v-bg:#271f3a;
+  --pp-tint-v-fg:#c4b5fd;
+  --pp-warn-bg:#33240d;
+  --pp-warn-bd:#73520d;
+  --pp-warn-fg:#facc15;
+}
+html[data-theme="dark"] body{background:var(--bg);color:var(--txt)}
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .goal-card,
+html[data-theme="dark"] .qe,
+html[data-theme="dark"] .tbl-wrap,
+html[data-theme="dark"] .kanban-total-footer,
+html[data-theme="dark"] .stats-modal,
+html[data-theme="dark"] .ob-modal,
+html[data-theme="dark"] .fs,
+html[data-theme="dark"] .cfg-sidebar,
+html[data-theme="dark"] .cfg-v2-modal,
+html[data-theme="dark"] .cfg-v2-shell,
+html[data-theme="dark"] .cfg-v2-card,
+html[data-theme="dark"] .profile-v2-modal,
+html[data-theme="dark"] .pp-box,
+html[data-theme="dark"] #plans-overlay .pp-box{
+  background:var(--srf)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .fi,
+html[data-theme="dark"] .cfgi,
+html[data-theme="dark"] .import-area,
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select{
+  background:var(--s3)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd2)!important;
+}
+html[data-theme="dark"] .fi:focus,
+html[data-theme="dark"] .cfgi:focus,
+html[data-theme="dark"] .import-area:focus{
+  background:#211912!important;
+  border-color:var(--accent)!important;
+}
+html[data-theme="dark"] .ob-steps-list,
+html[data-theme="dark"] .gastos-viewbar,
+html[data-theme="dark"] .view-switchbar,
+html[data-theme="dark"] .gastos-view-toggle,
+html[data-theme="dark"] .view-toggle,
+html[data-theme="dark"] .itbl th,
+html[data-theme="dark"] .stats-modal-header,
+html[data-theme="dark"] .cfg-v2-sidebar,
+html[data-theme="dark"] .cfg-v2-side-ico,
+html[data-theme="dark"] .cfg-v2-close,
+html[data-theme="dark"] .cfg-v2-back,
+html[data-theme="dark"] .mb,
+html[data-theme="dark"] .cfg-btn,
+html[data-theme="dark"] .btn-export,
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .qemic,
+html[data-theme="dark"] .bgh,
+html[data-theme="dark"] .bdl,
+html[data-theme="dark"] .bca{
+  background:var(--s2)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .cfg-v2-side-btn:hover,
+html[data-theme="dark"] .cfg-v2-side-btn.on,
+html[data-theme="dark"] .cfg-side-btn.on{
+  background:#3a2417!important;
+  color:#ffb27a!important;
+}
+html[data-theme="dark"] .cfg-v2-side-btn.on .cfg-v2-side-title,
+html[data-theme="dark"] .cfg-v2-side-btn.on .cfg-v2-side-desc,
+html[data-theme="dark"] .cfg-v2-side-btn.on .cfg-v2-side-arrow{
+  color:#ffb27a!important;
+}
+html[data-theme="dark"] .cfg-v2-side-title,
+html[data-theme="dark"] .cfgn,
+html[data-theme="dark"] .grn,
+html[data-theme="dark"] .erd,
+html[data-theme="dark"] .kanban-card-title,
+html[data-theme="dark"] .ob-title,
+html[data-theme="dark"] .ftit,
+html[data-theme="dark"] .mlbl,
+html[data-theme="dark"] .sv,
+html[data-theme="dark"] .profile-v2-name,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3{
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] .cfgs,
+html[data-theme="dark"] .ers,
+html[data-theme="dark"] .grc,
+html[data-theme="dark"] .ob-desc,
+html[data-theme="dark"] .fsub,
+html[data-theme="dark"] .sl,
+html[data-theme="dark"] .ss,
+html[data-theme="dark"] .sec,
+html[data-theme="dark"] .sec-hdr-lbl,
+html[data-theme="dark"] .profile-v2-row-sub{
+  color:var(--mt)!important;
+}
+html[data-theme="dark"] .kanban-col-hdr,
+html[data-theme="dark"] .kanban-card,
+html[data-theme="dark"] .kanban-pill,
+html[data-theme="dark"] [style*="background:#fff"],
+html[data-theme="dark"] [style*="background: #fff"],
+html[data-theme="dark"] [style*="background:#FFFFFF"],
+html[data-theme="dark"] [style*="background:var(--srf)"]{
+  background:var(--srf)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] [style*="color:#1a120a"],
+html[data-theme="dark"] [style*="color:#15140F"],
+html[data-theme="dark"] [style*="color:#211b16"],
+html[data-theme="dark"] [style*="color:var(--pp-t1)"]{color:var(--txt)!important}
+html[data-theme="dark"] [style*="color:#7a5a3e"],
+html[data-theme="dark"] [style*="color:#897f74"],
+html[data-theme="dark"] [style*="color:#80796B"],
+html[data-theme="dark"] [style*="color:var(--pp-t2)"],
+html[data-theme="dark"] [style*="color:var(--pp-t3)"]{color:var(--mt)!important}
+html[data-theme="dark"] .itbl td,
+html[data-theme="dark"] .bill-row,
+html[data-theme="dark"] .er,
+html[data-theme="dark"] .gr,
+html[data-theme="dark"] .cfgr,
+html[data-theme="dark"] .pi,
+html[data-theme="dark"] .dhdr{border-color:var(--bd)!important}
+html[data-theme="dark"] .theme-choice.on{background:linear-gradient(135deg,#ff9b5d,#ea580c)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 6px 16px rgba(249,115,22,.22)}
+html[data-theme="dark"] .theme-choice:not(.on){background:var(--s2)!important;color:var(--txt)!important;border-color:var(--bd)!important}
+
+
+/* ── Complemento dark: Perfil e Modal de Planos ─────────────────────────── */
+html[data-theme="dark"] body.profile-bg,
+html[data-theme="dark"] body.profile-bg #app,
+html[data-theme="dark"] .profile-v2-screen{
+  background:var(--bg)!important;
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] .profile-v2-title,
+html[data-theme="dark"] .profile-v2-row-title{
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] .profile-v2-icon-btn,
+html[data-theme="dark"] .profile-v2-row{
+  background:var(--srf)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+  box-shadow:var(--shadow-sm)!important;
+}
+html[data-theme="dark"] .profile-v2-icon-btn:hover,
+html[data-theme="dark"] .profile-v2-row:hover{
+  background:var(--s2)!important;
+  border-color:var(--bd2)!important;
+}
+html[data-theme="dark"] .profile-v2-row-ico{
+  background:var(--s2)!important;
+  border-color:var(--bd)!important;
+  color:var(--mt)!important;
+}
+html[data-theme="dark"] .profile-v2-row.danger .profile-v2-row-ico{
+  background:var(--red-l)!important;
+  border-color:rgba(251,113,133,.30)!important;
+  color:var(--red)!important;
+}
+html[data-theme="dark"] .profile-v2-row.danger .profile-v2-row-title{
+  color:var(--red)!important;
+}
+html[data-theme="dark"] .profile-v2-chevron{
+  color:var(--mt2)!important;
+}
+html[data-theme="dark"] .profile-v2-premium{
+  background:radial-gradient(circle at 75% 18%,rgba(255,155,93,.28),transparent 30%),linear-gradient(135deg,#2a1b13 0%,#130d09 72%)!important;
+  box-shadow:0 22px 46px rgba(0,0,0,.30)!important;
+}
+html[data-theme="dark"] .profile-v2-plan-btn{
+  background:rgba(255,247,239,.94)!important;
+  color:#17110d!important;
+}
+
+html[data-theme="dark"] #plans-overlay.pp-overlay{
+  background:rgba(3,3,3,.72)!important;
+  color:var(--pp-t1)!important;
+}
+html[data-theme="dark"] #plans-overlay.pp-desktop .pp-modal,
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-sheet{
+  background:var(--pp-bg-card)!important;
+  border-color:var(--pp-border)!important;
+  color:var(--pp-t1)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.45)!important;
+}
+html[data-theme="dark"] #plans-overlay.pp-desktop .pp-left,
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-content{
+  background:var(--pp-bg-card)!important;
+  color:var(--pp-t1)!important;
+  border-color:var(--pp-border)!important;
+}
+html[data-theme="dark"] #plans-overlay.pp-desktop .pp-right{
+  background:var(--pp-bg-card-2)!important;
+  color:var(--pp-t1)!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-title,
+html[data-theme="dark"] #plans-overlay .pp-h1,
+html[data-theme="dark"] #plans-overlay .pp-card-title,
+html[data-theme="dark"] #plans-overlay .pp-mensal-big,
+html[data-theme="dark"] #plans-overlay .pp-price.light .pp-price-big,
+html[data-theme="dark"] #plans-overlay .pp-price.light .pp-price-unit{
+  color:var(--pp-t1)!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-subtitle,
+html[data-theme="dark"] #plans-overlay .pp-lead,
+html[data-theme="dark"] #plans-overlay .pp-card-desc,
+html[data-theme="dark"] #plans-overlay .pp-trust,
+html[data-theme="dark"] #plans-overlay .pp-trust-row,
+html[data-theme="dark"] #plans-overlay .pp-foot,
+html[data-theme="dark"] #plans-overlay .pp-mensal-unit,
+html[data-theme="dark"] #plans-overlay .pp-mensal-sub,
+html[data-theme="dark"] #plans-overlay .pp-price.light .pp-price-sub{
+  color:var(--pp-t2)!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-label,
+html[data-theme="dark"] #plans-overlay .pp-count,
+html[data-theme="dark"] #plans-overlay .pp-mensal-eyebrow,
+html[data-theme="dark"] #plans-overlay .pp-price.light .pp-price-eyebrow{
+  color:var(--pp-t3)!important;
+}
+html[data-theme="dark"] #plans-overlay.pp-desktop .pp-close,
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-close,
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-mensal-btn,
+html[data-theme="dark"] #plans-overlay .pp-toggle,
+html[data-theme="dark"] #plans-overlay .pp-toggle button.on,
+html[data-theme="dark"] #plans-overlay .pp-card,
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-mensal,
+html[data-theme="dark"] #plans-overlay .pp-price.light{
+  background:var(--pp-bg-subtle)!important;
+  color:var(--pp-t1)!important;
+  border-color:var(--pp-border)!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-toggle button:not(.on){
+  color:var(--pp-t3)!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-close:hover,
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-mensal-btn:active{
+  background:#34271f!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-feat{
+  border-color:var(--pp-border)!important;
+}
+html[data-theme="dark"] #plans-overlay .pp-feat-tag,
+html[data-theme="dark"] #plans-overlay .pp-toggle button.on .pp-save{
+  background:var(--pp-brand-soft)!important;
+  color:var(--pp-brand)!important;
+}
+html[data-theme="dark"] #plans-overlay.pp-mobile .pp-grabber > div{
+  background:var(--pp-border-strong)!important;
+}
+
+/* ── Ajustes finais de dark mode aplicados de forma específica ───────────── */
+html[data-theme="dark"] .qep{
+  background:#07351f!important;
+  border-top-color:rgba(134,239,172,.34)!important;
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] .qep > div[style*="rgba(255,255,255,.62)"],
+html[data-theme="dark"] .qep > div[style*="rgba(255,255,255, .62)"]{
+  background:#203028!important;
+  border-color:rgba(134,239,172,.46)!important;
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] .qep .fl,
+html[data-theme="dark"] .qep label,
+html[data-theme="dark"] .qep [style*="color:var(--mt)"]{
+  color:#d6c5b7!important;
+}
+html[data-theme="dark"] .qep .fi,
+html[data-theme="dark"] .qep select,
+html[data-theme="dark"] .qep input,
+html[data-theme="dark"] .qep textarea{
+  background:#2a1f19!important;
+  color:#fff7ef!important;
+  border-color:#5a493d!important;
+}
+html[data-theme="dark"] .qep .fi:focus,
+html[data-theme="dark"] .qep select:focus,
+html[data-theme="dark"] .qep input:focus{
+  background:#30231c!important;
+  border-color:#86efac!important;
+  box-shadow:0 0 0 3px rgba(134,239,172,.14)!important;
+}
+html[data-theme="dark"] .qep .gsb:not(.on),
+html[data-theme="dark"] .qep .qeno{
+  background:#241b15!important;
+  color:#fff7ef!important;
+  border-color:#4a3a30!important;
+}
+html[data-theme="dark"] .qep .qepdate{
+  background:#241b15!important;
+  color:#fff7ef!important;
+  border-color:rgba(134,239,172,.38)!important;
+}
+html[data-theme="dark"] .qep .qebtns{
+  border-top-color:rgba(134,239,172,.30)!important;
+}
+html[data-theme="dark"] .cat-modal,
+html[data-theme="dark"] .form-modal,
+html[data-theme="dark"] .goal-modal,
+html[data-theme="dark"] .goal-form-modal,
+html[data-theme="dark"] #checkout-fallback-overlay > div,
+html[data-theme="dark"] #_cancel_sub_modal > div,
+html[data-theme="dark"] #_delete_account_modal > div{
+  background:var(--srf)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .cat-modal-hdr,
+html[data-theme="dark"] .form-modal-topbar{
+  background:var(--srf)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .cat-modal-body,
+html[data-theme="dark"] .notice,
+html[data-theme="dark"] .sim-result,
+html[data-theme="dark"] .import-area{
+  background:var(--s2)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .cat-modal-close,
+html[data-theme="dark"] .ob-close{
+  background:var(--s2)!important;
+  color:var(--txt)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .tc-header-shortcut:hover{
+  transform:translateY(-1px);
+  box-shadow:0 5px 16px rgba(0,0,0,.18);
+}
+@media(max-width:859px){
+  html[data-theme="dark"] .mobile-bottom-nav{
+    background:rgba(27,21,17,.88)!important;
+    border-color:rgba(255,155,93,.22)!important;
+    box-shadow:0 0 0 1px rgba(255,155,93,.12),0 0 22px rgba(249,115,22,.22),0 14px 36px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.06)!important;
+  }
+  html[data-theme="dark"] .mbn-tab{
+    color:rgba(255,247,239,.58)!important;
+    color-scheme:dark!important;
+  }
+  html[data-theme="dark"] .mbn-tab:not(.on):active,
+  html[data-theme="dark"] .mbn-tab:not(.on):hover{
+    background:rgba(255,155,93,.10)!important;
+    color:rgba(255,247,239,.86)!important;
+  }
+  html[data-theme="dark"] .mbn-tab.on{
+    background:#f97316!important;
+    color:#fff!important;
+    box-shadow:0 2px 12px rgba(249,115,22,.42)!important;
+  }
+  html[data-theme="dark"] .mbn-tab.tab-gastos::after{
+    background:rgba(36,27,21,.95)!important;
+  }
+  html[data-theme="dark"] .mbn-tab.tab-gastos.on::after{
+    background:#f97316!important;
+  }
+  html[data-theme="dark"] .mbn-tab.tab-gastos::before{
+    filter:blur(.35px)!important;
+    opacity:.9!important;
+  }
+  html[data-theme="dark"] .mbn-tab.on .mbn-label,
+  html[data-theme="dark"] .mbn-tab.tab-gastos.on .mbn-label{
+    color:#fff!important;
+  }
+}
+
+/* ── Dark mode: Análises (bento KPI pane + modais de mês e dia) ─────────── */
+html[data-theme="dark"] .bento-kpi-pane{
+  background:var(--s2)!important;
+  border-color:var(--bd)!important;
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] .stats-kpi-label{color:var(--mt)!important}
+html[data-theme="dark"] .stats-kpi-note{color:var(--mt2)!important}
+html[data-theme="dark"] .stats-kpi-main{color:var(--txt)!important}
+html[data-theme="dark"] .stats-charts-grid .bento-kpi-pane{
+  border-color:var(--bd)!important;
+}
+/* Insight pill no KPI */
+html[data-theme="dark"] [style*="background:#f8fafc"]{
+  background:var(--s2)!important;
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] [style*="color:#475569"]{color:var(--mt)!important}
+html[data-theme="dark"] [style*="color:#374151"]{color:var(--txt)!important}
+html[data-theme="dark"] [style*="color:#1e293b"]{color:var(--txt)!important}
+html[data-theme="dark"] [style*="color:#94a3b8"]{color:var(--mt2)!important}
+
+/* Modal de detalhes do mês (Análises → clique na barra) */
+html[data-theme="dark"] #month-modal-overlay .stats-modal,
+html[data-theme="dark"] #day-modal-overlay .stats-modal{
+  background:var(--srf)!important;
+  color:var(--txt)!important;
+}
+html[data-theme="dark"] #month-modal-overlay .stats-modal-header,
+html[data-theme="dark"] #day-modal-overlay .stats-modal-header{
+  background:var(--srf)!important;
+  border-color:var(--bd)!important;
+}
+/* Mini-cards de RECEITA / GASTO / SOBRA no modal */
+html[data-theme="dark"] #month-modal-overlay [style*="background:#f0fdf4"]{
+  background:var(--grn-l)!important;
+}
+html[data-theme="dark"] #month-modal-overlay [style*="background:#fff7ed"]{
+  background:var(--amb-l)!important;
+}
+html[data-theme="dark"] #month-modal-overlay [style*="background:#f8fafc"],
+html[data-theme="dark"] #month-modal-overlay [style*="background:#fafbfc"]{
+  background:var(--s2)!important;
+}
+/* Botões de navegação prev/next no modal */
+html[data-theme="dark"] #month-modal-overlay [style*="background:#f8fafc"],
+html[data-theme="dark"] #month-modal-overlay [style*="border:1px solid #e2e8f0"]{
+  background:var(--s2)!important;
+  border-color:var(--bd)!important;
+  color:var(--txt)!important;
+}
+/* Linhas de categoria no modal */
+html[data-theme="dark"] #month-modal-overlay [style*="border-bottom:1px solid #f1f5f9"],
+html[data-theme="dark"] #month-modal-overlay [style*="border-bottom: 1px solid #f1f5f9"]{
+  border-color:var(--bd)!important;
+}
+/* Seção Comparativo */
+html[data-theme="dark"] #month-modal-overlay [style*="border-bottom:1px solid #e8ecf0"]{
+  border-color:var(--bd)!important;
+}
+/* Alerta de mês fora do padrão */
+html[data-theme="dark"] #month-modal-overlay [style*="background:#fef3c7"]{
+  background:var(--amb-l)!important;
+  border-color:var(--bd2)!important;
+  color:var(--amb)!important;
+}
+/* Botões close no header do modal */
+html[data-theme="dark"] #month-modal-overlay button[style*="background:#f1f5f9"],
+html[data-theme="dark"] #day-modal-overlay button[style*="background:#f1f5f9"]{
+  background:var(--s2)!important;
+  color:var(--mt)!important;
+  border-color:var(--bd)!important;
+}
+
+/* ── Dark mode: Gastos tab — card de total no rodapé e seções ───────────── */
+/* O card usa background:var(--txt) (preto no dark) — esse está correto.
+   Problema: parcelas tem #fff inline nas pills de expand */
+html[data-theme="dark"] [style*="background:#fff"][style*="border:1px solid #ddd6fe"]{
+  background:var(--pur-l)!important;
+  border-color:var(--pur)!important;
+  color:var(--pur)!important;
+}
+html[data-theme="dark"] [style*="background:#fff"][style*="border:1px solid #86efac"]{
+  background:var(--grn-l)!important;
+  border-color:var(--grn)!important;
+  color:var(--grn-d)!important;
+}
+
+/* ── Dark mode: SVG grid lines e textos nos gráficos ──────────────────── */
+html[data-theme="dark"] .stats-chart-click-note{color:var(--mt)!important}
+
+/* ── Dark mode: modal de dia (Gastos por dia → clique na barra) ─────────── */
+html[data-theme="dark"] #day-modal-overlay .stats-modal [style*="background:#f8fafc"],
+html[data-theme="dark"] #day-modal-overlay .stats-modal [style*="background:#fafbfc"]{
+  background:var(--s2)!important;
+}
+html[data-theme="dark"] #day-modal-overlay [style*="border-bottom:1px solid #f1f5f9"]{
+  border-color:var(--bd)!important;
+}
+html[data-theme="dark"] .stats-modal [style*="color:#1e293b"]{color:var(--txt)!important}
+html[data-theme="dark"] .stats-modal [style*="color:#94a3b8"]{color:var(--mt2)!important}
+html[data-theme="dark"] .stats-modal [style*="color:#475569"]{color:var(--mt)!important}
+
+/* ── Dark mode: gráfico de Análises — fundo do card externo ─────────────── */
+html[data-theme="dark"] .card[style*="background:#fff"]{
+  background:var(--srf)!important;
+}
+html[data-theme="dark"] .bento-row{
+  background:var(--srf)!important;
+}
+html[data-theme="dark"] .bento-chart-pane{
+  background:var(--srf)!important;
+}
+/* Card "Gasto real do mês" na aba Gastos usa background:var(--txt) que no light é quase preto
+   mas no dark vira branco. Substitui por marrom escuro warm, mantendo o mesmo contraste. */
+html[data-theme="dark"] [style*="background:var(--txt)"]{
+  background:#2a1c14!important;
+}
 </style>
 </head>
 <body>
@@ -1652,6 +2225,36 @@ let U = {
   authMode: 'login', importTarget: 'expenses', editGoalId: null,
   dashCat: null, bulkMode: false, bulkSel: {}, secMsg: null, delExtra: null, configSection:'conta', gastosInvOpen:false, gastosParcOpen:false, gastosView:'', dashShowAllCats:false, investEd:null, investDel:null, statsRange:6,
 };
+
+const THEME_KEY='poupai-theme-mode';
+function getThemeMode(){
+  try { return localStorage.getItem(THEME_KEY) || 'auto'; } catch(e) { return 'auto'; }
+}
+function systemPrefersDark(){
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch(e) { return false; }
+}
+function applyThemeMode(mode){
+  mode = ['auto','light','dark'].indexOf(mode) !== -1 ? mode : 'auto';
+  var dark = mode === 'dark' || (mode === 'auto' && systemPrefersDark());
+  document.documentElement.setAttribute('data-theme-mode', mode);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  try { localStorage.setItem(THEME_KEY, mode); } catch(e) {}
+}
+window.setThemeMode=function(mode){
+  applyThemeMode(mode);
+  if(document.getElementById('cfg-overlay') && typeof refreshConfigPanel === 'function'){
+    refreshConfigPanel({preserveScroll:true});
+  }
+};
+applyThemeMode(getThemeMode());
+try {
+  var _themeMedia = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+  if(_themeMedia){
+    var _themeHandler = function(){ if(getThemeMode()==='auto') applyThemeMode('auto'); };
+    if(_themeMedia.addEventListener) _themeMedia.addEventListener('change', _themeHandler);
+    else if(_themeMedia.addListener) _themeMedia.addListener(_themeHandler);
+  }
+} catch(e) {}
 let isCloud = false;
 let userId = null;
 let userPremium = false;
@@ -2127,12 +2730,9 @@ function startUserDataListener(user){
             _payload.trialStart = userTrialStart || new Date().toISOString();
             userTrialStart = _payload.trialStart;
           }
-          if (docData.premium === undefined) {
-            _payload.premium = false;
-            userPremium = false;
-          }
+          if (docData.premium === undefined) userPremium = false;
           if (Object.keys(_payload).length > 0) {
-            setDoc(doc(db, "users", activeUid), _payload, { merge: true }).catch(function(){});
+            setDoc(doc(db, "users", activeUid), _payload, { merge: true }).catch(function(e){ console.error('[PoupAí] Falha ao sincronizar metadados:', e); });
           }
         }
         renderFromSnapshot();
@@ -2177,7 +2777,7 @@ function startUserDataListener(user){
         userTrialStart = trialStart;
         userPremium = false;
         // merge:true como segurança adicional, evita sobrescrever campos que possam existir
-        setDoc(doc(db, "users", activeUid), { data: D, email: user.email, trialStart: trialStart, premium: false }, { merge: true }).catch(function(){}); // fire-and-forget: criação de novo usuário
+        setDoc(doc(db, "users", activeUid), { data: D, email: user.email, trialStart: trialStart }, { merge: true }).catch(function(e){ console.error('[PoupAí] Falha ao criar documento inicial:', e); }); // fire-and-forget: criação de novo usuário
         renderFromSnapshot();
         // Novo usuário: mostra onboarding
         if (!D.onboarded) {
@@ -2245,8 +2845,28 @@ async function sset(v) {
       await setDoc(doc(db, "users", activeUid), { data: v, dataUpdatedAt: now }, { merge: true });
       // Feedback visual discreto de auto-save
       _showSavedToast();
-    } catch(e) {}
+    } catch(e) {
+      console.error('[PoupAí] Falha ao salvar no Firestore:', e);
+      // Não exibimos toast de erro aqui: o Firestore tem fila offline e vai tentar novamente
+      // automaticamente quando a conexão voltar. Mostrar erro assusta o usuário sem necessidade.
+    }
   }
+}
+
+function showSaveErrorToast(){
+  var existing = document.getElementById('poupai-save-error-toast');
+  if(existing) { clearTimeout(existing._t); existing.remove(); }
+  var t = document.createElement('div');
+  t.id = 'poupai-save-error-toast';
+  t.textContent = 'Não foi possível salvar na nuvem. Verifique sua conexão.';
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(220,38,38,.96);color:#fff;font-size:12px;font-weight:800;padding:8px 14px;border-radius:999px;z-index:99999;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;font-family:Inter,system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.18);max-width:calc(100vw - 32px);text-align:center';
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){ t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
+  t._t = setTimeout(function(){
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(8px)';
+    setTimeout(function(){ if(t.parentNode) t.remove(); }, 200);
+  }, 2800);
 }
 
 function _showSavedToast(){
@@ -3469,7 +4089,7 @@ function rHdr(){
   function tc(lbl, val1, val2, pct, over, txtResta, info){
     var ib=info?'<button class="info-btn info-btn-lt" onclick="window.showInfoTip(event,\''+info.replace(/'/g,"\\'")+'\')" title="Saiba mais">i</button>':'';
     var rem = txtResta ? '<span class="tcmeta-inline" style="color:'+(over?'var(--red)':'var(--dk-dim)')+'">/ '+safeTxt(txtResta)+'</span>' : '';
-    return'<div class="tc"><div class="tclbl" style="display:flex;align-items:center">'+safeTxt(lbl)+ib+'</div><div class="tcrow"><span class="tcsp" style="color:'+bclr(pct,over)+'">'+R(val1)+'</span>'+rem+'</div><div class="tbar"><div class="tfill" style="width:'+pct+'%;background:'+bclr(pct,over)+'"></div></div></div>';
+    return'<div class="tc tc-header-shortcut" style="cursor:pointer" onclick="window.openHeaderCardsConfig()"><div class="tclbl" style="display:flex;align-items:center">'+safeTxt(lbl)+ib+'</div><div class="tcrow"><span class="tcsp" style="color:'+bclr(pct,over)+'">'+R(val1)+'</span>'+rem+'</div><div class="tbar"><div class="tfill" style="width:'+pct+'%;background:'+bclr(pct,over)+'"></div></div></div>';
   }
 
 
@@ -6521,6 +7141,28 @@ function rConfig(){
 
   var targetSection = '<div class="card"><div class="sec" style="margin-top:0">Alvo financeiro</div><div class="cfgr"><div class="cfgl"><div class="cfgn">Meta de poupança</div><div class="cfgs">Quanto deve sobrar: '+R(tot)+' − '+R(tot-tgt)+'</div></div><input class="cfgi" type="number" id="ts-s" value="'+tgt+'" onblur="window.saveTargetS(this.value)"></div></div>';
 
+  var themeMode=getThemeMode();
+  var actualTheme=document.documentElement.getAttribute('data-theme')||'light';
+  var themeChoices=[
+    {id:'auto',ico:'🌓',title:'Automático',desc:'Segue o modo claro ou escuro do celular'},
+    {id:'light',ico:'☀️',title:'Padrão claro',desc:'Mantém o visual original do PoupAí'},
+    {id:'dark',ico:'🌙',title:'Escuro',desc:'Usa fundo escuro com a identidade do app'}
+  ];
+  var appearanceSection='<div class="card">'
+    +'<div class="sec" style="margin-top:0">Aparência</div>'
+    +'<div style="margin-bottom:12px"><div class="cfgn">Modo de cor</div><div class="cfgs">Escolha entre claro, escuro ou automático pelo sistema. Atual: '+(actualTheme==='dark'?'escuro':'claro')+'.</div></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">'
+    +themeChoices.map(function(t){
+      var on=themeMode===t.id;
+      return '<button class="theme-choice'+(on?' on':'')+'" onclick="window.setThemeMode(\''+t.id+'\')" style="text-align:left;border:1px solid var(--bd);background:'+(on?'linear-gradient(135deg,#ff9b5d,#ea580c)':'var(--s2)')+';color:'+(on?'#fff':'var(--txt)')+';border-radius:14px;padding:12px 11px;cursor:pointer;font-family:inherit;transition:all .15s;min-width:0">'
+        +'<div style="font-size:20px;margin-bottom:8px">'+t.ico+'</div>'
+        +'<div style="font-size:13px;font-weight:800;line-height:1.15">'+safeTxt(t.title)+'</div>'
+        +'<div style="font-size:11px;line-height:1.35;margin-top:5px;opacity:.78">'+safeTxt(t.desc)+'</div>'
+      +'</button>';
+    }).join('')
+    +'</div>'
+    +'</div>';
+
   var planState = premiumPlanState();
   var I2=ppPlansIcons();
   var feats2=ppPlansFeatures();
@@ -6619,7 +7261,7 @@ function rConfig(){
     }).join('')
     + '</div>';
 
-  var rawContent = current === 'conta' ? contaSection : current === 'plano' ? planSection : current === 'usabilidade' ? (rendaSection + tetoSection + headerCardSection + targetSection) : current === 'categorias' ? catSection : exportSection;
+  var rawContent = current === 'conta' ? contaSection : current === 'plano' ? planSection : current === 'usabilidade' ? (appearanceSection + rendaSection + tetoSection + headerCardSection + targetSection) : current === 'categorias' ? catSection : exportSection;
   var content = '<div class="cfg-v2-pane">' + (current === 'conta' ? rawContent : '<div class="cfg-v2-card">'+rawContent+'</div>') + '</div>';
 
   return '<div class="cfg-v2-shell">'
@@ -7809,14 +8451,14 @@ window.saveSal=function(i,v){
   sset(D);
 };
 window.saveSalName=function(i,v){var n=v.trim();if(n){D.config.salaries[i].label=n;sset(D);}};
-window.addSal=function(){D.config.salaries.push({id:uid(),label:'Nova Renda',amount:0});sset(D);render();};
-window.delSal=function(i){D.config.salaries.splice(i,1);sset(D);render();};
+window.addSal=function(){D.config.salaries.push({id:uid(),label:'Nova Renda',amount:0});sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
+window.delSal=function(i){D.config.salaries.splice(i,1);sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
 
 window.saveTeto=function(k,v){var amt=pn(v);D.config.tetos[k]=amt;sset(D);};
-window.delTeto=function(k){delete D.config.tetos[k];sset(D);render();};
+window.delTeto=function(k){delete D.config.tetos[k];sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
 window.addTeto=function(){
   var cat = document.getElementById('new-teto-cat');
-  if(cat && cat.value){ D.config.tetos[cat.value] = 0; sset(D); render(); }
+  if(cat && cat.value){ D.config.tetos[cat.value] = 0; sset(D); refreshMainHeader(); refreshConfigPanel({preserveScroll:true}); }
 };
 
 window.saveTargetS=function(v){var amt=pn(v);D.config.targetSavings=amt;sset(D);};
@@ -7824,7 +8466,7 @@ window.saveTargetS=function(v){var amt=pn(v);D.config.targetSavings=amt;sset(D);
 window.saveCatLabel=function(id,v){
   ensureCategoryConfig();
   var label=normCatLabel(v);
-  if(!label){ refreshConfigPanel(); return; }
+  if(!label){ refreshConfigPanel({preserveScroll:true}); return; }
   var base=baseCatById(id);
   if(base){
     if(label===base.label) delete D.config.categoryLabels[id]; else D.config.categoryLabels[id]=label;
@@ -7872,7 +8514,7 @@ window.saveCatKeywords=function(id,v){
 window.resetCat=function(id){
   ensureCategoryConfig();
   delete D.config.categoryLabels[id]; delete D.config.categoryColors[id]; delete D.config.categoryKeywords[id]; delete D.config.categoryEmojis[id];
-  refreshGroups(); sset(D); refreshConfigPanel();
+  refreshGroups(); sset(D); refreshConfigPanel({preserveScroll:true});
 };
 window.addCustomCat=function(){
   ensureCategoryConfig();
@@ -7885,7 +8527,7 @@ window.addCustomCat=function(){
   var color=/^#[0-9a-fA-F]{6}$/.test((co&&co.value)||'')?co.value:'#64748b';
   var emoji=normCatEmoji(em&&em.value)||'🏷️';
   D.config.customCats.push({id:makeCustomCatId(label),label:label,color:color,emoji:emoji,keywords:normCatKeywords(kw&&kw.value)});
-  refreshGroups(); sset(D); refreshConfigPanel();
+  refreshGroups(); sset(D); refreshConfigPanel({preserveScroll:true});
 };
 window.delCustomCat=function(id){
   ensureCategoryConfig();
@@ -7893,7 +8535,7 @@ window.delCustomCat=function(id){
   D.config.customCats=D.config.customCats.filter(function(c){return c.id!==id;});
   delete D.config.tetos[id];
   D.config.headerCards=(D.config.headerCards||[]).filter(function(x){return x!==id;});
-  refreshGroups(); sset(D); refreshConfigPanel();
+  refreshGroups(); sset(D); refreshConfigPanel({preserveScroll:true});
 };
 
 
@@ -8065,6 +8707,22 @@ window.openConfigModal = function(section){
   document.body.appendChild(overlay);
 };
 
+window.openHeaderCardsConfig=function(){
+  U.configSection='usabilidade';
+  window.openConfigModal('usabilidade');
+  setTimeout(function(){
+    var el=document.getElementById('header-cards-section');
+    if(!el) return;
+    var pane=document.querySelector('#cfg-overlay .cfg-v2-pane');
+    if(pane){
+      var top=el.offsetTop-12;
+      try{ pane.scrollTo({top:top,behavior:'smooth'}); }catch(e){ pane.scrollTop=top; }
+    } else {
+      try{ el.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ el.scrollIntoView(); }
+    }
+  },80);
+};
+
 window.openPlansModal = function(opts){
   opts = opts || {};
   var trialLeft = (opts.trialDaysLeft !== undefined) ? opts.trialDaysLeft : ((!userPremium && trialDaysLeft() > 0) ? trialDaysLeft() : null);
@@ -8221,69 +8879,93 @@ window.simCalc = function(){
 var OB_STEPS = [
   {
     icon:'👋',
-    title:'Boas vindas ao PoupAí',
-    desc:'Sabe aquele cansaço mental ao abrir uma planilha cheia de dados, ou um aplicativo todo complicado?<br><br><b>Isso não acontece por aqui!!</b><br><br>Eu vou te ajudar a acompanhar seus gastos e vida financeira com tooooda facilidade! Vamos começar?',
-    list:[]
+    title:'Boas-vindas ao PoupAí',
+    desc:'Um guia rápido para entender a lógica do app e usar cada aba sem depender de planilhas complicadas.',
+    list:[
+      {ico:'🧭', text:'As telas seguem a mesma ordem do menu inferior'},
+      {ico:'⚙️', text:'Você pode personalizar renda, categorias e atalhos em Ajustes'},
+      {ico:'💾', text:'Seus registros ficam vinculados à sua conta'}
+    ]
+  },
+  {
+    icon:'🏠',
+    title:'Aba Início',
+    desc:'É o painel principal do mês. Aqui você vê receita, gastos reais, sobra atual, despesas estimadas, metas e lançamentos por categoria.',
+    list:[
+      {ico:'💰', text:'Veja quanto entrou, quanto saiu e quanto sobrou'},
+      {ico:'⚡', text:'Use o atalho para lançar um gasto rapidamente'},
+      {ico:'📊', text:'Acompanhe as categorias mais importantes do mês'}
+    ]
   },
   {
     icon:'📋',
     title:'Aba Previstas',
-    desc:'Aqui ficam todas as contas fixas do mês: aluguel, luz, internet, planos. Configure uma vez e elas aparecem todo mês automaticamente.',
+    desc:'Aqui ficam contas fixas, estimativas e gastos previstos do mês. É a base para o app calcular o cenário planejado.',
     list:[
-      {ico:'🏠', text:'Cadastre suas contas fixas invariáveis (aluguel, luz...)'},
-      {ico:'💰', text:'Defina um teto para categorias livres como Mercado<br>e Lanches'},
-      {ico:'✏️', text:'Toque em qualquer valor para editar só este mês ou todos'},
-    ]
-  },
-  {
-    icon:'📊',
-    title:'Aba Visão Geral',
-    desc:'Seu painel de controle. Veja de relance quanto já gastou, quanto está previsto e quanto sobra. Clique em qualquer categoria para ver os detalhes.',
-    list:[
-      {ico:'🟢', text:'"Gasto real" = o que já saiu do bolso de fato'},
-      {ico:'🟡', text:'"Previsão" = pior cenário se gastar até o teto'},
-      {ico:'💸', text:'"Dinheiro sobrando" = receita menos gasto real'},
+      {ico:'🏠', text:'Cadastre contas recorrentes como aluguel, luz e internet'},
+      {ico:'🧾', text:'Defina estimativas para gastos variáveis, como mercado e saídas'},
+      {ico:'✏️', text:'Edite um valor só no mês atual ou mantenha como padrão'}
     ]
   },
   {
     icon:'🧾',
     title:'Aba Gastos',
-    desc:'Registre cada gasto aqui. Basta escrever de forma natural: "dia 5 ifood 45" e o app categoriza sozinho. Ou use o botão de adicionar.',
+    desc:'É onde entram os gastos reais. Você pode digitar de forma natural, importar planilhas ou revisar cada lançamento antes de salvar.',
     list:[
-      {ico:'⚡', text:'Campo inteligente: escreva "hoje mercado 120"'},
-      {ico:'📂', text:'Gastos agrupados por categoria'},
-      {ico:'🔢', text:'Total real do mês no rodapé da tela'},
+      {ico:'⚡', text:'Exemplo: “dia 5 mercado 120”'},
+      {ico:'🏷️', text:'O app tenta identificar categoria, data, valor e descrição'},
+      {ico:'💳', text:'Também dá para informar banco/cartão e forma de pagamento'}
     ]
   },
   {
     icon:'💳',
     title:'Aba Parcelas',
-    desc:'Controle tudo que está parcelado no cartão ou financiado. Cada parcela entra automaticamente nos cálculos do mês certo.',
+    desc:'Controle compras parceladas, financiamentos e compromissos que se repetem por vários meses.',
     list:[
-      {ico:'➕', text:'Cadastre parcelamentos com início e fim'},
-      {ico:'🧮', text:'Use o Simulador antes de fazer uma compra parcelada'},
-      {ico:'✅', text:'"Abater este mês" para parcelas pagas da reserva'},
+      {ico:'➕', text:'Cadastre valor, número de parcelas e mês de início'},
+      {ico:'🧮', text:'Use o simulador antes de assumir uma nova parcela'},
+      {ico:'✅', text:'Acompanhe o impacto das parcelas nas previsões mensais'}
     ]
   },
   {
     icon:'📈',
-    title:'Aba Investimentos',
-    desc:'Acompanhe seu patrimônio investido sem transformar o app em uma planilha complexa. Cadastre valores atuais e taxas para ver rendimento estimado.',
+    title:'Aba Investir',
+    desc:'Acompanhe seu patrimônio investido de forma simples, sem transformar o app em uma planilha complexa.',
     list:[
-      {ico:'💰', text:'Veja total investido, rendimento mensal e projeção'},
-      {ico:'📊', text:'Compare sua sobra do mês com os rendimentos estimados'},
-      {ico:'✏️', text:'Atualize o valor atual quando quiser manter tudo próximo da realidade'},
+      {ico:'💰', text:'Cadastre valor atual, tipo de investimento e taxa'},
+      {ico:'📊', text:'Veja rendimento estimado e projeção'},
+      {ico:'🔁', text:'Atualize os valores quando quiser manter tudo próximo da realidade'}
+    ]
+  },
+  {
+    icon:'🎯',
+    title:'Aba Metas',
+    desc:'Transforme objetivos em metas financeiras acompanháveis, como reserva, viagem, mudança ou compra importante.',
+    list:[
+      {ico:'🏁', text:'Defina valor alvo e prazo desejado'},
+      {ico:'💵', text:'Registre depósitos para acompanhar o avanço real'},
+      {ico:'📌', text:'Veja quanto falta e priorize suas metas principais'}
+    ]
+  },
+  {
+    icon:'📊',
+    title:'Aba Análises',
+    desc:'Use os gráficos para entender a evolução do mês, comparar receitas e gastos e identificar onde o dinheiro está indo.',
+    list:[
+      {ico:'📈', text:'Compare gastos e receitas ao longo dos meses'},
+      {ico:'🗓️', text:'Veja em quais dias os gastos se concentram'},
+      {ico:'🔎', text:'Toque nos gráficos para abrir detalhes quando disponível'}
     ]
   },
   {
     icon:'🚀',
     title:'Por onde começar?',
-    desc:'Siga esta ordem e em minutos seu financeiro estará organizado.',
+    desc:'Para o PoupAí funcionar bem, siga uma ordem simples nos primeiros minutos.',
     list:[
-      {ico:'1️⃣', text:'Vá em ajustes e cadastre sua renda mensal'},
-      {ico:'2️⃣', text:'Na aba Previstas, cadastre suas contas fixas'},
-      {ico:'3️⃣', text:'Defina tetos para mercado e lanches'},
-      {ico:'4️⃣', text:'Registre seus gastos do mês na aba Gastos'},
+      {ico:'1️⃣', text:'Cadastre sua renda em Ajustes'},
+      {ico:'2️⃣', text:'Inclua contas fixas e estimativas em Previstas'},
+      {ico:'3️⃣', text:'Registre ou importe seus gastos reais em Gastos'},
+      {ico:'4️⃣', text:'Depois acompanhe metas, investimentos e análises'}
     ]
   }
 ];
