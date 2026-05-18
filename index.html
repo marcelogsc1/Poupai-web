@@ -2315,14 +2315,153 @@ function _cacheUserLocalData(data, uid){
   if(!key || !data) return;
   try {
     var serialized = JSON.stringify(data);
-    if(serialized.length < 2 * 1024 * 1024) localStorage.setItem(key, serialized);
-  } catch(e) {}
+    if(serialized.length < 2 * 1024 * 1024) {
+      localStorage.setItem(key, serialized);
+      var metaKey = _storageMetaKeyForUser(uid);
+      if(metaKey){
+        var version = Number((data && data._clientUpdatedAt) || 0) || 0;
+        localStorage.setItem(metaKey, JSON.stringify({updatedAt:version, savedAt:Date.now(), bytes:serialized.length}));
+      }
+    } else {
+      console.warn("[PoupAí] Backup local não atualizado: dados acima do limite seguro de 2MB.");
+    }
+  } catch(e) { console.warn("[PoupAí] Falha ao atualizar backup local:", e); }
+}
+function _storageMetaKeyForUser(uid){ return uid ? KEY + ":meta:" + uid : null; }
+function _readUserLocalMeta(uid){
+  var key = _storageMetaKeyForUser(uid);
+  if(!key) return {};
+  try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : {}; } catch(e) { return {}; }
+}
+function _readUserLocalVersion(uid, data){
+  var meta = _readUserLocalMeta(uid);
+  return Math.max(Number((data && data._clientUpdatedAt) || 0) || 0, Number(meta.updatedAt || 0) || 0);
+}
+function _jsonSig(v){ try { return JSON.stringify(v || {}); } catch(e) { return ""; } }
+function _mergeArrayById(serverArr, localArr){
+  var out = [];
+  var pos = {};
+  function add(item, preferLocal){
+    if(!item || typeof item !== "object") return;
+    var id = item.id || item.uid || item.key;
+    if(!id){ out.push(item); return; }
+    if(Object.prototype.hasOwnProperty.call(pos, id)){
+      if(preferLocal) out[pos[id]] = Object.assign({}, out[pos[id]], item);
+    } else {
+      pos[id] = out.length;
+      out.push(item);
+    }
+  }
+  (Array.isArray(serverArr)?serverArr:[]).forEach(function(x){ add(x, false); });
+  (Array.isArray(localArr)?localArr:[]).forEach(function(x){ add(x, true); });
+  return out;
+}
+function _mergeObjectOfArrays(serverObj, localObj){
+  var out = Object.assign({}, serverObj || {});
+  Object.keys(localObj || {}).forEach(function(k){
+    var a = Array.isArray(out[k]) ? out[k] : [];
+    var b = Array.isArray(localObj[k]) ? localObj[k] : [];
+    out[k] = Array.from(new Set(a.concat(b)));
+  });
+  return out;
+}
+function _legacyRecordScore(data){
+  // Contagem abrangente de todos os registros e campos relevantes do usuário.
+  // Usada por _hasLegacyLocalConflict para decidir se o dado local tem informações
+  // que o servidor não tem — incluindo campos que _coreRecordCount ignorava:
+  // monthExtras, extraIncome, monthOverrides, instAbatimentos e config de categoria.
+  if(!data || typeof data !== "object") return 0;
+  var total = 0;
+  ["expenses","fixedItems","installments","goals","investments"].forEach(function(k){
+    total += Array.isArray(data[k]) ? data[k].length : 0;
+  });
+  function countMonthArrays(obj){
+    var n = 0;
+    Object.keys(obj || {}).forEach(function(month){
+      if(Array.isArray(obj[month])) n += obj[month].length;
+    });
+    return n;
+  }
+  function countNestedObject(obj){
+    var n = 0;
+    Object.keys(obj || {}).forEach(function(k){
+      var v = obj[k];
+      if(Array.isArray(v)) n += v.length;
+      else if(v && typeof v === "object") n += Object.keys(v).length;
+      else n += 1;
+    });
+    return n;
+  }
+  total += countMonthArrays(data.monthExtras);
+  total += countMonthArrays(data.extraIncome);
+  total += countNestedObject(data.monthOverrides);
+  total += countNestedObject(data.instAbatimentos);
+  var cfg = data.config || {};
+  total += cfg.tetos && typeof cfg.tetos === "object" ? Object.keys(cfg.tetos).length : 0;
+  total += Array.isArray(cfg.headerCards) ? cfg.headerCards.length : 0;
+  total += Array.isArray(cfg.customCats) ? cfg.customCats.length : 0;
+  total += cfg.categoryLabels ? Object.keys(cfg.categoryLabels).length : 0;
+  total += cfg.categoryColors ? Object.keys(cfg.categoryColors).length : 0;
+  total += cfg.categoryKeywords ? Object.keys(cfg.categoryKeywords).length : 0;
+  total += cfg.categoryEmojis ? Object.keys(cfg.categoryEmojis).length : 0;
+  return total;
+}
+function _hasLegacyLocalConflict(serverData, localData){
+  if(!localData || typeof localData !== "object") return false;
+  if(_dataVersion(localData) || _dataVersion(serverData)) return false;
+  if(_jsonSig(serverData) === _jsonSig(localData)) return false;
+  return _legacyRecordScore(localData) >= _legacyRecordScore(serverData);
+}
+function _mergeLegacyLocalData(serverData, localData){
+  var out = _clonePlain(serverData || {});
+  var loc = _clonePlain(localData || {});
+  ["expenses","fixedItems","installments","goals","investments"].forEach(function(k){
+    out[k] = _mergeArrayById(out[k], loc[k]);
+  });
+  out.instAbatimentos = _mergeObjectOfArrays(out.instAbatimentos, loc.instAbatimentos);
+  // Merge monthExtras: { "YYYY-MM": [{id,...}] } — une arrays por mês, local preenche meses ausentes no servidor
+  var _allMonthExtraKeys = Object.keys(Object.assign({}, loc.monthExtras || {}, out.monthExtras || {}));
+  var _mergedMonthExtras = {};
+  _allMonthExtraKeys.forEach(function(m){
+    _mergedMonthExtras[m] = _mergeArrayById((out.monthExtras||{})[m], (loc.monthExtras||{})[m]);
+  });
+  out.monthExtras = _mergedMonthExtras;
+  // Merge extraIncome: { "YYYY-MM": [{id,...}] } — mesmo padrão que monthExtras
+  var _allExtraIncomeKeys = Object.keys(Object.assign({}, loc.extraIncome || {}, out.extraIncome || {}));
+  var _mergedExtraIncome = {};
+  _allExtraIncomeKeys.forEach(function(m){
+    _mergedExtraIncome[m] = _mergeArrayById((out.extraIncome||{})[m], (loc.extraIncome||{})[m]);
+  });
+  out.extraIncome = _mergedExtraIncome;
+  // Merge monthOverrides: { "YYYY-MM": { itemId: {amount} } } — servidor vence por item, local preserva meses ausentes
+  var _allOvKeys = Object.keys(Object.assign({}, loc.monthOverrides || {}, out.monthOverrides || {}));
+  var _mergedMonthOverrides = {};
+  _allOvKeys.forEach(function(m){
+    _mergedMonthOverrides[m] = Object.assign({}, (loc.monthOverrides||{})[m] || {}, (out.monthOverrides||{})[m] || {});
+  });
+  out.monthOverrides = _mergedMonthOverrides;
+  out.config = Object.assign({}, out.config || {}, loc.config || {});
+  var sc = (serverData && serverData.config) || {};
+  var lc = (localData && localData.config) || {};
+  out.config.categoryLabels = Object.assign({}, sc.categoryLabels || {}, lc.categoryLabels || {});
+  out.config.categoryColors = Object.assign({}, sc.categoryColors || {}, lc.categoryColors || {});
+  out.config.categoryKeywords = Object.assign({}, sc.categoryKeywords || {}, lc.categoryKeywords || {});
+  out.config.categoryEmojis = Object.assign({}, sc.categoryEmojis || {}, lc.categoryEmojis || {});
+  out.config.tetos = Object.assign({}, sc.tetos || {}, lc.tetos || {});
+  out.config.customCats = _mergeArrayById(sc.customCats, lc.customCats);
+  out.config.salaries = _mergeArrayById(sc.salaries, lc.salaries);
+  if(Array.isArray(lc.headerCards) && lc.headerCards.length) out.config.headerCards = lc.headerCards.slice(0,2);
+  else if(Array.isArray(sc.headerCards)) out.config.headerCards = sc.headerCards.slice(0,2);
+  out.onboarded = !!(serverData && serverData.onboarded) || !!(localData && localData.onboarded);
+  out._legacyLocalRecoveryAt = Date.now();
+  return out;
 }
 function _clearLocalSessionData(uid){
-  // Remove a chave sem uid (legada, versões antigas) e a chave com uid (atual)
+  // Remove apenas a chave legada sem UID.
+  // O backup local por usuário (KEY:uid) é preservado como rede de segurança
+  // contra falhas de escrita no Firestore ou deploys com cache antigo.
+  // Como a chave atual é isolada por UID, ela não vaza dados entre contas diferentes.
   try { localStorage.removeItem(KEY); } catch(e) {}
-  var key = _storageKeyForUser(uid);
-  if(key) { try { localStorage.removeItem(key); } catch(e) {} }
 }
 
 const INIT={
@@ -2886,9 +3025,9 @@ function startUserDataListener(user){
         // Captura o timestamp de atualização do servidor (usado como versão para anti-rollback).
         // Se houver uma escrita local pendente, snapshots antigos do servidor são ignorados
         // para não desfazer alterações recém-feitas, como os cards fixados no header.
-        var serverUpdatedAt = _dataVersion(incoming);
+        var serverUpdatedAt = Math.max(_dataVersion(incoming), Number(docData.dataUpdatedAt || 0) || 0);
         var localCandidate = _readUserLocalData(activeUid);
-        var localUpdatedAt = _dataVersion(localCandidate);
+        var localUpdatedAt = _readUserLocalVersion(activeUid, localCandidate);
         if (_hasPendingWrites && _pendingLocalSaveAt && D) {
           return;
         }
@@ -2901,15 +3040,26 @@ function startUserDataListener(user){
         }
         if (!_fromCache && serverUpdatedAt) _serverDataUpdatedAt = Math.max(_serverDataUpdatedAt || 0, serverUpdatedAt);
         var selectedData = incoming;
-        if (localCandidate && localUpdatedAt > serverUpdatedAt && (_fromCache || !D)) {
+        var shouldRecoverLocal = false;
+        var recoveredFromLegacyLocal = false;
+        if (localCandidate && localUpdatedAt > serverUpdatedAt) {
           selectedData = localCandidate;
-          if (!_fromCache && !_hasPendingWrites && localUpdatedAt > _localRecoveryAttemptedAt) {
-            _localRecoveryAttemptedAt = localUpdatedAt;
-            console.warn("[PoupAí] dados locais mais recentes que o servidor; tentando reenviar preferências do usuário.");
-            setTimeout(function(){
-              if(userId === activeUid && D && _dataVersion(D) === localUpdatedAt) sset(D);
-            }, 0);
-          }
+          shouldRecoverLocal = !_fromCache && !_hasPendingWrites && localUpdatedAt > _localRecoveryAttemptedAt;
+        } else if (!_fromCache && !_hasPendingWrites && _hasLegacyLocalConflict(incoming, localCandidate)) {
+          selectedData = _mergeLegacyLocalData(incoming, localCandidate);
+          recoveredFromLegacyLocal = true;
+          shouldRecoverLocal = true;
+        }
+        if(serverUpdatedAt && selectedData && typeof selectedData === "object" && !_dataVersion(selectedData)){
+          selectedData._clientUpdatedAt = serverUpdatedAt;
+        }
+        if (shouldRecoverLocal) {
+          var recoveryVersion = localUpdatedAt || Date.now();
+          _localRecoveryAttemptedAt = Math.max(_localRecoveryAttemptedAt || 0, recoveryVersion);
+          console.warn(recoveredFromLegacyLocal ? "[PoupAí] backup local legado diferente do servidor; mesclando para evitar perda de lançamentos." : "[PoupAí] dados locais mais recentes que o servidor; tentando reenviar dados do usuário.");
+          setTimeout(function(){
+            if(userId === activeUid && D) sset(D);
+          }, 0);
         }
         // Se veio do servidor (não cache), atualiza sempre.
         // Se veio do cache e D ainda não existe (primeira carga), usa o cache SÓ para exibição,
@@ -2924,8 +3074,15 @@ function startUserDataListener(user){
           // dados recentes com um snapshot antigo que ainda não tem o campo novo.
           // Normalização de schema roda apenas em memória. Não gravamos {data:D}
           // automaticamente, porque isso poderia reenviar um snapshot antigo como verdade.
-          normalizeDataText();
+          var _normChanged = normalizeDataText();
           _applyPendingConfigDrafts();
+          // Se a normalização detectou mudanças de schema (ex: _legacyTetosCleaned, campos
+          // ausentes) e os dados vieram do servidor confirmado, persiste uma vez para que
+          // a próxima carga já receba o schema correto. Não dispara se outra escrita já está
+          // pendente ou se o caminho de recovery já agendou um sset — evita conflito de fila.
+          if(_normChanged && !_fromCache && !shouldRecoverLocal && !_hasPendingWrites && isCloud && userId === activeUid){
+            setTimeout(function(){ if(userId === activeUid && D) sset(D); }, 300);
+          }
         }
         // Lê campos de premium/trial do documento
         userPremium = docData.premium === true;
