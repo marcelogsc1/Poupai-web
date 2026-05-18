@@ -1963,10 +1963,141 @@ html[data-theme="dark"] [style*="background:var(--txt)"]{
 </style>
 </head>
 <body>
+
+<!-- ── Splash screen: aparece instantaneamente ao abrir o app (HTML/CSS puro, zero JS) ─── -->
+<div id="poupai-splash" aria-hidden="true">
+  <div class="spl-inner">
+
+    <!-- Logo oficial PoupAí -->
+    <div class="spl-logo-wrap">
+      <img src="data:image/jpeg;base64,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" alt="PoupAí" class="spl-logo">
+    </div>
+
+    <div class="spl-name">PoupAí</div>
+    <div class="spl-tagline">Seu controle financeiro fácil,<br>rápido e direto ao ponto</div>
+
+    <!-- Animação: moeda caindo no porquinho -->
+    <div class="spl-anim" aria-hidden="true">
+      <div class="spl-coin-emoji">🪙</div>
+      <div class="spl-pig-emoji">🐷</div>
+    </div>
+
+    <!-- Indicador de carregamento -->
+    <div class="spl-dots">
+      <span></span><span></span><span></span>
+    </div>
+
+  </div>
+</div>
+
+<style>
+#poupai-splash{
+  position:fixed;inset:0;z-index:99999;
+  background:#fd9b5c;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .32s ease,transform .32s ease;
+}
+#poupai-splash.spl-hide{
+  opacity:0;transform:scale(1.04);pointer-events:none;
+}
+.spl-inner{
+  display:flex;flex-direction:column;align-items:center;
+  user-select:none;gap:0;
+}
+/* Logo */
+.spl-logo-wrap{
+  width:84px;height:84px;border-radius:22px;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.18),0 0 0 3px rgba(255,255,255,0.25);
+  animation:spl-pop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.spl-logo{width:84px;height:84px;object-fit:cover;display:block;}
+.spl-logo-fallback{
+  display:none;width:84px;height:84px;
+  align-items:center;justify-content:center;
+  font-size:44px;line-height:1;
+  background:rgba(255,255,255,0.18);
+}
+/* Nome e tagline */
+.spl-name{
+  font-size:32px;font-weight:800;color:#fff;letter-spacing:-.03em;
+  font-family:Inter,system-ui,sans-serif;line-height:1;
+  margin-bottom:8px;
+  animation:spl-fadein .4s .1s both;
+}
+.spl-tagline{
+  font-size:13.5px;font-weight:500;
+  color:rgba(255,255,255,.72);
+  font-family:Inter,system-ui,sans-serif;
+  text-align:center;line-height:1.5;
+  margin-bottom:32px;
+  animation:spl-fadein .4s .18s both;
+}
+/* Animação porquinho + moeda */
+.spl-anim{
+  position:relative;
+  display:flex;align-items:flex-end;justify-content:center;
+  width:80px;height:88px;
+  margin-bottom:28px;
+  animation:spl-fadein .4s .28s both;
+}
+.spl-pig-emoji{
+  font-size:52px;line-height:1;
+  animation:spl-pig-breathe 1.8s ease-in-out infinite;
+}
+.spl-coin-emoji{
+  font-size:28px;line-height:1;
+  position:absolute;top:-2px;left:50%;transform:translateX(-50%);
+  animation:spl-coin-drop 1.4s .5s ease-in-out infinite;
+}
+/* Dots */
+.spl-dots{
+  display:flex;gap:7px;
+  animation:spl-fadein .4s .4s both;
+}
+.spl-dots span{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,0.55);
+  animation:spl-dot-pulse 1.1s ease-in-out infinite;
+}
+.spl-dots span:nth-child(1){animation-delay:0s}
+.spl-dots span:nth-child(2){animation-delay:.18s}
+.spl-dots span:nth-child(3){animation-delay:.36s}
+
+/* Keyframes */
+@keyframes spl-pop{
+  from{opacity:0;transform:scale(.72)}
+  to  {opacity:1;transform:scale(1)}
+}
+@keyframes spl-fadein{
+  from{opacity:0;transform:translateY(10px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+@keyframes spl-pig-breathe{
+  0%,100%{transform:scale(1)}
+  50%    {transform:scale(1.07)}
+}
+@keyframes spl-coin-drop{
+  0%   {opacity:0;transform:translateX(-50%) translateY(-14px) rotate(-10deg)}
+  20%  {opacity:1;transform:translateX(-50%) translateY(0px)   rotate(0deg)}
+  55%  {opacity:1;transform:translateX(-50%) translateY(30px)  rotate(10deg)}
+  70%  {opacity:0;transform:translateX(-50%) translateY(44px)  rotate(16deg)}
+  100% {opacity:0;transform:translateX(-50%) translateY(-14px) rotate(-10deg)}
+}
+@keyframes spl-dot-pulse{
+  0%,100%{opacity:.35;transform:scale(.85)}
+  50%    {opacity:1;  transform:scale(1.15)}
+}
+</style>
+
 <div id="app" data-logged="false"></div>
 <script>
 window.__poupaiBootTimer=setTimeout(function(){
   var app=document.getElementById('app');
+  var spl=document.getElementById('poupai-splash');
+  if(spl){spl.classList.add('spl-hide');setTimeout(function(){if(spl.parentNode)spl.remove();},360);}
   if(app&&app.querySelector&&app.querySelector('.boot-loading')){
     app.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;color:#64748b;font:500 14px Inter,system-ui,sans-serif"><div><b style="display:block;color:#0f172a;margin-bottom:6px">Não foi possível iniciar o PoupAí.</b>Atualize a página. Se continuar, verifique a conexão e o acesso aos scripts do Firebase.</div></div>';
   }
@@ -2199,7 +2330,7 @@ const INIT={
     salaries:[{id:'s1',label:'Renda Principal',amount:0},{id:'s2',label:'Renda Extra',amount:0}],
     tetos:{},
     targetSavings:0,
-    headerCards:null,
+    headerCards:[],
     categoryLabels:{},
     categoryColors:{},
     categoryKeywords:{},
@@ -2612,6 +2743,60 @@ var _serverDataUpdatedAt = 0;
 // Timestamp da última escrita local ainda aguardando confirmação real do servidor.
 // Evita que um snapshot antigo do servidor substitua uma alteração recém-salva no app.
 var _pendingLocalSaveAt = 0;
+var _localRecoveryAttemptedAt = 0;
+var _pendingHeaderCardsDraft = null;
+var _pendingTetosDraft = null;
+var _saveChain = Promise.resolve();
+function _cloneDataForSave(v){ return JSON.parse(JSON.stringify(v)); }
+function _nextLocalSaveTimestamp(){
+  var now = Date.now();
+  var min = Math.max(_serverDataUpdatedAt || 0, _pendingLocalSaveAt || 0);
+  return now <= min ? min + 1 : now;
+}
+function _clonePlain(v){
+  try { return JSON.parse(JSON.stringify(v || {})); } catch(e) { return {}; }
+}
+function _dataVersion(data){
+  return Number((data && data._clientUpdatedAt) || 0) || 0;
+}
+function _canonTetos(t){
+  var src = (t && typeof t === 'object' && !Array.isArray(t)) ? t : {};
+  var out = {};
+  Object.keys(src).sort().forEach(function(k){ out[k] = Number(src[k] || 0); });
+  return JSON.stringify(out);
+}
+function _tetosEqual(a,b){ return _canonTetos(a) === _canonTetos(b); }
+function _headerCardsEqual(a,b){
+  var aa = Array.isArray(a) ? a : [];
+  var bb = Array.isArray(b) ? b : [];
+  return aa.length === bb.length && aa.every(function(x,i){ return x === bb[i]; });
+}
+function getEffectiveTetos(){
+  if(_pendingTetosDraft && typeof _pendingTetosDraft === 'object' && !Array.isArray(_pendingTetosDraft)) return _clonePlain(_pendingTetosDraft);
+  if(D && D.config && D.config.tetos && typeof D.config.tetos === 'object' && !Array.isArray(D.config.tetos)) return _clonePlain(D.config.tetos);
+  return {};
+}
+function getEffectiveHeaderCards(){
+  if(Array.isArray(_pendingHeaderCardsDraft)) return _pendingHeaderCardsDraft.slice();
+  return (D && D.config && Array.isArray(D.config.headerCards)) ? D.config.headerCards.slice() : [];
+}
+function _applyPendingConfigDrafts(){
+  if(!D || !D.config) return;
+  if(_pendingTetosDraft && typeof _pendingTetosDraft === 'object' && !Array.isArray(_pendingTetosDraft)){
+    if(!_fromCache && !_hasPendingWrites && _tetosEqual(D.config.tetos, _pendingTetosDraft)){
+      _pendingTetosDraft = null;
+    } else {
+      D.config.tetos = _clonePlain(_pendingTetosDraft);
+    }
+  }
+  if(Array.isArray(_pendingHeaderCardsDraft)){
+    if(!_fromCache && !_hasPendingWrites && _headerCardsEqual(D.config.headerCards, _pendingHeaderCardsDraft)){
+      _pendingHeaderCardsDraft = null;
+    } else {
+      D.config.headerCards = _pendingHeaderCardsDraft.slice();
+    }
+  }
+}
 
 function _showConnectionToast(msg, color, duration){
   var old = document.getElementById('conn-toast');
@@ -2644,8 +2829,21 @@ function normalizeDataText(){
   var changed = false;
   if(D && !D.config){ D.config = JSON.parse(JSON.stringify(INIT.config)); changed = true; }
   if(D && D.config){
+    if(!D.config.tetos || Array.isArray(D.config.tetos) || typeof D.config.tetos !== 'object'){ D.config.tetos={}; changed=true; }
+    if(!D.config._legacyTetosCleaned){
+      ['mercado','lanches'].forEach(function(id){
+        if(Object.prototype.hasOwnProperty.call(D.config.tetos,id) && Number(D.config.tetos[id]||0)===0){ delete D.config.tetos[id]; changed=true; }
+      });
+      D.config._legacyTetosCleaned=true; changed=true;
+    }
     ['categoryLabels','categoryColors','categoryKeywords','categoryEmojis'].forEach(function(k){ if(!D.config[k]){D.config[k]={}; changed=true;} });
     if(!Array.isArray(D.config.customCats)){D.config.customCats=[]; changed=true;}
+    if(!Array.isArray(D.config.headerCards)){D.config.headerCards=[]; changed=true;}
+    var cleanHeaderCards=[];
+    D.config.headerCards.forEach(function(id){
+      if(cleanHeaderCards.length<2 && cleanHeaderCards.indexOf(id)===-1 && gBy(id).id===id && id!=='parcelas' && id!=='outros') cleanHeaderCards.push(id);
+    });
+    if(cleanHeaderCards.length!==D.config.headerCards.length || cleanHeaderCards.join('|')!==D.config.headerCards.join('|')){D.config.headerCards=cleanHeaderCards; changed=true;}
   }
   if(D && !Array.isArray(D.investments)){
     D.investments = [];
@@ -2688,7 +2886,12 @@ function startUserDataListener(user){
         // Captura o timestamp de atualização do servidor (usado como versão para anti-rollback).
         // Se houver uma escrita local pendente, snapshots antigos do servidor são ignorados
         // para não desfazer alterações recém-feitas, como os cards fixados no header.
-        var serverUpdatedAt = Number(docData.dataUpdatedAt || 0) || 0;
+        var serverUpdatedAt = _dataVersion(incoming);
+        var localCandidate = _readUserLocalData(activeUid);
+        var localUpdatedAt = _dataVersion(localCandidate);
+        if (_hasPendingWrites && _pendingLocalSaveAt && D) {
+          return;
+        }
         if (!_fromCache && !_hasPendingWrites && _pendingLocalSaveAt) {
           if (!serverUpdatedAt || serverUpdatedAt < _pendingLocalSaveAt) {
             console.warn('[PoupAí] snapshot antigo ignorado: servidor=' + serverUpdatedAt + ' pendente=' + _pendingLocalSaveAt);
@@ -2697,12 +2900,23 @@ function startUserDataListener(user){
           _pendingLocalSaveAt = 0;
         }
         if (!_fromCache && serverUpdatedAt) _serverDataUpdatedAt = Math.max(_serverDataUpdatedAt || 0, serverUpdatedAt);
+        var selectedData = incoming;
+        if (localCandidate && localUpdatedAt > serverUpdatedAt && (_fromCache || !D)) {
+          selectedData = localCandidate;
+          if (!_fromCache && !_hasPendingWrites && localUpdatedAt > _localRecoveryAttemptedAt) {
+            _localRecoveryAttemptedAt = localUpdatedAt;
+            console.warn("[PoupAí] dados locais mais recentes que o servidor; tentando reenviar preferências do usuário.");
+            setTimeout(function(){
+              if(userId === activeUid && D && _dataVersion(D) === localUpdatedAt) sset(D);
+            }, 0);
+          }
+        }
         // Se veio do servidor (não cache), atualiza sempre.
         // Se veio do cache e D ainda não existe (primeira carga), usa o cache SÓ para exibição,
         // mas NUNCA escreve de volta no Firestore dados vindos do cache — isso evita sobrescrever
         // dados mais novos no servidor com um snapshot antigo do IndexedDB.
         if (!_fromCache || !D) {
-          D = incoming;
+          D = selectedData;
           _cacheUserLocalData(D, activeUid);
           // Normalização (adiciona campos novos ausentes) só é escrita no Firestore quando
           // os dados vêm do servidor confirmado. Se vier do cache, a normalização roda
@@ -2711,6 +2925,7 @@ function startUserDataListener(user){
           // Normalização de schema roda apenas em memória. Não gravamos {data:D}
           // automaticamente, porque isso poderia reenviar um snapshot antigo como verdade.
           normalizeDataText();
+          _applyPendingConfigDrafts();
         }
         // Lê campos de premium/trial do documento
         userPremium = docData.premium === true;
@@ -2749,6 +2964,7 @@ function startUserDataListener(user){
           if (_cacheLocalFallback && !D) {
             D = _cacheLocalFallback;
             normalizeDataText(); // apenas em memória, sem escrever no Firestore
+            _applyPendingConfigDrafts();
             renderFromSnapshot();
           }
           console.warn('[PoupAí] docSnap não existe no cache — aguardando confirmação do servidor antes de criar documento.');
@@ -2772,6 +2988,8 @@ function startUserDataListener(user){
         // Servidor confirmou que não existe documento: usuário realmente novo.
         // Usa localStorage como base se houver (migração), senão INIT limpo.
         D = _readUserLocalData(activeUid) || JSON.parse(JSON.stringify(INIT));
+        normalizeDataText();
+        _applyPendingConfigDrafts();
         _cacheUserLocalData(D, activeUid);
         var trialStart = new Date().toISOString();
         userTrialStart = trialStart;
@@ -2789,7 +3007,7 @@ function startUserDataListener(user){
       // Falhou ao escutar (sem cache, offline) — carrega somente o fallback isolado do usuário atual
       console.warn('onSnapshot error, usando localStorage isolado:', err.code||err);
       var localData = _readUserLocalData(activeUid);
-      if(localData){ D = localData; renderFromSnapshot(); }
+      if(localData){ D = localData; normalizeDataText(); _applyPendingConfigDrafts(); renderFromSnapshot(); }
     }
   );
 }
@@ -2829,27 +3047,34 @@ function initAuthListener(){
 
 async function sset(v) {
   // Firestore é a fonte principal; o localStorage é apenas um fallback por usuário.
-  // Isso evita vazamento/rollback entre contas diferentes no mesmo aparelho.
+  // Cada chamada grava uma cópia congelada e entra em fila, evitando que uma escrita
+  // antiga sobrescreva outra mais recente em ações rápidas de configuração.
+  // O campo `data` é substituído inteiro via mergeFields:['data'].
+  // Não usar merge:true aqui, pois o merge profundo do Firestore preserva chaves
+  // removidas em mapas aninhados, como config.tetos.mercado/lanches.
+  // Também não criamos campos top-level auxiliares; isso mantém compatibilidade
+  // com regras que permitem ao front-end alterar apenas users/{uid}.data.
   var activeUid = userId;
-  if(activeUid) _cacheUserLocalData(v, activeUid);
+  var now = _nextLocalSaveTimestamp();
+  var payloadData;
+  try { payloadData = _cloneDataForSave(v); } catch(e) { payloadData = v; }
+  if(payloadData && typeof payloadData === 'object') {
+    payloadData._clientUpdatedAt = now;
+    if(v && typeof v === 'object') v._clientUpdatedAt = now;
+  }
+  if(activeUid) _cacheUserLocalData(payloadData, activeUid);
   if (isCloud && activeUid) {
-    // Proteção anti-rollback: cada sset grava o timestamp atual junto com os dados.
-    var now = Date.now();
-    if (_serverDataUpdatedAt && now < _serverDataUpdatedAt) {
-      console.warn('[PoupAí] sset bloqueado: relógio local (' + now + ') atrás do servidor (' + _serverDataUpdatedAt + ').');
-      return;
-    }
-    _serverDataUpdatedAt = Math.max(_serverDataUpdatedAt || 0, now);
     _pendingLocalSaveAt = now;
-    try {
-      await setDoc(doc(db, "users", activeUid), { data: v, dataUpdatedAt: now }, { merge: true });
-      // Feedback visual discreto de auto-save
-      _showSavedToast();
-    } catch(e) {
-      console.error('[PoupAí] Falha ao salvar no Firestore:', e);
-      // Não exibimos toast de erro aqui: o Firestore tem fila offline e vai tentar novamente
-      // automaticamente quando a conexão voltar. Mostrar erro assusta o usuário sem necessidade.
-    }
+    _saveChain = _saveChain.catch(function(){}).then(function(){
+      return setDoc(doc(db, "users", activeUid), { data: payloadData }, { mergeFields: ['data'] })
+        .then(function(){ _showSavedToast(); })
+        .catch(function(e){
+          _pendingLocalSaveAt = 0;
+          console.error('[PoupAí] Falha ao salvar no Firestore:', e);
+          showSaveErrorToast();
+        });
+    });
+    return _saveChain;
   }
 }
 
@@ -3754,6 +3979,9 @@ window.handleAvatarFile=function(input){
 
 function render(){
   if(window.__poupaiBootTimer){ clearTimeout(window.__poupaiBootTimer); window.__poupaiBootTimer=null; }
+  // Remove splash screen na primeira renderização real
+  var _spl=document.getElementById('poupai-splash');
+  if(_spl&&!_spl._hidden){_spl._hidden=true;_spl.classList.add('spl-hide');setTimeout(function(){if(_spl.parentNode)_spl.remove();},360);}
   var _old_tip=document.getElementById('_info_tip'); if(_old_tip) _old_tip.remove();
   var app=document.getElementById('app');
   var MODAL_SCRS = {add:1, addPlan:1, addInst:1, investForm:1};
@@ -4083,9 +4311,8 @@ function rHdr(){
   var pL = st.cats['lanches'].p; var sL = st.cats['lanches'].s;
   var lp=Math.min(100, pL>0?(sL/pL)*100:0); var lo=sL>pL;
 
-  // Cards de atalho configuráveis (undefined = legado → mantém mercado+lanches)
-  var hCardIds = (D.config.headerCards === undefined || D.config.headerCards === null)
-    ? ['mercado','lanches'] : D.config.headerCards;
+  // Cards de atalho configuráveis. Contas novas começam sem atalhos fixados.
+  var hCardIds = getEffectiveHeaderCards();
   function tc(lbl, val1, val2, pct, over, txtResta, info){
     var ib=info?'<button class="info-btn info-btn-lt" onclick="window.showInfoTip(event,\''+info.replace(/'/g,"\\'")+'\')" title="Saiba mais">i</button>':'';
     var rem = txtResta ? '<span class="tcmeta-inline" style="color:'+(over?'var(--red)':'var(--dk-dim)')+'">/ '+safeTxt(txtResta)+'</span>' : '';
@@ -4263,7 +4490,7 @@ function rDash(){
       +'</section>';
   }
 
-  var headerCats = (D.config.headerCards===undefined || D.config.headerCards===null) ? ['mercado','lanches'] : (D.config.headerCards || []);
+  var headerCats = Array.isArray(D.config.headerCards) ? D.config.headerCards : [];
   function catIsRelevant(g){
     var c = st.cats[g.id] || {p:0,s:0,c:0,real:0};
     var hasData = c.p > 0 || c.s > 0 || c.c > 0 || c.real > 0;
@@ -7047,7 +7274,7 @@ function rInstEdit(){
 
 function rConfig(){
   var UI=appUiIcons();
-  var sal=D.config.salaries;var tetos=D.config.tetos;var tgt=D.config.targetSavings;
+  var sal=D.config.salaries;var tetos=getEffectiveTetos();var tgt=D.config.targetSavings;
   var tot=sal.reduce(function(s,x){return s+x.amount;},0);
   var secMsg = U.secMsg ? '<div style="padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:10px;background:'+(U.secMsg.ok?'var(--grn-l)':'var(--red-l)')+';color:'+(U.secMsg.ok?'var(--grn-d)':'var(--red)')+';border:1px solid '+(U.secMsg.ok?'#86efac':'#fecaca')+'">'+safeTxt(U.secMsg.txt)+'</div>' : '';
 
@@ -7074,13 +7301,13 @@ function rConfig(){
     + '</div>';
 
   var tetosKeys = Object.keys(tetos);
-  var availCats = GR.filter(function(g){ return !tetos[g.id]; });
+  var availCats = GR.filter(function(g){ return !Object.prototype.hasOwnProperty.call(tetos, g.id); });
   var tetoSection = '<div class="card">'
     + '<div class="sec" style="margin-top:0">Tetos variáveis</div>'
     + tetosKeys.map(function(k){
       var g = gBy(k);
       return '<div class="cfgr"><div class="cfgl"><div class="cfgn">'+safeTxt(g.label)+'</div></div>'
-      + '<input class="cfgi" type="number" value="'+tetos[k]+'" onblur="window.saveTeto(\''+k+'\',this.value)">'
+      + '<input class="cfgi" type="number" data-teto-id="'+safeAttr(k)+'" value="'+tetos[k]+'" onblur="window.saveTeto(this.dataset.tetoId,this.value)" onchange="window.saveTeto(this.dataset.tetoId,this.value)" onkeydown="if(event.key===&quot;Enter&quot;){event.preventDefault();window.saveTeto(this.dataset.tetoId,this.value);this.blur();}">'
       + '<button class="bs bco" style="margin-left:8px;padding:6px 10px" onclick="window.delTeto(\''+k+'\')">✕</button></div>';
     }).join('')
     + (availCats.length ? '<div style="display:flex;gap:8px;padding:12px 0;align-items:center;border-top:1px solid var(--bd);margin-top:8px">'
@@ -7089,9 +7316,9 @@ function rConfig(){
       + '</select><button class="bs be" style="padding:8px 14px" onclick="window.addTeto()">+ Adicionar</button></div>' : '')
     + '</div>';
 
-  var curHCards=D.config.headerCards;
+  var curHCards=getEffectiveHeaderCards();
   // Na tela de configurações mostramos apenas escolhas reais do usuário.
-  // O padrão visual Mercado/Lanches é usado somente no header quando nada foi personalizado.
+  // Contas novas começam sem cards fixados; o header mostra apenas o card de configurar.
   var hCardCats=Array.isArray(curHCards)?curHCards:[];
   var headerCardSection='<div class="card" id="header-cards-section">'
     +'<div class="sec" style="margin-top:0">Cards de atalho no topo</div>'
@@ -7100,13 +7327,15 @@ function rConfig(){
     +'<div style="display:flex;flex-wrap:wrap;gap:8px">'
     +GR.filter(function(g){return g.id!=='parcelas'&&g.id!=='outros';}).map(function(g){
       var isOn=hCardCats.indexOf(g.id)!==-1;
-      return '<button style="padding:7px 13px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;'
+      return '<button class="hcard-pill" data-hcard-id="'+safeAttr(g.id)+'" style="padding:7px 13px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;'
         +(isOn?'background:'+g.color+';color:#fff;border:2px solid '+g.color
           :'background:var(--s2);color:var(--txt);border:1px solid var(--bd)')
         +'" onclick="window.toggleHeaderCard(\''+g.id+'\')">'
-        +(isOn?'✓ ':'')+safeTxt(g.emoji||ICO[g.id]||'')+' '+safeTxt(g.label)
+        +(isOn?'✓ ':'')+safeTxt((g.emoji||ICO[g.id]||'')+' '+g.label)
         +'</button>';
     }).join('')
+    +'</div>'
+    +'<div id="hcard-msg" style="display:none;font-size:12px;margin-top:8px;font-weight:600"></div>'
     +'</div></div>';
 
   var catRows = GR.map(function(g){
@@ -8269,25 +8498,39 @@ window.openAddInst=function(){U.scr='addInst';render();};
 
 window.toggleHeaderCard=function(catId){
   if(!D || !D.config) return;
-  var cards=Array.isArray(D.config.headerCards)?D.config.headerCards.slice():[];
+  var cards=getEffectiveHeaderCards();
   var idx=cards.indexOf(catId);
   if(idx!==-1){
     cards.splice(idx,1);
   } else if(cards.length<2){
     cards.push(catId);
   } else {
-    U.secMsg={ok:false,txt:'Máximo de 2 atalhos. Remova um antes de adicionar outro.'};
-    refreshConfigPanel({preserveScroll:true});
+    var msgEl=document.getElementById('hcard-msg');
+    if(msgEl){msgEl.textContent='Máximo de 2. Remova um antes de adicionar outro.';msgEl.style.color='var(--red)';msgEl.style.display='block';}
     return;
   }
-  U.secMsg={ok:true,txt:cards.length?'Atalhos do cabeçalho atualizados.':'Atalhos removidos. Você pode escolher até 2 categorias.'};
-  D.config.headerCards=cards;
-  if(userId) _cacheUserLocalData(D, userId);
-  // Atualiza visualmente sem fechar o modal e sem depender do snapshot do Firestore.
+  _pendingHeaderCardsDraft=cards.slice();
+  D.config.headerCards=cards.slice();
+
+  // Atualiza os pills diretamente no DOM, sem reconstruir o modal.
+  // A seleção usa um rascunho local para não ser perdida entre cliques rápidos
+  // nem por snapshots de cache/servidor enquanto a gravação ainda confirma.
+  document.querySelectorAll('.hcard-pill').forEach(function(btn){
+    var id=btn.getAttribute('data-hcard-id');
+    if(!id) return;
+    var g=gBy(id);
+    if(!g) return;
+    var isOn=cards.indexOf(id)!==-1;
+    btn.style.cssText='padding:7px 13px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;'
+      +(isOn?'background:'+g.color+';color:#fff;border:2px solid '+g.color
+            :'background:var(--s2);color:var(--txt);border:1px solid var(--bd)');
+    btn.textContent=(isOn?'✓ ':'')+((g.emoji||ICO[g.id]||'')+' '+g.label);
+  });
+  var msgEl=document.getElementById('hcard-msg');
+  if(msgEl){msgEl.style.display='none';}
+
   sset(D);
-  refreshGroups();
   refreshMainHeader();
-  refreshConfigPanel({preserveScroll:true});
 };
 
 window.scrollPage=function(dir){
@@ -8454,11 +8697,11 @@ window.saveSalName=function(i,v){var n=v.trim();if(n){D.config.salaries[i].label
 window.addSal=function(){D.config.salaries.push({id:uid(),label:'Nova Renda',amount:0});sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
 window.delSal=function(i){D.config.salaries.splice(i,1);sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
 
-window.saveTeto=function(k,v){var amt=pn(v);D.config.tetos[k]=amt;sset(D);};
-window.delTeto=function(k){delete D.config.tetos[k];sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
+window.saveTeto=function(k,v){var tetos=getEffectiveTetos();var amt=pn(v);tetos[k]=amt;D.config.tetos=tetos;_pendingTetosDraft=_clonePlain(tetos);sset(D);refreshMainHeader();};
+window.delTeto=function(k){var tetos=getEffectiveTetos();delete tetos[k];D.config.tetos=tetos;_pendingTetosDraft=_clonePlain(tetos);sset(D);refreshMainHeader();refreshConfigPanel({preserveScroll:true});};
 window.addTeto=function(){
   var cat = document.getElementById('new-teto-cat');
-  if(cat && cat.value){ D.config.tetos[cat.value] = 0; sset(D); refreshMainHeader(); refreshConfigPanel({preserveScroll:true}); }
+  if(cat && cat.value){ var tetos=getEffectiveTetos(); tetos[cat.value] = Object.prototype.hasOwnProperty.call(tetos, cat.value) ? tetos[cat.value] : 0; D.config.tetos=tetos; _pendingTetosDraft=_clonePlain(tetos); sset(D); refreshMainHeader(); refreshConfigPanel({preserveScroll:true}); }
 };
 
 window.saveTargetS=function(v){var amt=pn(v);D.config.targetSavings=amt;sset(D);};
@@ -8533,8 +8776,8 @@ window.delCustomCat=function(id){
   ensureCategoryConfig();
   if(categoryInUse(id)){ alert('Essa categoria já tem lançamentos, contas ou parcelas vinculadas. Para não perder dados, mova esses itens para outra categoria antes de excluir.'); return; }
   D.config.customCats=D.config.customCats.filter(function(c){return c.id!==id;});
-  delete D.config.tetos[id];
-  D.config.headerCards=(D.config.headerCards||[]).filter(function(x){return x!==id;});
+  var tetos=getEffectiveTetos(); delete tetos[id]; D.config.tetos=tetos; _pendingTetosDraft=_clonePlain(tetos);
+  var headerCards=getEffectiveHeaderCards().filter(function(x){return x!==id;}); D.config.headerCards=headerCards; _pendingHeaderCardsDraft=headerCards.slice();
   refreshGroups(); sset(D); refreshConfigPanel({preserveScroll:true});
 };
 
