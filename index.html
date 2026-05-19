@@ -2109,7 +2109,7 @@ window.__poupaiBootTimer=setTimeout(function(){
 window._closeModal = function(id){ var el=document.getElementById(id); if(el) el.remove(); };
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, linkWithPopup, linkWithRedirect, applyActionCode, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, onSnapshot, collection, getDocs, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const ICO={
   casa:        '🏠',
@@ -2886,6 +2886,32 @@ var _localRecoveryAttemptedAt = 0;
 var _pendingHeaderCardsDraft = null;
 var _pendingTetosDraft = null;
 var _saveChain = Promise.resolve();
+// ── Subcoleções (storageVersion: 2) ────────────────────────────────────────
+// Controla o modelo de armazenamento ativo.
+// 0 = desconhecido, 1 = legado (campo data), 2 = subcoleções (novo modelo)
+var _storageVersion = 0;
+// Rastreia os IDs atualmente salvos em cada subcoleção.
+// Usado por sset() para detectar e deletar documentos removidos do array em memória.
+var _savedSubIds = {
+  expenses: new Set(),
+  fixedItems: new Set(),
+  installments: new Set(),
+  goals: new Set(),
+  investments: new Set()
+};
+// Controla a migração legado → v2.
+// true durante o batch de migração; bloqueia sset para evitar race condition.
+var _migrationInProgress = false;
+// Se sset() for chamado durante a migração, o D mais recente é guardado aqui
+// e gravado assim que a migração terminar.
+var _pendingMigrationSset = null;
+// Assinaturas JSON da última gravação bem-sucedida no Firestore.
+// Permite que sset() escreva apenas o que mudou (save incremental).
+var _lastSavedSigs = {
+  settings: null,        // JSON.stringify do settings payload
+  monthly: {},           // { "YYYY-MM": jsonSig }
+  items: {}              // { "subcol:id": jsonSig }
+};
 function _cloneDataForSave(v){ return JSON.parse(JSON.stringify(v)); }
 function _nextLocalSaveTimestamp(){
   var now = Date.now();
@@ -2998,6 +3024,194 @@ function normalizeDataText(){
   return changed;
 }
 
+// ── Funções auxiliares de subcoleção ───────────────────────────────────────
+
+// Arrays que vivem em subcoleções independentes no Firestore.
+// Tudo que não está nessa lista vai para settings/main.
+var _SUB_ARRAY_KEYS = ["expenses","fixedItems","installments","goals","investments"];
+
+// Campos mensais chaveados por YYYY-MM → vão para users/{uid}/monthly/{YYYY-MM}.
+// Mantidos fora de settings/main para que esse documento não cresça indefinidamente.
+var _MONTHLY_FIELDS = ["monthExtras","extraIncome","monthOverrides","instAbatimentos"];
+
+// Extrai os campos de settings/main: tudo exceto arrays de subcoleção e campos mensais.
+function _buildSettingsPayload(data){
+  var payload = {};
+  Object.keys(data || {}).forEach(function(k){
+    if(_SUB_ARRAY_KEYS.indexOf(k) === -1 && _MONTHLY_FIELDS.indexOf(k) === -1){
+      payload[k] = data[k];
+    }
+  });
+  return payload;
+}
+
+// Reconstrói os campos mensais de D a partir de um mapa { "YYYY-MM": docData }.
+function _assembleMonthlyFields(monthlyMap){
+  var out = { monthExtras:{}, extraIncome:{}, monthOverrides:{}, instAbatimentos:{} };
+  Object.keys(monthlyMap || {}).forEach(function(m){
+    var d = monthlyMap[m] || {};
+    if(d.monthExtras)     out.monthExtras[m]     = d.monthExtras;
+    if(d.extraIncome)     out.extraIncome[m]     = d.extraIncome;
+    if(d.monthOverrides)  out.monthOverrides[m]  = d.monthOverrides;
+    if(d.instAbatimentos) out.instAbatimentos[m] = d.instAbatimentos;
+  });
+  return out;
+}
+
+// Monta o documento a gravar em monthly/{YYYY-MM}.
+function _buildMonthlyDoc(data, month){
+  return {
+    monthExtras:    ((data.monthExtras    || {})[month]) || null,
+    extraIncome:    ((data.extraIncome    || {})[month]) || null,
+    monthOverrides: ((data.monthOverrides || {})[month]) || null,
+    instAbatimentos:((data.instAbatimentos|| {})[month]) || null
+  };
+}
+
+// Coleta todos os meses referenciados nos campos mensais de D.
+function _allMonths(data){
+  var months = new Set();
+  _MONTHLY_FIELDS.forEach(function(f){
+    Object.keys(data[f] || {}).forEach(function(m){ months.add(m); });
+  });
+  return Array.from(months);
+}
+
+// Inicializa _lastSavedSigs com o estado atual de D (chamado após load ou migração).
+// Permite que sset() detecte o que mudou e escreva apenas isso.
+// Executa uma lista de operações Firestore em lotes de até chunkSize cada.
+// Necessário quando o número de writes pode ultrapassar o limite de 500 por batch,
+// por exemplo em importações grandes de extratos ou salvamentos com centenas de itens.
+// Cada lote é atômico internamente; se um lote falhar, os anteriores já foram gravados.
+async function _commitBatchOpsInChunks(ops, chunkSize){
+  chunkSize = chunkSize || 390;
+  for(var i = 0; i < ops.length; i += chunkSize){
+    var batch = writeBatch(db);
+    ops.slice(i, i + chunkSize).forEach(function(op){
+      if(op.type === 'set')    batch.set(op.ref, op.data, op.options || undefined);
+      if(op.type === 'delete') batch.delete(op.ref);
+    });
+    await batch.commit();
+  }
+}
+
+function _initSavedSigs(data){
+  _lastSavedSigs.settings = _jsonSig(_buildSettingsPayload(data));
+  _lastSavedSigs.monthly  = {};
+  _allMonths(data).forEach(function(m){
+    _lastSavedSigs.monthly[m] = _jsonSig(_buildMonthlyDoc(data, m));
+  });
+  _lastSavedSigs.items = {};
+  // Também reinicializa _savedSubIds para que sset() saiba quais IDs
+  // existem no Firestore e possa deletar corretamente os itens removidos.
+  _SUB_ARRAY_KEYS.forEach(function(k){
+    _savedSubIds[k] = new Set();
+    (data[k] || []).forEach(function(item){
+      if(item && item.id){
+        _lastSavedSigs.items[k + ':' + item.id] = _jsonSig(item);
+        _savedSubIds[k].add(String(item.id));
+      }
+    });
+  });
+}
+
+// Carrega settings/main + monthly + todas as subcoleções em paralelo.
+async function _loadSubcollections(uid){
+  var settingsRef  = doc(db, "users", uid, "settings", "main");
+  var monthlySnap  = getDocs(collection(db, "users", uid, "monthly"));
+  var arrayPromises = _SUB_ARRAY_KEYS.map(function(k){
+    return getDocs(collection(db, "users", uid, k));
+  });
+  var results = await Promise.all(
+    [getDoc(settingsRef), monthlySnap].concat(arrayPromises)
+  );
+  var settingsSnap = results[0];
+  var assembled = settingsSnap.exists() ? _clonePlain(settingsSnap.data()) : {};
+
+  // Reconstrói campos mensais
+  var monthlyMap = {};
+  results[1].docs.forEach(function(d){ monthlyMap[d.id] = d.data(); });
+  Object.assign(assembled, _assembleMonthlyFields(monthlyMap));
+
+  // Reconstrói arrays das subcoleções
+  _SUB_ARRAY_KEYS.forEach(function(k, i){
+    var snap = results[i + 2];
+    var arr = snap.docs.map(function(d){ return d.data(); });
+    assembled[k] = arr;
+    _savedSubIds[k] = new Set(arr.map(function(item){ return item && item.id; }).filter(Boolean));
+  });
+
+  _initSavedSigs(assembled);
+  return assembled;
+}
+
+// Migra os dados do formato legado para subcoleções.
+// Usa dataToMigrate (= D em memória, sempre mais recente que docData.data).
+// Bloqueia sset() durante a migração para evitar race condition.
+// storageVersion:2 só é gravado depois que TODOS os dados estão nas subcoleções.
+async function _migrateToSubcollections(uid, dataToMigrate){
+  if(_migrationInProgress) return;
+  _migrationInProgress = true;
+  console.log('[PoupAí] Iniciando migração para subcoleções...');
+  try {
+    var now = Date.now();
+    var settingsPayload = _buildSettingsPayload(dataToMigrate);
+    if(!settingsPayload._clientUpdatedAt) settingsPayload._clientUpdatedAt = now;
+
+    // Lote 1: settings/main + dados mensais (geralmente pequenos, cabe num batch)
+    var batch1 = writeBatch(db);
+    batch1.set(doc(db, "users", uid, "settings", "main"), settingsPayload);
+    _allMonths(dataToMigrate).forEach(function(m){
+      batch1.set(doc(db, "users", uid, "monthly", m), _buildMonthlyDoc(dataToMigrate, m));
+    });
+    await batch1.commit();
+
+    // Lotes para arrays: máximo 390 ops por batch (margem segura abaixo de 500)
+    var currentBatch = writeBatch(db);
+    var opCount = 0;
+    for(var ki = 0; ki < _SUB_ARRAY_KEYS.length; ki++){
+      var k = _SUB_ARRAY_KEYS[ki];
+      var items = dataToMigrate[k] || [];
+      for(var ii = 0; ii < items.length; ii++){
+        var item = items[ii];
+        if(item && item.id){
+          currentBatch.set(doc(db, "users", uid, k, String(item.id)), item);
+          opCount++;
+          if(opCount >= 390){
+            await currentBatch.commit();
+            currentBatch = writeBatch(db);
+            opCount = 0;
+          }
+        }
+      }
+    }
+
+    // Último lote: inclui a marcação de migração concluída.
+    // storageVersion:2 só é gravado DEPOIS que todos os dados estão salvos.
+    currentBatch.set(doc(db, "users", uid), {
+      storageVersion: 2,
+      migratedAt: new Date().toISOString(),
+      _settingsUpdatedAt: settingsPayload._clientUpdatedAt
+    }, { merge: true });
+    await currentBatch.commit();
+
+    _storageVersion = 2;
+    _initSavedSigs(dataToMigrate);
+    console.log('[PoupAí] Migração concluída. storageVersion = 2.');
+  } catch(e){
+    _migrationInProgress = false;
+    console.error('[PoupAí] Migração falhou (app continua em modo legado):', e);
+    return;
+  }
+  _migrationInProgress = false;
+  // Executa qualquer sset() que ficou na fila durante a migração
+  if(_pendingMigrationSset){
+    var queued = _pendingMigrationSset;
+    _pendingMigrationSset = null;
+    sset(queued);
+  }
+}
+
 function startUserDataListener(user){
   pendingEmailVerification = false;
   var activeUid = user.uid;
@@ -3021,6 +3235,104 @@ function startUserDataListener(user){
         pendingGoogleNoData = false;
         clearGoogleIntent();
         var docData = docSnap.data() || {};
+
+        // ── storageVersion 2: dados em subcoleções ─────────────────────────
+        // Quando storageVersion=2, os dados não estão mais em docData.data.
+        // Eles vivem em users/{uid}/settings/main + subcoleções de array.
+        // O campo _settingsUpdatedAt no documento principal serve como versão
+        // para o anti-rollback, substituindo _clientUpdatedAt dentro de data.
+        if(docData.storageVersion === 2){
+          _storageVersion = 2;
+          // Guard 1: escrita local pendente – D já está atualizado em memória
+          if(_hasPendingWrites && _pendingLocalSaveAt && D){ renderFromSnapshot(); return; }
+          var _v2ServerUpdatedAt = Math.max(
+            Number(docData._settingsUpdatedAt || 0) || 0,
+            Number(docData.dataUpdatedAt || 0) || 0
+          );
+          // Guard 2: snapshot mais antigo que a escrita pendente – ignora
+          if(!_fromCache && !_hasPendingWrites && _pendingLocalSaveAt){
+            if(!_v2ServerUpdatedAt || _v2ServerUpdatedAt < _pendingLocalSaveAt){
+              console.warn('[PoupAí] snapshot v2 antigo ignorado: servidor=' + _v2ServerUpdatedAt + ' pendente=' + _pendingLocalSaveAt);
+              return;
+            }
+            _pendingLocalSaveAt = 0;
+          }
+          if(!_fromCache && _v2ServerUpdatedAt) _serverDataUpdatedAt = Math.max(_serverDataUpdatedAt || 0, _v2ServerUpdatedAt);
+          // Premium / trial (lidos do documento principal, igual ao modelo v1)
+          userPremium = docData.premium === true;
+          userTrialStart = docData.trialStart || null;
+          if(!userTrialStart && user){
+            _sessionTrialStartFallback = _sessionTrialStartFallback || new Date().toISOString();
+            userTrialStart = _sessionTrialStartFallback;
+          }
+          if(!_fromCache && !_metadataSynced && user){
+            _metadataSynced = true;
+            var _v2meta = {};
+            if(!docData.email && user.email) _v2meta.email = user.email;
+            if(!docData.trialStart){
+              _v2meta.trialStart = userTrialStart || new Date().toISOString();
+              userTrialStart = _v2meta.trialStart;
+            }
+            if(docData.premium === undefined) userPremium = false;
+            if(Object.keys(_v2meta).length > 0){
+              setDoc(doc(db, "users", activeUid), _v2meta, { merge: true })
+                .catch(function(e){ console.error('[PoupAí] Falha ao sincronizar metadados v2:', e); });
+            }
+          }
+          // Se D já existe e o servidor não tem versão mais nova, apenas re-renderiza.
+          // Evita re-leituras desnecessárias de subcoleções a cada snapshot de confirmação.
+          if(D && _v2ServerUpdatedAt && _v2ServerUpdatedAt <= _dataVersion(D)){
+            renderFromSnapshot(); return;
+          }
+          // Precisa carregar ou recarregar dados das subcoleções
+          if(!_fromCache || !D){
+            _loadSubcollections(activeUid).then(function(assembled){
+              if(activeUid !== userId) return;
+              // Recovery local: se localStorage tem versão mais nova que o servidor
+              var localCandidate = _readUserLocalData(activeUid);
+              var localUpdatedAt = _readUserLocalVersion(activeUid, localCandidate);
+              var assembledVersion = _dataVersion(assembled);
+              if(localCandidate && localUpdatedAt > assembledVersion){
+                assembled = localCandidate;
+                if(!_localRecoveryAttemptedAt || localUpdatedAt > _localRecoveryAttemptedAt){
+                  _localRecoveryAttemptedAt = localUpdatedAt;
+                  console.warn('[PoupAí] v2: dados locais mais recentes; reenviando para Firestore.');
+                  setTimeout(function(){ if(userId === activeUid && D) sset(D); }, 0);
+                }
+              }
+              D = assembled;
+              _cacheUserLocalData(D, activeUid);
+              var _normChanged = normalizeDataText();
+              _applyPendingConfigDrafts();
+              if(_normChanged && !_fromCache && !_hasPendingWrites && isCloud && userId === activeUid){
+                setTimeout(function(){ if(userId === activeUid && D) sset(D); }, 300);
+              }
+              renderFromSnapshot();
+            }).catch(function(e){
+              console.error('[PoupAí] Erro ao carregar subcoleções:', e);
+              if(D) renderFromSnapshot(); // Usa D atual como fallback
+            });
+          } else {
+            renderFromSnapshot();
+          }
+          return; // Não cai no caminho v1 abaixo
+        }
+
+        // ── storageVersion 1 / legado: campo data ──────────────────────────
+        // Se storageVersion != 2 e existe campo data, verifica se deve migrar.
+        // A migração é assíncrona; enquanto processa, o app continua com os dados legados.
+        if(docData.storageVersion !== 2 && docData.data && !_fromCache && !_hasPendingWrites && activeUid === userId){
+          _storageVersion = 1;
+          // Usa D (em memória, mais recente) em vez de docData.data para evitar race condition.
+          // Se D ainda não estiver populado, usa docData.data como fallback seguro.
+          var _dataForMigration = (D && Object.keys(D).length > 0) ? _clonePlain(D) : _clonePlain(docData.data);
+          _migrateToSubcollections(activeUid, _dataForMigration).catch(function(e){
+            console.error('[PoupAí] Migração falhou (app continua em modo legado):', e);
+          });
+          // Continua com o fluxo legado enquanto a migração ocorre em background
+        }
+
+
         var incoming = docData.data || JSON.parse(JSON.stringify(INIT));
         // Captura o timestamp de atualização do servidor (usado como versão para anti-rollback).
         // Se houver uma escrita local pendente, snapshots antigos do servidor são ignorados
@@ -3152,7 +3464,46 @@ function startUserDataListener(user){
         userTrialStart = trialStart;
         userPremium = false;
         // merge:true como segurança adicional, evita sobrescrever campos que possam existir
-        setDoc(doc(db, "users", activeUid), { data: D, email: user.email, trialStart: trialStart }, { merge: true }).catch(function(e){ console.error('[PoupAí] Falha ao criar documento inicial:', e); }); // fire-and-forget: criação de novo usuário
+        // Novos usuários entram direto no modelo v2 (subcoleções).
+        var _nuTrialStart = trialStart;
+        var _nuD = D;
+        (async function(){
+          try {
+            var _nuSettings = _buildSettingsPayload(_nuD);
+            _nuSettings._clientUpdatedAt = _nuSettings._clientUpdatedAt || Date.now();
+            var _nuOps = [];
+            _nuOps.push({ type:'set',
+              ref: doc(db, "users", activeUid, "settings", "main"),
+              data: _nuSettings });
+            // Dados mensais: grava monthly/{YYYY-MM} se houver dados locais
+            _allMonths(_nuD).forEach(function(m){
+              _nuOps.push({ type:'set',
+                ref: doc(db, "users", activeUid, "monthly", m),
+                data: _buildMonthlyDoc(_nuD, m) });
+            });
+            _SUB_ARRAY_KEYS.forEach(function(k){
+              (_nuD[k] || []).forEach(function(item){
+                if(item && item.id) _nuOps.push({ type:'set',
+                  ref: doc(db, "users", activeUid, k, String(item.id)),
+                  data: item });
+              });
+            });
+            _nuOps.push({ type:'set',
+              ref: doc(db, "users", activeUid),
+              data: { email: user.email, trialStart: _nuTrialStart,
+                storageVersion: 2, migratedAt: new Date().toISOString(),
+                _settingsUpdatedAt: _nuSettings._clientUpdatedAt },
+              options: { merge: true } });
+            await _commitBatchOpsInChunks(_nuOps);
+            _storageVersion = 2;
+            _initSavedSigs(_nuD);
+          } catch(e){
+            // Fallback v1 se batch falhar (ex: regras ainda não atualizadas)
+            console.warn('[PoupAí] Novo usuário: batch v2 falhou, usando legado v1:', e);
+            setDoc(doc(db, "users", activeUid), { data: _nuD, email: user.email, trialStart: _nuTrialStart }, { merge: true })
+              .catch(function(e2){ console.error('[PoupAí] Falha ao criar documento inicial:', e2); });
+          }
+        })();
         renderFromSnapshot();
         // Novo usuário: mostra onboarding
         if (!D.onboarded) {
@@ -3203,25 +3554,117 @@ function initAuthListener(){
 }
 
 async function sset(v) {
-  // Firestore é a fonte principal; o localStorage é apenas um fallback por usuário.
-  // Cada chamada grava uma cópia congelada e entra em fila, evitando que uma escrita
-  // antiga sobrescreva outra mais recente em ações rápidas de configuração.
-  // O campo `data` é substituído inteiro via mergeFields:['data'].
-  // Não usar merge:true aqui, pois o merge profundo do Firestore preserva chaves
-  // removidas em mapas aninhados, como config.tetos.mercado/lanches.
-  // Também não criamos campos top-level auxiliares; isso mantém compatibilidade
-  // com regras que permitem ao front-end alterar apenas users/{uid}.data.
   var activeUid = userId;
+
+  // Bloqueia durante migração: guarda o D mais recente para executar depois.
+  if(_migrationInProgress){
+    _pendingMigrationSset = v;
+    return;
+  }
+
   var now = _nextLocalSaveTimestamp();
   var payloadData;
   try { payloadData = _cloneDataForSave(v); } catch(e) { payloadData = v; }
-  if(payloadData && typeof payloadData === 'object') {
+  if(payloadData && typeof payloadData === 'object'){
     payloadData._clientUpdatedAt = now;
     if(v && typeof v === 'object') v._clientUpdatedAt = now;
   }
   if(activeUid) _cacheUserLocalData(payloadData, activeUid);
-  if (isCloud && activeUid) {
+
+  if(isCloud && activeUid){
     _pendingLocalSaveAt = now;
+
+    // ── v2: escrita incremental em subcoleções ───────────────────────────
+    // Monta lista de operações e executa em lotes de 390 via _commitBatchOpsInChunks.
+    // Garante que importações grandes (centenas de lançamentos) não estourem o limite
+    // de 500 operações por batch do Firestore.
+    if(_storageVersion === 2){
+      _saveChain = _saveChain.catch(function(){}).then(async function(){
+        try {
+          var ops = [];
+
+          // settings/main: só grava se algo mudou
+          var newSettingsSig = _jsonSig(_buildSettingsPayload(payloadData));
+          if(newSettingsSig !== _lastSavedSigs.settings){
+            ops.push({ type:'set',
+              ref: doc(db, "users", activeUid, "settings", "main"),
+              data: _buildSettingsPayload(payloadData) });
+          }
+
+          // Campos mensais: grava apenas os meses que mudaram ou foram removidos
+          var allMonthsNow = _allMonths(payloadData);
+          allMonthsNow.forEach(function(m){
+            var newMonthDoc = _buildMonthlyDoc(payloadData, m);
+            if(_jsonSig(newMonthDoc) !== (_lastSavedSigs.monthly[m] || null)){
+              ops.push({ type:'set',
+                ref: doc(db, "users", activeUid, "monthly", m),
+                data: newMonthDoc });
+            }
+          });
+          Object.keys(_lastSavedSigs.monthly || {}).forEach(function(m){
+            if(allMonthsNow.indexOf(m) === -1){
+              ops.push({ type:'delete',
+                ref: doc(db, "users", activeUid, "monthly", m) });
+            }
+          });
+
+          // Arrays de subcoleção: grava só itens novos/alterados, deleta os removidos.
+          // nextSavedSubIds e nextItemSigs são construídos antes e aplicados só após sucesso.
+          var nextSavedSubIds = {};
+          var nextItemSigs = {};
+          _SUB_ARRAY_KEYS.forEach(function(k){
+            var arr = payloadData[k] || [];
+            var newIds = new Set(arr.map(function(item){ return item && item.id; }).filter(Boolean));
+            arr.forEach(function(item){
+              if(!item || !item.id) return;
+              var id = String(item.id);
+              var sigKey = k + ':' + id;
+              var sig = _jsonSig(item);
+              nextItemSigs[sigKey] = sig;
+              if(sig !== (_lastSavedSigs.items[sigKey] || null)){
+                ops.push({ type:'set',
+                  ref: doc(db, "users", activeUid, k, id),
+                  data: item });
+              }
+            });
+            (_savedSubIds[k] || new Set()).forEach(function(id){
+              if(!newIds.has(String(id))){
+                ops.push({ type:'delete',
+                  ref: doc(db, "users", activeUid, k, String(id)) });
+              }
+            });
+            nextSavedSubIds[k] = newIds;
+          });
+
+          // _settingsUpdatedAt sempre vai no último lote para garantir que só
+          // é gravado depois que todos os dados estão salvos.
+          ops.push({ type:'set',
+            ref: doc(db, "users", activeUid),
+            data: { _settingsUpdatedAt: now },
+            options: { merge: true } });
+
+          await _commitBatchOpsInChunks(ops);
+
+          // Atualiza estado interno somente após todos os lotes bem-sucedidos.
+          _savedSubIds = nextSavedSubIds;
+          _lastSavedSigs.settings = _jsonSig(_buildSettingsPayload(payloadData));
+          _lastSavedSigs.monthly = {};
+          allMonthsNow.forEach(function(m){
+            _lastSavedSigs.monthly[m] = _jsonSig(_buildMonthlyDoc(payloadData, m));
+          });
+          _lastSavedSigs.items = nextItemSigs;
+
+          _showSavedToast();
+        } catch(e){
+          _pendingLocalSaveAt = 0;
+          console.error('[PoupAí] Falha ao salvar no Firestore (v2):', e);
+          showSaveErrorToast();
+        }
+      });
+      return _saveChain;
+    }
+
+    // ── v1 legado: campo data inteiro ────────────────────────────────────
     _saveChain = _saveChain.catch(function(){}).then(function(){
       return setDoc(doc(db, "users", activeUid), { data: payloadData }, { mergeFields: ['data'] })
         .then(function(){ _showSavedToast(); })
@@ -3234,6 +3677,7 @@ async function sset(v) {
     return _saveChain;
   }
 }
+
 
 function showSaveErrorToast(){
   var existing = document.getElementById('poupai-save-error-toast');
@@ -3634,10 +4078,23 @@ window.deleteAccountConfirm = async function(){
     // Reautenticar com senha antes de excluir
     var credential = EmailAuthProvider.credential(user.email, pwd);
     await reauthenticateWithCredential(user, credential);
-    // Apagar dados do Firestore
+    // Apagar dados do Firestore (documento principal + subcoleções)
     var uid = user.uid;
-    var { doc: _doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-    await deleteDoc(_doc(db, 'users', uid));
+    var { doc: _doc, deleteDoc: _deleteDoc, collection: _col, getDocs: _getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+    // Deleta subcoleções de array (settings/main + 5 arrays)
+    var _subCollNames = ["expenses","fixedItems","installments","goals","investments","monthly"];
+    for(var _sci = 0; _sci < _subCollNames.length; _sci++){
+      try {
+        var _subSnap = await _getDocs(_col(db, "users", uid, _subCollNames[_sci]));
+        for(var _sdi = 0; _sdi < _subSnap.docs.length; _sdi++){
+          await _deleteDoc(_subSnap.docs[_sdi].ref);
+        }
+      } catch(e){ console.warn('[PoupAí] Erro ao deletar subcoleção ' + _subCollNames[_sci] + ':', e); }
+    }
+    // Deleta settings/main
+    try { await _deleteDoc(_doc(db, "users", uid, "settings", "main")); } catch(e){}
+    // Deleta documento principal
+    await _deleteDoc(_doc(db, 'users', uid));
     // Apagar conta do Firebase Auth
     await deleteUser(user);
     window.closeDeleteAccountModal();
