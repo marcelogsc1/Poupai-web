@@ -564,12 +564,12 @@ input,button,textarea{font-family:inherit}
     right:10px;
     bottom:calc(12px + env(safe-area-inset-bottom));
     z-index:150;
-    background:rgba(254,250,245,0.92);
+    background:rgba(255,248,241,0.92);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
-    border:1px solid rgba(255,255,255,0.82);
+    border:1px solid rgba(255,155,93,0.30);
     border-radius:20px;
-    box-shadow:0 8px 32px rgba(0,0,0,0.14),0 2px 8px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.9);
+    box-shadow:0 0 0 1px rgba(255,155,93,.08),0 0 20px rgba(249,115,22,.13),0 8px 28px rgba(0,0,0,.11),inset 0 1px 0 rgba(255,255,255,0.9);
     padding:4px;
   }
   .mbn-inner{display:flex;width:100%;gap:2px}
@@ -639,7 +639,7 @@ input,button,textarea{font-family:inherit}
     position:absolute;
     inset:1.5px;
     border-radius:14px;
-    background:rgba(254,250,245,0.96);
+    background:rgba(255,248,241,0.96);
     z-index:1;
   }
   .mbn-tab.tab-gastos.on::after{background:#f97316}
@@ -658,8 +658,8 @@ input,button,textarea{font-family:inherit}
   @media(prefers-reduced-motion:reduce){.mbn-tab.tab-gastos::before{animation:none}}
   .mbn-tab:active{transform:scale(0.94)}
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
-    .mobile-bottom-nav{background:#fef9f5}
-    .mbn-tab.tab-gastos::after{background:rgba(254,249,245,0.96)}
+    .mobile-bottom-nav{background:#fff8f1}
+    .mbn-tab.tab-gastos::after{background:rgba(255,248,241,0.96)}
     .mbn-tab.on,.mbn-tab.tab-gastos.on::after{background:#f97316}
   }
   .ct{padding-bottom:86px}
@@ -4349,7 +4349,8 @@ function cleanupBodyOverlays(keepIds){
   [
     'notif-overlay','balance-modal-overlay','prev-cat-overlay','prev-parcelas-overlay',
     'goal-modal-overlay','goal-form-overlay','cfg-overlay','sim-overlay','mp-overlay',
-    'cat-overlay','form-modal-overlay','invest-detail-modal','invest-withdrawal-overlay','plans-overlay'
+    'cat-overlay','form-modal-overlay','invest-detail-modal','invest-withdrawal-overlay','plans-overlay',
+    'export-modal-overlay'
   ].forEach(function(id){
     if(keepIds.indexOf(id) !== -1) return;
     var el = document.getElementById(id);
@@ -4361,7 +4362,8 @@ function shouldDeferSnapshotRender(){
   if(U.parsed || (U.scr && U.scr !== 'main')) return true;
   return [
     'cfg-overlay','form-modal-overlay','goal-modal-overlay','goal-form-overlay','sim-overlay','mp-overlay',
-    'balance-modal-overlay','prev-cat-overlay','prev-parcelas-overlay','cat-overlay','invest-detail-modal','invest-withdrawal-overlay','plans-overlay'
+    'balance-modal-overlay','prev-cat-overlay','prev-parcelas-overlay','cat-overlay','invest-detail-modal','invest-withdrawal-overlay','plans-overlay',
+    'export-modal-overlay'
   ].some(function(id){ return !!document.getElementById(id); });
 }
 
@@ -7097,6 +7099,25 @@ window.exportPDF = function(){
   var livre = st.sal - st.committed;
   var savRate = st.sal > 0 ? ((st.sal - st.gastoReal) / st.sal * 100).toFixed(1) : '0.0';
 
+  // Balanço financeiro
+  var score = calcFinanceScore(st, D.config.targetSavings);
+  var sl = scoreLabel(score);
+  var stPrev = stats(shM(m,-1));
+  var insights = buildInsights(st, stPrev, m);
+  var sal = Math.max(0, Number(st.sal||0));
+  var gasto = Math.max(0, Number(st.gastoReal||0));
+  var sobra = sal - gasto;
+  var txPoup = sal > 0 ? ((sobra/sal)*100).toFixed(1) : '0.0';
+  var txGasto = sal > 0 ? ((gasto/sal)*100).toFixed(1) : '0.0';
+  var alertas = [];
+  GR.forEach(function(g){
+    var c = st.cats[g.id]; if(!c)return;
+    if(c.p>0 && c.s>c.p) alertas.push({type:'over',msg:g.label+': gastou R$'+Number(c.s).toFixed(2).replace('.',',')+' de R$'+Number(c.p).toFixed(2).replace('.',',')+' previsto (+'+Number(((c.s-c.p)/c.p)*100).toFixed(0)+'%)',color:'#dc2626'});
+    else if(c.p>0 && c.s>c.p*0.85) alertas.push({type:'warn',msg:g.label+': '+Number(c.s).toFixed(2).replace('.',',')+' de '+Number(c.p).toFixed(2).replace('.',',')+'('+Number((c.s/c.p)*100).toFixed(0)+'% do limite)',color:'#f59e0b'});
+  });
+  if(sal>0 && parseFloat(txPoup)<10) alertas.push({type:'warn',msg:'Sobra abaixo de 10% da receita.',color:'#f59e0b'});
+  if(sal>0 && gasto>sal) alertas.push({type:'over',msg:'Gasto real ultrapassou a receita em R$'+Number(gasto-sal).toFixed(2).replace('.',',')+'.', color:'#dc2626'});
+
   // Tabela de categorias
   var catRows = GR.filter(function(g){ return st.cats[g.id] && (st.cats[g.id].p > 0 || st.cats[g.id].s > 0); })
     .sort(function(a,b){ return (st.cats[b.id].s||0) - (st.cats[a.id].s||0); })
@@ -7164,6 +7185,29 @@ window.exportPDF = function(){
     +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Gasto avulso</div><div style="'+valStyle+'">'+R(st.expTotal)+'</div><div style="'+sub2Style+'">'+exps.length+' lançamento'+(exps.length!==1?'s':'')+'</div></div>'
     +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Sobra sobre receita</div><div style="'+valStyle+';color:'+(parseFloat(savRate)>=20?'#16a34a':parseFloat(savRate)>=10?'#f59e0b':'#dc2626')+'">'+savRate+'%</div><div style="'+sub2Style+'">Receita – gasto real</div></div>'
     +'</div>'
+
+    // Balanço financeiro — logo após os cards
+    +'<h2 style="'+h2Style+'">Balanço financeiro</h2>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">'
+      +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Score financeiro</div>'
+        +'<div style="font-size:24px;font-weight:900;color:'+sl.color+'">'+score+' <span style="font-size:13px;font-weight:600">'+sl.label+'</span></div></div>'
+      +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Sobra sobre receita</div>'
+        +'<div style="font-size:22px;font-weight:800;color:'+(parseFloat(txPoup)>=10?'#16a34a':'#dc2626')+'">'+txPoup+'%</div>'
+        +'<div style="'+sub2Style+'">'+R(sobra)+' sobrando</div></div>'
+      +'<div style="'+cardStyle+'"><div style="'+lblStyle+'">Comprometimento</div>'
+        +'<div style="font-size:22px;font-weight:800;color:'+(parseFloat(txGasto)>90?'#dc2626':parseFloat(txGasto)>75?'#f59e0b':'#374151')+'">'+txGasto+'%</div>'
+        +'<div style="'+sub2Style+'">da receita em gastos</div></div>'
+    +'</div>'
+    +(insights.length ? '<div style="margin-bottom:14px">'
+      +insights.map(function(ins){
+        return '<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#374151;line-height:1.45">'
+          +'<span>'+ins.ico+'</span><span>'+ins.txt+'</span></div>';
+      }).join('')
+    +'</div>' : '')
+    +'<div style="margin-bottom:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748b">Alertas</div>'
+    +(alertas.length
+      ? alertas.map(function(a){return'<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;background:'+a.color+'18;border-left:3px solid '+a.color+';margin-bottom:6px;font-size:13px;color:#374151;line-height:1.4">'+a.msg+'</div>';}).join('')
+      : '<div style="font-size:13px;color:#16a34a;padding:8px 0">Nenhum alerta para este mês.</div>')
 
     // Categorias
     +(catRows ? '<h2 style="'+h2Style+'">Gastos por categoria</h2>'
@@ -8083,7 +8127,7 @@ function rConfig(){
     +'<div class="cfgr"><div class="cfgl"><div class="cfgn" style="color:var(--red)">Excluir conta</div><div class="cfgs">Apaga permanentemente sua conta e todos os dados financeiros</div></div><button style="width:auto;margin:0;padding:8px 16px;background:var(--red-l);color:var(--red);border:1px solid #fecaca;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" onclick="window.openDeleteAccountModal()">Excluir conta</button></div>'
     +'</div>';
 
-  var exportSection='<div class="card"><div class="sec" style="margin-top:0">Exportação</div><div class="cfgr"><div class="cfgl"><div class="cfgn">Exportar lançamentos</div><div class="cfgs">Gera um arquivo .csv com todos os gastos</div></div><button class="btn-export" onclick="window.exportCSV()">'+ICO.excel+' Baixar CSV</button></div></div>';
+  var exportSection='<div class="card"><div class="sec" style="margin-top:0">Exportação</div><div class="cfgr"><div class="cfgl"><div class="cfgn">Exportar lançamentos</div><div class="cfgs">Escolha o que exportar em formato .csv</div></div><button class="btn-export" onclick="window.openExportModal()">'+ICO.excel+' Exportar CSV</button></div></div>';
 
   var current = U.configSection || 'conta';
   var tabs = [
@@ -8962,7 +9006,7 @@ window.qeConfirm=function(){
     D.expenses=[{id:uid(),date:p.date,amount:p.amount,group:p.group,description:p.description,note:'',sourceBank:p.sourceBank,paymentType:p.paymentType,createdAt:now,updatedAt:now}].concat(D.expenses);
   }
   U.qe='';U.parsed=null;sset(D);render();
-  setTimeout(function(){var inp=document.getElementById('qei');if(inp)inp.focus();},80);
+  setTimeout(function(){var inp=document.getElementById('qei');if(inp)inp.blur();},80);
 };
 window.qeCancel=function(){U.qe='';U.parsed=null;render();};
 
@@ -10230,23 +10274,154 @@ window.openInvestDetail = function(id) {
 };
 
 // ── CSV Export ───────────────────────────────────────────────────────────────
-window.exportCSV=function(){
-  var rows=['Data,Descricao,Categoria,Valor'];
-  var exps=D.expenses.slice().sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''));});
-  exps.forEach(function(e){
-    var g=gBy(e.group);
-    rows.push([
-      e.date || '',
-      e.description || g.label,
-      g.label,
-      (Number(e.amount)||0).toFixed(2).replace('.',',')
-    ].map(csvCell).join(','));
-  });
-  var csv=rows.join('\n');
-  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+window.exportCSV=function(){ window.openExportModal(); };
+
+window.openExportModal=function(){
+  var existing=document.getElementById('export-modal-overlay');
+  if(existing){existing.remove();return;}
+
+  var m=U.month;
+  var fmtMonth=m?(m.slice(0,4)+'/'+m.slice(5,7)):'';
+
+  var options=[
+    {key:'gastos',    ico:'💰', lbl:'Gastos',    sub:'Lançamentos de gastos de '+fmtMonth},
+    {key:'parcelas',  ico:'🔄', lbl:'Parcelas',   sub:'Parcelas ativas em '+fmtMonth},
+    {key:'fixos',     ico:'📌', lbl:'Fixos',      sub:'Contas fixas cadastradas'},
+    {key:'estimados', ico:'📊', lbl:'Estimados',  sub:'Contas estimadas cadastradas'},
+    {key:'todos',     ico:'📦', lbl:'Todos',      sub:'Tudo, agrupado por categoria'},
+  ];
+
+  var overlay=document.createElement('div');
+  overlay.id='export-modal-overlay';
+  overlay.className='cat-overlay';
+  overlay.style.zIndex='500';
+  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
+
+  overlay.innerHTML=
+    '<div class="cat-modal" style="max-width:400px">'+
+      '<div class="cat-modal-hdr">'+
+        '<span style="font-size:15px;font-weight:800;color:var(--txt)">📤 Exportar CSV</span>'+
+        '<button class="cat-modal-close" onclick="document.getElementById(\'export-modal-overlay\').remove()">✕</button>'+
+      '</div>'+
+      '<div class="cat-modal-body" style="padding-bottom:20px">'+
+        '<p style="font-size:12px;color:var(--mt);margin-bottom:14px;line-height:1.45">Escolha o que deseja exportar. O arquivo será baixado no formato <b>.csv</b>, compatível com Excel e Google Sheets.</p>'+
+        options.map(function(o){
+          return '<button onclick="window._runExport(\''+o.key+'\');document.getElementById(\'export-modal-overlay\').remove()" '+
+            'style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--srf);cursor:pointer;font-family:inherit;text-align:left;margin-bottom:8px;transition:background 0.15s,border-color 0.15s" '+
+            'onmouseover="this.style.background=\'var(--s2)\';this.style.borderColor=\'var(--dk-bg)\'" '+
+            'onmouseout="this.style.background=\'var(--srf)\';this.style.borderColor=\'var(--bd)\'">'+
+            '<span style="font-size:22px;flex-shrink:0">'+o.ico+'</span>'+
+            '<span style="flex:1;min-width:0">'+
+              '<span style="display:block;font-size:13px;font-weight:700;color:var(--txt)">'+o.lbl+'</span>'+
+              '<span style="display:block;font-size:11px;color:var(--mt);margin-top:2px">'+o.sub+'</span>'+
+            '</span>'+
+            '<span style="color:var(--mt2);font-size:16px">›</span>'+
+          '</button>';
+        }).join('')+
+      '</div>'+
+    '</div>';
+
+  document.body.appendChild(overlay);
+};
+
+window._runExport=function(type){
+  var m=U.month;
+  var rows=[];
+  var filename='poupai';
+
+  // CSV com ponto e vírgula: padrão brasileiro (Excel pt-BR e Google Sheets)
+  function T(v){ return String(v===null||v===undefined?'':v).replace(/;/g,',').replace(/\r?\n/g,' ').trim(); }
+  function tsv(cells){ return cells.map(T).join(';'); }
+  function fmtAmt(v){ return (Number(v)||0).toFixed(2).replace('.',','); }
+  function fmtDate(d){ if(!d)return''; try{ return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){return d;} }
+  function fmtPeriod(start,end){
+    var s=start?start.slice(0,7).replace('-','/'):'' ;
+    var e=end?end.slice(0,7).replace('-','/'):'' ;
+    if(s&&e)return s+' → '+e;
+    if(s)return 'desde '+s;
+    return '';
+  }
+  function calcParcNum(start,monthRef){
+    if(!start||!monthRef)return'';
+    var sy=Number(start.slice(0,4)),sm=Number(start.slice(5,7));
+    var ry=Number(monthRef.slice(0,4)),rm=Number(monthRef.slice(5,7));
+    return String((ry-sy)*12+(rm-sm)+1);
+  }
+
+  if(type==='gastos'){
+    filename='gastos-'+m;
+    rows.push(tsv(['Nome','Valor','Data','Categoria']));
+    var exps=D.expenses.filter(function(e){return e.date&&e.date.slice(0,7)===m;})
+      .slice().sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''));});
+    exps.forEach(function(e){
+      var g=gBy(e.group);
+      rows.push(tsv([e.description||g.label, fmtAmt(e.amount), fmtDate(e.date), g.label]));
+    });
+
+  }else if(type==='parcelas'){
+    filename='parcelas-'+m;
+    rows.push(tsv(['Nome','Valor/mês','Nº Parcela','Período','Categoria']));
+    var inst=getActiveInstAll(m);
+    inst.forEach(function(i){
+      var g=gBy(i.group);
+      rows.push(tsv([i.label||'', fmtAmt(i.amount), 'Parcela '+calcParcNum(i.start,m), fmtPeriod(i.start,i.end), g.label]));
+    });
+
+  }else if(type==='fixos'){
+    filename='fixos';
+    rows.push(tsv(['Nome','Valor','Dia Vencimento','Categoria']));
+    var fixos=D.fixedItems.filter(function(i){return i.isEstimate===false;});
+    fixos.forEach(function(i){
+      var g=gBy(i.group);
+      rows.push(tsv([i.label||'', fmtAmt(i.amount), i.dueDay?'Dia '+i.dueDay:'', g.label]));
+    });
+
+  }else if(type==='estimados'){
+    filename='estimados';
+    rows.push(tsv(['Nome','Valor','Dia Vencimento','Categoria']));
+    var estimados=D.fixedItems.filter(function(i){return i.isEstimate!==false;});
+    estimados.forEach(function(i){
+      var g=gBy(i.group);
+      rows.push(tsv([i.label||'', fmtAmt(i.amount), i.dueDay?'Dia '+i.dueDay:'', g.label]));
+    });
+
+  }else if(type==='todos'){
+    filename='poupai-completo-'+m;
+    rows.push(tsv(['Nome','Valor','Data / Período','Tipo','Categoria']));
+
+    var allRecords=[];
+    D.expenses.filter(function(e){return e.date&&e.date.slice(0,7)===m;}).forEach(function(e){
+      allRecords.push({nome:e.description||gBy(e.group).label,valor:e.amount,extra:fmtDate(e.date),tipo:'Gasto',group:e.group});
+    });
+    getActiveInstAll(m).forEach(function(i){
+      allRecords.push({nome:i.label||'',valor:i.amount,extra:fmtPeriod(i.start,i.end),tipo:'Parcela',group:i.group});
+    });
+    D.fixedItems.filter(function(i){return i.isEstimate===false;}).forEach(function(i){
+      allRecords.push({nome:i.label||'',valor:i.amount,extra:i.dueDay?'Dia '+i.dueDay:'',tipo:'Fixo',group:i.group});
+    });
+    // Estimados (tetos) são omitidos do export "Todos" pois não representam lançamentos reais
+
+    var grouped={};
+    allRecords.forEach(function(r){if(!grouped[r.group])grouped[r.group]=[];grouped[r.group].push(r);});
+    var first=true;
+    GR.forEach(function(g){
+      var items=grouped[g.id];
+      if(!items||!items.length)return;
+      if(!first)rows.push(''); // linha em branco
+      first=false;
+      rows.push(tsv([g.label.toUpperCase(),'','','',''])); // cabeçalho da categoria
+      items.forEach(function(r){
+        rows.push(tsv([r.nome, fmtAmt(r.valor), r.extra, r.tipo, g.label]));
+      });
+    });
+  }
+
+  if(rows.length<=1&&type!=='todos'){rows.push(tsv(['','','','']));}
+  var tsv_content=rows.join('\n');
+  var blob=new Blob(['\uFEFF'+tsv_content],{type:'text/csv;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url;a.download='gastos-'+mM()+'.csv';document.body.appendChild(a);a.click();
+  a.href=url;a.download=filename+'.csv';document.body.appendChild(a);a.click();
   setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
 };
 
