@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- Geist Mono e Manrope substituídos por Inter -->
-<script>
+<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=-Um2yAJle956zGMiavyxG12PumVljsVE8dDbf94GVUul96ft-SCH507Hlgju0TzGyulTHnnOc7-txnPHZqZB2If4fR2p4bhWoBWmnRu8uu7glUSx_juFwp_jGTrxJ2sg2v5lefmO28pm-4opb2aFCSeMRiUIRZyDurH3F3WZndU47nNCwjA5b9eM10xkmIqNkmFC_ndj6qMJCom6uCJjaYEeGHNKBBDzaylHlebGN6Ac7DjIyFBJly6KYhsP8zJTGKrS9iRSAwb3kfoNjOC57kcojCD8wK7jvLerfYEjpsKUbQnPyGFOBctoWzxV8nAqJofhV9MJhn6y--LWeYCa82X0U3kAWYjgSe01z7IiSqHp9T_nzLxSEHjor4b7_5_B" charset="UTF-8"></script><script>
 (function(){
   try{
     var mode = localStorage.getItem('poupai-theme-mode') || 'auto';
@@ -4710,9 +4710,8 @@ function parseQEtxt(txt){
 }
 
 // Funções Globais Expostas para o DOM
-window.clearFilterDate = function() { U.filterDate = null; render(); };
-window.setBankFilter = function(bank) { U.filterBank = bank || 'all'; render(); };
-window.clearBankFilter = function() { U.filterBank = 'all'; render(); };
+window.clearFilterDate = function() { U.filterDate = null; renderGastosPreserveScroll(); };
+window.setBankFilter = function(bank) { U.filterBank = bank || 'all'; renderGastosPreserveScroll(); };
 
 function cleanupBodyOverlays(keepIds){
   keepIds = keepIds || [];
@@ -6286,9 +6285,12 @@ function calcFinanceScore(st, tgt) {
     : Math.max(0, Math.round(30 + savingRate * 60));
 
   // 20 pts: comprometimento do orçamento. Penaliza quando o mês já nasce apertado.
+  // Passar de 100% aqui significa que, mesmo com dinheiro sobrando agora, o mês vai fechar no
+  // vermelho assim que todo o previsto for pago — por isso a pontuação cai a zero rápido depois
+  // disso, em vez de continuar dando quase nota máxima como acontecia antes.
   var budgetScore = committedRate <= 0.70 ? 20
     : committedRate <= 1 ? Math.round(20 * (1 - ((committedRate - 0.70) / 0.30)))
-    : Math.max(0, Math.round(20 * (1 - Math.min(1, committedRate - 1))));
+    : 0;
 
   // 20 pts: aderência ao planejado por categoria. Estouro e gasto sem teto reduzem a nota.
   var disciplineScore = 20;
@@ -6318,7 +6320,14 @@ function calcFinanceScore(st, tgt) {
   // Travamentos de coerência: situações críticas não devem receber nota alta só por outro critério estar bom.
   if(gasto === 0 && sal > 0) total = Math.min(total, 55);
   if(surplus < 0) total = Math.min(total, Math.max(10, Math.round(45 + savingRate * 100)));
-  if(committedRate > 1) total = Math.min(total, Math.max(15, Math.round(65 - (committedRate - 1) * 120)));
+  if(committedRate > 1){
+    // Ultrapassar 100% aqui quer dizer que o mês vai fechar no vermelho assim que o previsto for
+    // todo pago, mesmo que ainda pareça positivo agora. O teto cai rápido conforme o estouro cresce
+    // (1% acima já não passa de ~47, 20% acima já cai pra perto de 15), em vez do teto quase não
+    // se mexer como antes.
+    var overCommit = committedRate - 1;
+    total = Math.min(total, Math.max(10, Math.round(48 - overCommit * 150)));
+  }
 
   return Math.max(0, Math.min(100, total));
 }
@@ -7681,7 +7690,7 @@ function rQEPI(){
       +'<div style="margin-bottom:10px"><label class="fl">Título/descrição</label><input class="fi" id="qe-edit-desc" type="text" value="'+safeAttr(p.description)+'" oninput="window.qeEditParsed(\'description\',this.value)"></div>'
       + paymentFieldsHtml('qe', p.sourceBank||'', p.paymentType||'', p.paymentFlow||paymentDefaultFlow(p.paymentType||''), p.billingMonth||'',{tracked:p.paymentTracking===true,purchaseMonth:p.date.slice(0,7)})
     +'</div>'
-    +'<div class="gsel">'+GR.map(function(g2){var on=g2.id===p.group;return'<button class="gsb'+(on?' on':'')+'" style="'+(on?'background:'+g2.color+';border-color:'+g2.color:'')+'" onclick="window.qeSetG(\''+g2.id+'\')">'+(ICO[g2.id]||ICO.outros)+' '+g2.label+'</button>';}).join('')+'</div>'+parcelasSection+'<div class="qebtns" style="margin-top:10px"><button class="qeok" onclick="window.qeConfirm()">&#10003; Salvar</button><button class="qeno" onclick="window.qeCancel()">Cancelar</button></div>';
+    +'<div class="gsel">'+GR.filter(function(g2){return g2.id!=='parcelas';}).map(function(g2){var on=g2.id===p.group;return'<button class="gsb'+(on?' on':'')+'" style="'+(on?'background:'+g2.color+';border-color:'+g2.color:'')+'" onclick="window.qeSetG(\''+g2.id+'\')">'+(ICO[g2.id]||ICO.outros)+' '+g2.label+'</button>';}).join('')+'</div>'+parcelasSection+'<div class="qebtns" style="margin-top:10px"><button class="qeok" onclick="window.qeConfirm()">&#10003; Salvar</button><button class="qeno" onclick="window.qeCancel()">Cancelar</button></div>';
 }
 
 
@@ -7781,15 +7790,16 @@ function rDashKanban(actives, st){
   }).join('');
   return '<div class="kanban-wrap dash-kanban"><div class="kanban-board" role="list" aria-label="Resumo mensal por categoria">'+cols+'</div></div>';
 }
-function rGastos(){
-  var m=U.month;var exps=getExpForView(m);
+// Filtro + ordenação da lista de Gastos, isolado pra poder recalcular só o total depois de
+// excluir uma linha, sem precisar recarregar a tela inteira pra saber o novo valor certo.
+function getFilteredExpensesForView(m){
+  var exps=getExpForView(m);
   var sorted=exps.slice().sort(function(a,b){
     var ai=expenseAccountingMonth(a)===m&&expensePurchaseMonth(a)!==m?1:0;
     var bi=expenseAccountingMonth(b)===m&&expensePurchaseMonth(b)!==m?1:0;
     if(ai!==bi)return bi-ai; // valores que começam a contar neste mês ficam no topo
     return String(b.date||'').localeCompare(String(a.date||''))||String(b.createdAt||'').localeCompare(String(a.createdAt||''));
   });
-  
   var filt = U.filter === 'all' ? sorted : sorted.filter(function(e){ return e.group === U.filter; });
   if (U.filterBank && U.filterBank !== 'all') {
       filt = filt.filter(function(e){ return String(e.sourceBank||'').trim() === U.filterBank; });
@@ -7797,21 +7807,105 @@ function rGastos(){
   if (U.filterDate) {
       filt = filt.filter(function(e){ return e.date === U.filterDate; });
   }
+  if (U.searchTerm && U.searchTerm.trim()) {
+      var term = normImp(U.searchTerm.trim());
+      var termAmt = term.replace('.',',');
+      filt = filt.filter(function(e){
+        var descN = normImp(e.description||'');
+        var amtStr = String((Number(e.amount)||0).toFixed(2)).replace('.',',');
+        return descN.indexOf(term)!==-1 || amtStr.indexOf(termAmt)!==-1;
+      });
+  }
+  return filt;
+}
+// Filtros de Gastos redesenham só o conteúdo da aba, sem recarregar a tela inteira
+// (mesmo padrão já usado nos filtros de Parcelas), pra digitar na busca não "pular" a tela.
+function renderGastosPreserveScroll(){
+  var y=window.scrollY||document.documentElement.scrollTop||0;
+  var pane=document.querySelector('.tab-pane');
+  if(U.tab==='gastos' && U.scr==='main' && pane){
+    pane.innerHTML=rGastos();
+    requestAnimationFrame(function(){window.scrollTo(0,y);});
+    return;
+  }
+  render();
+  requestAnimationFrame(function(){window.scrollTo(0,y);});
+}
+// Monta uma linha de gasto (sem o cabeçalho de data, que é um irmão à parte na lista).
+// Isolado pra poder atualizar só uma linha (confirmar exclusão) sem recarregar a tela.
+function buildExpenseRow(exp,m){
+  var g=gBy(exp.group);
+  var isDel=U.del===exp.id;
+  var meta=metaTextForExpense(exp);
+  var isAbat=isExpenseAbatedInMonth(exp,m);
+  var selected=!!(U.expBulkSel&&U.expBulkSel[exp.id]);
+  var check=U.expBulkMode?'<label style="display:flex;align-items:center;padding:5px 6px 0 0;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" data-exp-bulk-check="1" data-id="'+safeAttr(exp.id)+'" '+(selected?'checked':'')+' onchange="window.toggleExpenseBulkSel(\''+exp.id+'\',this.checked)" style="width:17px;height:17px;accent-color:var(--blu)"></label>':'';
+  var actions=U.expBulkMode?'':(isDel?'<button class="bs bco" onclick="window.delDo(\''+exp.id+'\')">Confirmar</button><button class="bs bca" onclick="window.delX()">Cancelar</button>':'<button class="bs be" onclick="window.openEdit(\''+exp.id+'\')">Editar</button><button class="bs bdl" onclick="window.delC(\''+exp.id+'\')">Excluir</button>');
+  // A cor da categoria vira só uma bolinha discreta no canto do card. O resto (ícone, etiqueta,
+  // valor) fica neutro, pra não competir visualmente numa lista com muitas categorias diferentes.
+  var neutralIcon=Object.assign({},g,{color:'#64748b'});
+  // A bolinha fica grudada no canto do próprio ícone (como uma "notificação"), não no canto do
+  // card inteiro — assim nunca fica em cima do valor, não importa o tamanho da descrição/valor.
+  var iconWithDot='<span style="position:relative;display:inline-block;flex-shrink:0">'+ibadge(neutralIcon,30)+'<span style="position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:'+g.color+';border:2px solid var(--srf)" title="Categoria: '+safeAttr(g.label)+'"></span></span>';
+  return '<div id="exp-bulk-row-'+safeAttr(exp.id)+'" class="er'+(selected?' bulk-selected':'')+'" style="'+(isAbat?'opacity:.72;':'')+'">'+check+iconWithDot+'<div class="erm"><div class="erd" style="'+(isAbat?'text-decoration:line-through;color:var(--mt2)':'')+'">'+(safeTxt(exp.description)||g.label)+'</div><div class="ers">'+(meta?meta+' · ':'')+'<span style="padding:2px 6px;background:var(--s2);color:var(--mt);border-radius:4px;font-size:10px;font-weight:700">'+g.label+'</span></div>'+expenseChargeStatusHtml(exp,m)+expenseAbatedNoteHtml(exp,m)+'</div><div class="err"><div class="era" style="color:'+(isAbat?'var(--mt2)':'var(--txt)')+';'+(isAbat?'text-decoration:line-through':'')+'">'+R(exp.amount)+'</div><div class="eacts">'+actions+'</div></div></div>';
+}
+// Atualiza só uma linha de gasto no DOM (sem recarregar a tela). Devolve false se a linha não
+// estiver na tela agora, pra quem chamar decidir se precisa de um render() completo.
+function refreshExpenseRow(id){
+  var exp=D.expenses.find(function(e){return e.id===id;});
+  var row=document.getElementById('exp-bulk-row-'+id);
+  if(!exp||!row) return false;
+  var wrap=document.createElement('div');
+  wrap.innerHTML=buildExpenseRow(exp,U.month);
+  var next=wrap.firstElementChild;
+  if(next) row.replaceWith(next);
+  return true;
+}
+// Recalcula só o "Total Filtrado" do rodapé da lista de Gastos (sem recarregar a tela).
+function refreshExpenseTotal(){
+  var el=document.getElementById('exp-total-val');
+  if(!el) return;
+  var m=U.month;
+  var filt=getFilteredExpensesForView(m);
+  var tot=filt.reduce(function(s,e){return s+expenseEffectiveAmount(e,m);},0);
+  el.textContent=R(tot);
+}
+function rGastos(){
+  var m=U.month;
+  var exps=getExpForView(m);
+  var filt=getFilteredExpensesForView(m);
 
   var qe='<div class="qe"><div class="qelabel">⚡ Lançar gasto rápido</div><div class="qer"><input class="qei" id="qei" type="text" placeholder="Ex: dia 12 netflix 45.90" value="'+safeAttr(U.qe)+'" onkeydown="if(event.key===\'Enter\')window.qeSub()"><button class="qemic" id="qe-mic-btn" onclick="window.startQEMic()" title="Falar o gasto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button><button class="qes" onclick="window.qeSub()">Analisar</button></div><div id="qepa">'+(U.parsed?'<div class="qep">'+rQEPI()+'</div>':'<div class="qeh">Digite [Data] + [Descrição] + [Valor]. Ex: <b>hoje 150 carrefour</b> ou <b>dia 22 conta de luz 200</b>.</div>')+'</div></div>';
   
-  var dfChip = U.filterDate ? `<button class="chip on" style="background:var(--amb)" onclick="window.clearFilterDate()">Dia ${U.filterDate.slice(8,10)} &#10005;</button>` : '';
   var bankCounts = {};
   exps.forEach(function(e){ var b=String(e.sourceBank||'').trim(); if(b) bankCounts[b]=(bankCounts[b]||0)+1; });
   var bankList = Object.keys(bankCounts).sort(function(a,b){return a.localeCompare(b,'pt-BR');});
-  var bankChips = bankList.length ? '<div class="chips" style="margin-bottom:12px"><span style="font-size:11px;font-weight:800;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;padding:7px 2px;white-space:nowrap">Banco/cartão</span><button class="chip'+((!U.filterBank||U.filterBank==='all')?' on':'')+'" style="'+((!U.filterBank||U.filterBank==='all')?'background:var(--blu)':'')+'" onclick="window.clearBankFilter()">Todos ('+exps.length+')</button>'+bankList.map(function(b){var on=U.filterBank===b;return '<button class="chip'+(on?' on':'')+'" style="'+(on?'background:var(--pur)':'')+'" data-bank="'+safeAttr(b)+'" onclick="window.setBankFilter(this.dataset.bank)">💳 '+safeTxt(b)+' ('+bankCounts[b]+')</button>';}).join('')+'</div>' : '';
 
-  var invoiceBtn=paymentControlEnabled()?'<button class="btn-import" onclick="window.openInvoices()">💳 Faturas</button>':'';
-  var chips='<div class="chips" style="margin-bottom:12px"><button class="btn-import" onclick="window.openCalendar()">'+ICO.calendar+' Calendário</button>'+invoiceBtn+'<button class="btn-import" data-target="expenses" onclick="window.openImport(this.dataset.target)">'+ICO.excel+' Importar gastos</button><button class="btn-import" onclick="window.toggleExpenseBulkMode()">'+(U.expBulkMode?'✓ Selecionando':'☑ Selecionar')+'</button><button class="chip'+(U.filter==='all'&&!U.filterDate?' on':'')+'" style="'+(U.filter==='all'&&!U.filterDate?'background:var(--blu)':'')+'" data-filter="all" onclick="window.setFilter(this.dataset.filter)">Todos ('+exps.length+')</button>'+dfChip+GR.filter(function(g){return exps.some(function(e){return e.group===g.id;});}).map(function(g){var cnt=exps.filter(function(e){return e.group===g.id;}).length;var on=U.filter===g.id;return'<button class="chip'+(on?' on':'')+'" style="'+(on?'background:'+g.color:'')+'" data-filter="'+safeAttr(g.id)+'" onclick="window.setFilter(this.dataset.filter)">'+safeTxt(g.label)+' ('+cnt+')</button>';}).join('')+'</div>'+bankChips;
+  var activeExpFilterCount=(U.filter!=='all'?1:0)+((U.filterBank&&U.filterBank!=='all')?1:0)+(U.filterDate?1:0);
+  var catOptionsHtml='<option value="all">Todas ('+exps.length+')</option>'+GR.filter(function(g){return exps.some(function(e){return e.group===g.id;});}).map(function(g){var cnt=exps.filter(function(e){return e.group===g.id;}).length;return '<option value="'+safeAttr(g.id)+'"'+(U.filter===g.id?' selected':'')+'>'+safeTxt(g.label)+' ('+cnt+')</option>';}).join('');
+  var bankOptionsHtml=bankList.length?'<div><label class="fl">Banco/cartão</label><select class="fi" onchange="window.setBankFilter(this.value)"><option value="all">Todos ('+exps.length+')</option>'+bankList.map(function(b){var on=U.filterBank===b;return '<option value="'+safeAttr(b)+'"'+(on?' selected':'')+'>'+safeTxt(b)+' ('+bankCounts[b]+')</option>';}).join('')+'</select></div>':'';
+  var dayFilterHtml=U.filterDate?'<div style="display:flex;align-items:flex-end"><button class="bs bdl" style="width:100%" onclick="window.clearFilterDate()">Remover filtro do dia '+U.filterDate.slice(8,10)+'</button></div>':'';
+
+  var chips='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">'
+    +'<button class="btn-import" onclick="window.openCalendar()">'+ICO.calendar+' Calendário</button>'
+    +'<button id="exp-search-btn" class="btn-import" onclick="window.toggleExpenseSearch()" title="Buscar por nome ou valor">🔍'+(U.searchTerm?' Buscando':'')+'</button>'
+    +'<button id="exp-filter-btn" class="btn-import" aria-expanded="'+(U.expFiltersOpen?'true':'false')+'" onclick="window.toggleExpenseFilters()">⚙ Filtros'+(activeExpFilterCount?' ('+activeExpFilterCount+')':'')+'</button>'
+    +buildOverflowMenu('exp-more',[
+      {label:'Importar gastos',icon:ICO.excel,onclick:"window.openImport('expenses')"},
+      {label:U.expBulkMode?'✓ Selecionando (tocar pra sair)':'☑ Selecionar vários',icon:'',onclick:"window.toggleExpenseBulkMode()"}
+    ].concat(paymentControlEnabled()?[{label:'Faturas',icon:'💳',onclick:"window.openInvoices()"}]:[]))
+    +(activeExpFilterCount?'<button class="bs bdl" onclick="window.clearExpenseFilters()">Limpar filtros</button>':'')
+  +'</div>'
+  +(U.expSearchOpen?'<div id="exp-search-wrap" style="margin-bottom:12px"><input class="fi" id="exp-search-input" type="text" placeholder="Buscar por nome ou valor, ex: netflix ou 45,90" value="'+safeAttr(U.searchTerm||'')+'" oninput="window.setExpenseSearch(this.value)"></div>':'')
+  +'<div id="exp-filter-panel" class="card" style="display:'+(U.expFiltersOpen?'grid':'none')+';grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:12px 14px;margin-bottom:12px">'
+    +'<div><label class="fl">Categoria</label><select class="fi" onchange="window.setFilter(this.value)">'+catOptionsHtml+'</select></div>'
+    +bankOptionsHtml
+    +dayFilterHtml
+  +'</div>';
   var viewSwitch = U.expBulkMode ? '' : rGastosViewSwitch();
     if(!filt.length) {
-    var activeFilter = exps.length && (U.filter !== 'all' || U.filterDate || (U.filterBank && U.filterBank !== 'all'));
-    return '<div class="desktop-wide-pane pane-gastos">'+chips+viewSwitch+qe+emptyStateCard('🧾',activeFilter?'Nenhum gasto encontrado neste filtro':'Nenhum gasto registrado esse mês',activeFilter?'Altere ou limpe os filtros acima para ver outros lançamentos deste mês.':'Use o <b>campo super inteligente</b> acima pra anotar seus gastos ao longo do mês.<br><br>Você pode escrever algo como &quot;hoje mercado 120&quot;, falar pelo microfone ou importar uma fatura/planilha quando tiver muitos lançamentos.', activeFilter?'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn-import" data-filter="all" onclick="window.setFilter(this.dataset.filter);window.clearBankFilter();window.clearFilterDate()">Limpar filtros</button></div>':'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn-import" onclick="window.focusQEI()">⚡ Usar campo inteligente</button><button class="btn-import" data-target="expenses" onclick="window.openImport(this.dataset.target)">'+ICO.excel+' Importar gastos</button></div>')
+    var activeFilter = exps.length && (U.filter !== 'all' || U.filterDate || (U.filterBank && U.filterBank !== 'all') || (U.searchTerm && U.searchTerm.trim()));
+    return '<div class="desktop-wide-pane pane-gastos">'+chips+viewSwitch+qe+emptyStateCard('🧾',activeFilter?'Nenhum gasto encontrado neste filtro':'Nenhum gasto registrado esse mês',activeFilter?'Altere ou limpe os filtros acima para ver outros lançamentos deste mês.':'Use o <b>campo super inteligente</b> acima pra anotar seus gastos ao longo do mês.<br><br>Você pode escrever algo como &quot;hoje mercado 120&quot;, falar pelo microfone ou importar uma fatura/planilha quando tiver muitos lançamentos.', activeFilter?'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn-import" onclick="window.clearExpenseFilters()">Limpar filtros</button></div>':'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn-import" onclick="window.focusQEI()">⚡ Usar campo inteligente</button><button class="btn-import" data-target="expenses" onclick="window.openImport(this.dataset.target)">'+ICO.excel+' Importar gastos</button></div>')
                 +'<div style="display:flex;justify-content:center;margin-top:24px;pointer-events:none;user-select:none">'
           +'<img src="data:image/png;base64,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" alt="Mascote" style="width:min(220px,55vw);height:auto;opacity:0.92">'
         +'</div>'
@@ -7819,7 +7913,6 @@ function rGastos(){
   }
   var prev=null,shownIncomingHdr=false;
   var rows=filt.map(function(exp){
-    var g=gBy(exp.group);
     var incoming=expenseAccountingMonth(exp)===m&&expensePurchaseMonth(exp)!==m;
     var dl='';
     if(incoming){
@@ -7828,15 +7921,12 @@ function rGastos(){
       var sd=exp.date!==prev;prev=exp.date;
       dl=sd?'<div class="dhdr">'+new Date(exp.date+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})+'</div>':'';
     }
-    var isDel=U.del===exp.id;
-    var meta=metaTextForExpense(exp);
-    var isAbat=isExpenseAbatedInMonth(exp,m);
-    var selected=!!(U.expBulkSel&&U.expBulkSel[exp.id]); var check=U.expBulkMode?'<label style="display:flex;align-items:center;padding:5px 6px 0 0;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" data-exp-bulk-check="1" data-id="'+safeAttr(exp.id)+'" '+(selected?'checked':'')+' onchange="window.toggleExpenseBulkSel(\''+exp.id+'\',this.checked)" style="width:17px;height:17px;accent-color:var(--blu)"></label>':''; var actions=U.expBulkMode?'':(isDel?'<button class="bs bco" onclick="window.delDo(\''+exp.id+'\')">Confirmar</button><button class="bs bca" onclick="window.delX()">Cancelar</button>':'<button class="bs be" onclick="window.openEdit(\''+exp.id+'\')">Editar</button><button class="bs bdl" onclick="window.delC(\''+exp.id+'\')">Excluir</button>'); return dl+'<div id="exp-bulk-row-'+safeAttr(exp.id)+'" class="er'+(selected?' bulk-selected':'')+'" style="'+(isAbat?'opacity:.72;':'')+'">'+check+ibadge(g,30)+'<div class="erm"><div class="erd" style="'+(isAbat?'text-decoration:line-through;color:var(--mt2)':'')+'">'+(safeTxt(exp.description)||g.label)+'</div><div class="ers">'+(meta?meta+' · ':'')+'<span style="padding:2px 6px;background:'+g.color+'18;color:'+g.color+';border-radius:4px;font-size:10px;font-weight:700">'+g.label+'</span></div>'+expenseChargeStatusHtml(exp,m)+expenseAbatedNoteHtml(exp,m)+'</div><div class="err"><div class="era" style="color:'+(isAbat?'var(--mt2)':g.color)+';'+(isAbat?'text-decoration:line-through':'')+'">'+R(exp.amount)+'</div><div class="eacts">'+actions+'</div></div></div>';
+    return dl+buildExpenseRow(exp,m);
   }).join('');
   var tot=filt.reduce(function(s,e){return s+expenseEffectiveAmount(e,m);},0);
   var gastosBody = (!U.expBulkMode && gastosViewMode()==='kanban')
     ? rGastosKanban(filt)
-    : '<div class="card" style="padding:10px 16px 16px">'+rows+'<div class="trow"><span style="font-size:13px;color:var(--mt)">Total Filtrado <span style="font-size:10px;color:var(--mt2)">(abatidos não somam)</span></span><span style="font-family:monospace;font-size:16px;font-weight:700;color:var(--blu)">'+R(tot)+'</span></div></div>';
+    : '<div class="card" style="padding:10px 16px 16px">'+rows+'<div class="trow"><span style="font-size:13px;color:var(--mt)">Total Filtrado <span style="font-size:10px;color:var(--mt2)">(abatidos não somam)</span></span><span id="exp-total-val" style="font-family:monospace;font-size:16px;font-weight:700;color:var(--blu)">'+R(tot)+'</span></div></div>';
   var bulkBar=U.expBulkMode?rExpenseBulkBar(filt):'';
   return '<div class="desktop-wide-pane pane-gastos">'+chips+viewSwitch+bulkBar+qe+gastosBody+rGastosInvariavelSection(m)+rGastosParcelasSection(m)+rGastosTotalCard(m)+'</div>';
 }
@@ -7909,37 +7999,60 @@ function rGastosMes(){
 
     var rows = '';
 
-    if(expItems.length){
-      if(plannedItems.length)
-        rows += '<div style="font-size:10px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px">Realizado</div>';
-      expItems.forEach(function(e){
-        var dl = new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
-        var isAbat=isExpenseAbatedInMonth(e,m);
-        rows += '<div class="pi" style="'+(isAbat?'opacity:.72':'')+'"><div class="pin"><span style="'+(isAbat?'text-decoration:line-through;color:var(--mt2)':'')+'">'+(safeTxt(e.description)||g.label)+'</span>'
-          +'<span class="pitag" style="background:'+g.color+'18;color:'+g.color+'">'+dl+'</span>'+expenseAbatedNoteHtml(e,m)+'</div>'
-          +'<span style="font-family:monospace;font-size:13px;font-weight:700;color:'+(isAbat?'var(--mt2)':g.color)+';'+(isAbat?'text-decoration:line-through':'')+'">'+R(e.amount)+'</span></div>';
-      });
+    // Quando a categoria inteira é de parcelas (o gasto do mês corrente vindo de um lançamento
+    // avulso vinculado, e o resto dos meses vindo direto do registro da parcela), separar em
+    // "Realizado" x "Previsto/Fixo" só confunde: as duas coisas são a mesma parcela contando
+    // no mês, a diferença é só de onde o dado é lido internamente. Nesses casos, mostra tudo
+    // junto, numa lista só.
+    var allPlannedAreParcela = plannedItems.length ? plannedItems.every(function(i){ return i.isParcela; }) : false;
+    var allExpAreParcela = expItems.length ? expItems.every(function(e){ return isExpenseInstallment(e); }) : false;
+    var mergeAsParcelas = expItems.length>0 && plannedItems.length>0 && allPlannedAreParcela && allExpAreParcela;
+
+    function renderExpRow(e){
+      var dl = new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+      var isAbat=isExpenseAbatedInMonth(e,m);
+      return '<div class="pi" style="'+(isAbat?'opacity:.72':'')+'"><div class="pin"><span style="'+(isAbat?'text-decoration:line-through;color:var(--mt2)':'')+'">'+(safeTxt(e.description)||g.label)+'</span>'
+        +'<span class="pitag" style="background:'+g.color+'18;color:'+g.color+'">'+dl+'</span>'+expenseAbatedNoteHtml(e,m)+'</div>'
+        +'<span style="font-family:monospace;font-size:13px;font-weight:700;color:'+(isAbat?'var(--mt2)':g.color)+';'+(isAbat?'text-decoration:line-through':'')+'">'+R(e.amount)+'</span></div>';
+    }
+    function renderPlannedRow(i){
+      var typeTag = !isEst(i)
+        ? '<span class="pitag" style="background:#f0fdf4;color:var(--grn)">invariável</span>'
+        : i.isParcela
+          ? '<span class="pitag" style="background:var(--pur-l);color:var(--pur)">parcela</span>'
+          : i.isExtra
+            ? '<span class="pitag" style="background:var(--amb-l);color:var(--amb)">extra</span>'
+            : '<span class="pitag" style="background:var(--s2);color:var(--mt)">estimativa</span>';
+      return '<div class="pi"><div class="pin">'+safeTxt(i.label)+typeTag+'</div>'
+        +'<span style="font-family:monospace;font-size:13px;font-weight:600;color:'+(overBudget?'var(--mt2)':'var(--mt)')+'">'+R(i.amount)+'</span></div>';
     }
 
-    if(plannedItems.length){
-      if(expItems.length)
-        rows += '<div style="font-size:10px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px;margin-top:4px;border-top:1px solid var(--bd)">Previsto/Fixo</div>';
-      plannedItems.forEach(function(i){
-        var typeTag = !isEst(i)
-          ? '<span class="pitag" style="background:#f0fdf4;color:var(--grn)">invariável</span>'
-          : i.isParcela
-            ? '<span class="pitag" style="background:var(--pur-l);color:var(--pur)">parcela</span>'
-            : i.isExtra
-              ? '<span class="pitag" style="background:var(--amb-l);color:var(--amb)">extra</span>'
-              : '<span class="pitag" style="background:var(--s2);color:var(--mt)">estimativa</span>';
-        rows += '<div class="pi"><div class="pin">'+safeTxt(i.label)+typeTag+'</div>'
-          +'<span style="font-family:monospace;font-size:13px;font-weight:600;color:'+(overBudget?'var(--mt2)':'var(--mt)')+'">'+R(i.amount)+'</span></div>';
-      });
+    if(mergeAsParcelas){
+      rows += '<div style="font-size:10px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px">Parcelas deste mês</div>';
+      expItems.forEach(function(e){ rows += renderExpRow(e); });
+      plannedItems.forEach(function(i){ rows += renderPlannedRow(i); });
       if(overBudget)
         rows += '<div style="font-size:11px;color:var(--amb);padding:4px 0">Realizado supera o planejado</div>';
-    } else if(cat && cat.pEst > 0 && !expItems.length){
-      rows += '<div class="pi"><div class="pin">Estimativa configurada<span class="pitag" style="background:var(--s2);color:var(--mt)">teto</span></div>'
-        +'<span style="font-family:monospace;font-size:13px;font-weight:600;color:var(--mt)">'+R(cat.pEst)+'</span></div>';
+    } else {
+      if(expItems.length){
+        if(plannedItems.length)
+          rows += '<div style="font-size:10px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px">Realizado</div>';
+        expItems.forEach(function(e){ rows += renderExpRow(e); });
+      }
+
+      if(plannedItems.length){
+        // Se a categoria é só de parcelas em aberto (ex: "Parcelas Cartão"), o rótulo genérico
+        // "Previsto/Fixo" não faz sentido — nada ali é fixo, é tudo parcela ainda não paga.
+        var plannedHeaderLbl = allPlannedAreParcela ? 'Parcelas em aberto' : 'Previsto/Fixo';
+        if(expItems.length)
+          rows += '<div style="font-size:10px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px;margin-top:4px;border-top:1px solid var(--bd)">'+plannedHeaderLbl+'</div>';
+        plannedItems.forEach(function(i){ rows += renderPlannedRow(i); });
+        if(overBudget)
+          rows += '<div style="font-size:11px;color:var(--amb);padding:4px 0">Realizado supera o planejado</div>';
+      } else if(cat && cat.pEst > 0 && !expItems.length){
+        rows += '<div class="pi"><div class="pin">Estimativa configurada<span class="pitag" style="background:var(--s2);color:var(--mt)">teto</span></div>'
+          +'<span style="font-family:monospace;font-size:13px;font-weight:600;color:var(--mt)">'+R(cat.pEst)+'</span></div>';
+      }
     }
 
     var headerRight = sumExp > 0 && sumExp !== committed
@@ -8182,19 +8295,103 @@ window.setInstallmentListOption=function(key,val){
 };
 window.toggleInstallmentFilters=function(){
   U.instFiltersOpen=!U.instFiltersOpen;
-  var p=document.getElementById('inst-filter-panel'),b=document.getElementById('inst-filter-btn');
-  if(p)p.style.display=U.instFiltersOpen?'grid':'none';
+  var b=document.getElementById('inst-filter-btn');
   if(b)b.setAttribute('aria-expanded',U.instFiltersOpen?'true':'false');
+  renderInstallmentListPreserveScroll();
+};
+window.toggleInstallmentSearch=function(){
+  U.instSearchOpen=!U.instSearchOpen;
+  if(!U.instSearchOpen) U.instSearchTerm='';
+  renderInstallmentListPreserveScroll();
+  if(U.instSearchOpen) setTimeout(function(){var el=document.getElementById('inst-search-input');if(el)el.focus();},60);
+};
+window.setInstallmentSearch=function(v){
+  U.instSearchTerm=v;
+  renderInstallmentListPreserveScroll();
+  setTimeout(function(){var el=document.getElementById('inst-search-input');if(el){el.focus();var l=el.value.length;el.setSelectionRange(l,l);}},0);
 };
 window.clearInstallmentFilters=function(){
   U.instFilterRemaining='all';U.instFilterTotal='all';U.instFilterStatus='all';U.instSort='newest';renderInstallmentListPreserveScroll();
 };
 
+// Monta um card de parcela (usado na lista inteira e na atualização cirúrgica de um card só,
+// pra "Abater este mês" não precisar recarregar a tela toda).
+function buildInstallmentCard(inst, now){
+  var g=gBy(inst.group),abated=(D.instAbatimentos&&D.instAbatimentos[now])||[],mx=installmentListMetrics(inst,now),totalP=mx.total,atualRaw=mx.curRaw,atualP=mx.cur,restam=mx.remaining;
+  // Ícone sempre igual pra qualquer parcela (💳), independente da categoria/etiqueta escolhida.
+  // A categoria continua servindo pra cor e pra filtrar/agrupar, só o ícone deixa de variar.
+  var gIcon=Object.assign({},g,{emoji:'💳'});
+  var pct=totalP>0?Math.max(0,Math.min(100,Math.round((atualP/totalP)*100))):0;
+  var statusTxt=totalP<=0?'quantidade não informada':atualRaw<1?'começa em '+mLbl(inst.start):restam>0?restam+' restante'+(restam>1?'s':''):'última parcela';
+  var progressBox='<div style="background:var(--s2);border-radius:10px;padding:8px 12px;margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:12px;color:var(--txt)"><span>Parcela <b>'+atualP+'</b> de <b>'+totalP+'</b></span><span style="color:var(--mt)">'+statusTxt+'</span></div><div style="height:5px;background:var(--bd);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+g.color+'"></div></div></div>';
+  var isActiveNow=(totalP>0?(atualRaw>=1&&atualRaw<=totalP):(inst.start<=now&&(!inst.end||inst.end>=now))),isCoveredNow=inst.coveredExpenseMonth===now,isAbatNow=abated.indexOf(inst.id)>=0;
+  var selected=!!(U.instBulkSel&&U.instBulkSel[inst.id]);
+  var check=U.instBulkMode?'<label style="display:flex;align-items:center;padding-right:7px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" data-inst-bulk-check="1" data-id="'+safeAttr(inst.id)+'" '+(selected?'checked':'')+' onchange="window.toggleInstallmentBulkSel(\''+inst.id+'\',this.checked)" style="width:17px;height:17px;accent-color:var(--pur)"></label>':'';
+  var abatBtn='';
+  if(isActiveNow){
+    var abatTitle=isCoveredNow?(isAbatNow?'Desfazer abatimento. O lançamento vinculado em Gastos voltará a entrar no total deste mês.':'Marcar como já paga/adiantada. O lançamento vinculado em Gastos continuará visível, mas será desconsiderado dos totais deste mês.'):(isAbatNow?'Desfazer abatimento desta parcela.':'Marcar esta parcela como já paga/adiantada neste mês.');
+    abatBtn='<button class="bs '+(isAbatNow?'bgrn':'be')+'" title="'+abatTitle+'" style="'+(isAbatNow?'background:var(--grn);color:#fff;border-color:var(--grn)':'')+'" onclick="window.toggleAbatimento(\''+inst.id+'\')">'+(isAbatNow?'&#10003; Abatido neste mês':'Abater este mês')+'</button>';
+  }else abatBtn='<button class="bs bca" disabled style="opacity:.65;cursor:not-allowed">Ainda não começou</button>';
+  var linked=linkedExpenseForInstallment(inst),chrono=(linked&&linked.date)||inst.purchaseDate||'';
+  var meta='<div class="tlnote" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="padding:2px 6px;background:'+g.color+'18;color:'+g.color+';border-radius:5px;font-size:10px;font-weight:800">'+safeTxt(g.label)+'</span>'+(chrono?'<span style="font-size:10px;color:var(--mt2)">registrada em '+new Date(chrono+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'})+'</span>':'')+'</div>'+(inst.notes?'<div class="tlnote">'+safeTxt(inst.notes)+'</div>':'');
+  return '<div id="inst-bulk-card-'+safeAttr(inst.id)+'" class="card tlrow'+(selected?' inst-bulk-selected':'')+'" style="margin-bottom:0"><div class="tlhdr"><div style="display:flex;align-items:flex-start;min-width:0">'+check+'<div style="min-width:0"><div class="tln">'+ibadge(gIcon,26)+' '+safeTxt(inst.label)+(isAbatNow?' <span style="font-size:10px;background:#dcfce7;color:var(--grn-d);padding:2px 7px;border-radius:6px;font-weight:700;margin-left:4px">abatido</span>':'')+'</div>'+meta+'</div></div><div class="tla" style="color:'+(isAbatNow?'var(--mt2)':g.color)+';'+(isAbatNow?'text-decoration:line-through':'')+'">'+R(inst.amount)+'<span style="font-size:11px;font-weight:400;color:var(--mt)">/mês</span></div></div>'+progressBox+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">'+(U.instBulkMode?'':abatBtn+'<button class="bs be" onclick="window.openInstEdit(\''+inst.id+'\')">Editar Detalhes</button>')+'</div></div>';
+}
+// Atualiza só o card de UMA parcela no DOM (sem recarregar a tela). Devolve false se o card
+// não estiver na tela agora (ex: usuário não está na aba Parcelas), pra quem chamar decidir
+// se precisa cair pra um render() completo.
+function refreshInstallmentCard(id){
+  var inst=(D.installments||[]).find(function(i){return i.id===id;});
+  var card=document.getElementById('inst-bulk-card-'+id);
+  if(!inst||!card) return false;
+  var wrap=document.createElement('div');
+  wrap.innerHTML=buildInstallmentCard(inst,U.month);
+  var next=wrap.firstElementChild;
+  if(next) card.replaceWith(next);
+  return true;
+}
+// Atualiza os dois números de resumo do topo da aba Parcelas (sem recarregar a tela).
+function refreshInstallmentSummary(){
+  var m=U.month;
+  var abatedNow=(D.instAbatimentos&&D.instAbatimentos[m])||[];
+  var baseInst=(D.installments||[]).filter(function(i){return !i.end||i.end>=m;});
+  var activeAll=baseInst.filter(function(i){return i.start<=m&&(!i.end||i.end>=m)&&abatedNow.indexOf(i.id)===-1;});
+  var totAll=activeAll.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
+  var v1=document.getElementById('parc-sum-ativas-val'); if(v1) v1.textContent=R(totAll);
+  var c1=document.getElementById('parc-sum-ativas-cnt'); if(c1) c1.textContent=activeAll.length+' parcelas rolando';
+}
+// Menu "..." reutilizável pra ações menos usadas (ex: Importar, Selecionar), evitando empilhar
+// muitos botões separados na tela. items: [{label, onclick, icon}].
+function buildOverflowMenu(id, items){
+  return '<div style="position:relative;display:inline-block">'
+    +'<button id="'+id+'-btn" class="btn-import" onclick="window.toggleOverflowMenu(\''+id+'\')" aria-expanded="false">⋯ Mais ações</button>'
+    +'<div id="'+id+'-menu" style="display:none;position:absolute;top:100%;left:0;margin-top:6px;background:var(--srf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:30;min-width:210px;overflow:hidden">'
+      +items.map(function(it){return '<button style="display:flex;align-items:center;gap:8px;width:100%;padding:12px 14px;background:none;border:none;text-align:left;cursor:pointer;font-size:13px;font-family:inherit;color:var(--txt)" onclick="'+it.onclick+'">'+(it.icon||'')+' '+it.label+'</button>';}).join('<div style="height:1px;background:var(--bd)"></div>')
+    +'</div>'
+  +'</div>';
+}
+window.toggleOverflowMenu=function(id){
+  document.querySelectorAll('[id$="-menu"]').forEach(function(m){ if(m.id!==id+'-menu') m.style.display='none'; });
+  var menu=document.getElementById(id+'-menu'),btn=document.getElementById(id+'-btn');
+  if(!menu) return;
+  var willShow = menu.style.display==='none'||!menu.style.display;
+  menu.style.display=willShow?'block':'none';
+  if(btn) btn.setAttribute('aria-expanded',willShow?'true':'false');
+  if(willShow){
+    setTimeout(function(){
+      document.addEventListener('click', function closeHandler(e){
+        if(!menu.contains(e.target) && e.target!==btn){
+          menu.style.display='none';
+          if(btn) btn.setAttribute('aria-expanded','false');
+          document.removeEventListener('click', closeHandler);
+        }
+      });
+    },0);
+  }
+};
 function rParcelas(){
   var now=U.month;
   var abatedNow=(D.instAbatimentos&&D.instAbatimentos[now])||[];
   var baseInst=(D.installments||[]).filter(function(i){return !i.end||i.end>=now;});
-  var carroInst=baseInst.filter(function(i){return i.group==='carro';});
   var activeAll=baseInst.filter(function(i){return i.start<=now&&(!i.end||i.end>=now)&&abatedNow.indexOf(i.id)===-1;});
   var totAll=activeAll.reduce(function(s,i){return s+(Number(i.amount)||0);},0);
 
@@ -8222,6 +8419,14 @@ function rParcelas(){
     }
     return true;
   });
+  if(U.instSearchTerm && U.instSearchTerm.trim()){
+    var instTerm=normImp(U.instSearchTerm.trim()),instTermAmt=instTerm.replace('.',',');
+    allInst=allInst.filter(function(inst){
+      var labelN=normImp(inst.label||'');
+      var amtStr=String((Number(inst.amount)||0).toFixed(2)).replace('.',',');
+      return labelN.indexOf(instTerm)!==-1 || amtStr.indexOf(instTermAmt)!==-1;
+    });
+  }
   allInst.sort(function(a,b){
     var am=installmentListMetrics(a,now),bm=installmentListMetrics(b,now),av,bv;
     if(sortMode==='oldest')return installmentChronoStamp(a)-installmentChronoStamp(b);
@@ -8232,31 +8437,36 @@ function rParcelas(){
     return installmentChronoStamp(b)-installmentChronoStamp(a); // newest
   });
 
-  var summary='<div class="dash-cards" style="margin-bottom:24px"><div class="sc"><div class="sl">Parcelas ativas (neste mês)</div><div class="sv" style="color:var(--pur)">'+R(totAll)+'</div><div class="ss">'+activeAll.length+' parcelas rolando</div></div><div class="sc"><div class="sl">Carro (neste mês)</div><div class="sv" style="color:var(--txt)">'+R(carroInst.filter(function(i){return i.start<=now&&(!i.end||i.end>=now)&&abatedNow.indexOf(i.id)===-1;}).reduce(function(s,i){return s+(Number(i.amount)||0);},0))+'</div><div class="ss">Financiamento + IPVA se houver</div></div></div>'
-    +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">'
-      +'<button class="btn-import" onclick="window.openSimulator()">🧮 Simular nova parcela</button>'
-      +'<button class="btn-import" onclick="window.openAddInst()">+ Adicionar parcela</button>'
-      +'<button class="btn-import" onclick="window.openImport(\'installments\')">'+ICO.excel+' Importar parcelas</button>'
-      +'<button class="btn-import" onclick="window.toggleInstallmentBulkMode()">'+(U.instBulkMode?'✓ Selecionando':'☑ Selecionar')+'</button>'
-    +'</div>';
-
+  // Um card só: a tela é sobre parcelas em geral, então não faz sentido destacar "Carro" à parte
+  // (ele já aparece normalmente, agrupado como qualquer outra categoria, mais abaixo).
   var activeFilterCount=(remainingFilter!=='all'?1:0)+(totalFilter!=='all'?1:0)+(statusFilter!=='all'?1:0);
-  var filters='<div class="card" style="padding:12px 14px;margin-bottom:16px">'
+  var summary='<div class="dash-cards" style="margin-bottom:24px"><div class="sc"><div class="sl">Parcelas ativas (neste mês)</div><div class="sv" id="parc-sum-ativas-val" style="color:var(--pur)">'+R(totAll)+'</div><div class="ss" id="parc-sum-ativas-cnt">'+activeAll.length+' parcelas rolando</div></div></div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">'
+      +'<button id="inst-search-btn" class="btn-import" onclick="window.toggleInstallmentSearch()" title="Buscar por nome ou valor">🔍'+(U.instSearchTerm?' Buscando':'')+'</button>'
+      +'<button id="inst-filter-btn" class="btn-import" aria-expanded="'+(U.instFiltersOpen?'true':'false')+'" onclick="window.toggleInstallmentFilters()">⚙ Filtros'+(activeFilterCount?' ('+activeFilterCount+')':'')+'</button>'
+      +buildOverflowMenu('inst-more',[
+        {label:'Simular nova parcela',icon:'🧮',onclick:"window.openSimulator()"},
+        {label:'Importar parcelas',icon:ICO.excel,onclick:"window.openImport('installments')"},
+        {label:U.instBulkMode?'✓ Selecionando (tocar pra sair)':'☑ Selecionar várias',icon:'',onclick:"window.toggleInstallmentBulkMode()"}
+      ])
+      +'<span style="font-size:10.5px;color:var(--mt2);margin-left:auto">Mostrando '+allInst.length+' de '+baseInst.length+'</span>'
+    +'</div>'
+    +(U.instSearchOpen?'<div id="inst-search-wrap" style="margin-bottom:14px"><input class="fi" id="inst-search-input" type="text" placeholder="Buscar por nome ou valor, ex: curso ou 46,23" value="'+safeAttr(U.instSearchTerm||'')+'" oninput="window.setInstallmentSearch(this.value)"></div>':'');
+
+  var filters=!U.instFiltersOpen ? '' : ('<div class="card" id="inst-filter-panel-wrap" style="padding:12px 14px;margin-bottom:16px">'
     +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
-      +'<div style="font-size:11px;font-weight:800;color:var(--mt);text-transform:uppercase;letter-spacing:.07em">Organizar</div>'
-      +'<select class="fi" style="width:auto;min-width:170px;padding:8px 10px;font-size:12px" onchange="window.setInstallmentListOption(\'sort\',this.value)">'
+      +'<div style="font-size:11px;font-weight:800;color:var(--mt);text-transform:uppercase;letter-spacing:.07em">Filtros e ordenação</div>'
+      +(activeFilterCount?'<button class="bs bdl" onclick="window.clearInstallmentFilters()">Limpar</button>':'')
+    +'</div>'
+    +'<div id="inst-filter-panel" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">'
+      +'<div><label class="fl">Ordenar por</label><select class="fi" onchange="window.setInstallmentListOption(\'sort\',this.value)">'
         +'<option value="newest"'+(sortMode==='newest'?' selected':'')+'>Mais recentes primeiro</option>'
         +'<option value="oldest"'+(sortMode==='oldest'?' selected':'')+'>Mais antigas primeiro</option>'
         +'<option value="remainingAsc"'+(sortMode==='remainingAsc'?' selected':'')+'>Menos parcelas restantes</option>'
         +'<option value="remainingDesc"'+(sortMode==='remainingDesc'?' selected':'')+'>Mais parcelas restantes</option>'
         +'<option value="totalDesc"'+(sortMode==='totalDesc'?' selected':'')+'>Maior total de parcelas</option>'
         +'<option value="totalAsc"'+(sortMode==='totalAsc'?' selected':'')+'>Menor total de parcelas</option>'
-      +'</select>'
-      +'<button id="inst-filter-btn" class="btn-import" aria-expanded="'+(U.instFiltersOpen?'true':'false')+'" onclick="window.toggleInstallmentFilters()">⚙ Filtros'+(activeFilterCount?' ('+activeFilterCount+')':'')+'</button>'
-      +(activeFilterCount?'<button class="bs bdl" onclick="window.clearInstallmentFilters()">Limpar</button>':'')
-      +'<span style="font-size:10.5px;color:var(--mt2);margin-left:auto">Mostrando '+allInst.length+' de '+baseInst.length+'</span>'
-    +'</div>'
-    +'<div id="inst-filter-panel" style="display:'+(U.instFiltersOpen?'grid':'none')+';grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">'
+      +'</select></div>'
       +'<div><label class="fl">Parcelas restantes</label><select class="fi" onchange="window.setInstallmentListOption(\'remaining\',this.value)">'
         +'<option value="all"'+(remainingFilter==='all'?' selected':'')+'>Todas</option><option value="last"'+(remainingFilter==='last'?' selected':'')+'>Última parcela</option><option value="1-2"'+(remainingFilter==='1-2'?' selected':'')+'>1 a 2 restantes</option><option value="3-6"'+(remainingFilter==='3-6'?' selected':'')+'>3 a 6 restantes</option><option value="7plus"'+(remainingFilter==='7plus'?' selected':'')+'>7 ou mais</option><option value="unknown"'+(remainingFilter==='unknown'?' selected':'')+'>Não informado</option></select></div>'
       +'<div><label class="fl">Total de parcelas</label><select class="fi" onchange="window.setInstallmentListOption(\'total\',this.value)">'
@@ -8264,26 +8474,10 @@ function rParcelas(){
       +'<div><label class="fl">Situação neste mês</label><select class="fi" onchange="window.setInstallmentListOption(\'status\',this.value)">'
         +'<option value="all"'+(statusFilter==='all'?' selected':'')+'>Todas</option><option value="active"'+(statusFilter==='active'?' selected':'')+'>Em andamento</option><option value="future"'+(statusFilter==='future'?' selected':'')+'>Ainda não começaram</option><option value="abated"'+(statusFilter==='abated'?' selected':'')+'>Abatidas neste mês</option></select></div>'
     +'</div>'
-  +'</div>';
+  +'</div>');
 
   var bulkBar=U.instBulkMode?rInstallmentBulkBar(allInst):'';
-  function rCard(inst){
-    var g=gBy(inst.group),abated=abatedNow,mx=installmentListMetrics(inst,now),totalP=mx.total,atualRaw=mx.curRaw,atualP=mx.cur,restam=mx.remaining;
-    var pct=totalP>0?Math.max(0,Math.min(100,Math.round((atualP/totalP)*100))):0;
-    var statusTxt=totalP<=0?'quantidade não informada':atualRaw<1?'começa em '+mLbl(inst.start):restam>0?restam+' restante'+(restam>1?'s':''):'última parcela';
-    var progressBox='<div style="background:var(--s2);border-radius:10px;padding:8px 12px;margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:12px;color:var(--txt)"><span>Parcela <b>'+atualP+'</b> de <b>'+totalP+'</b></span><span style="color:var(--mt)">'+statusTxt+'</span></div><div style="height:5px;background:var(--bd);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+g.color+'"></div></div></div>';
-    var isActiveNow=(totalP>0?(atualRaw>=1&&atualRaw<=totalP):(inst.start<=now&&(!inst.end||inst.end>=now))),isCoveredNow=inst.coveredExpenseMonth===now,isAbatNow=abated.indexOf(inst.id)>=0;
-    var selected=!!(U.instBulkSel&&U.instBulkSel[inst.id]);
-    var check=U.instBulkMode?'<label style="display:flex;align-items:center;padding-right:7px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" data-inst-bulk-check="1" data-id="'+safeAttr(inst.id)+'" '+(selected?'checked':'')+' onchange="window.toggleInstallmentBulkSel(\''+inst.id+'\',this.checked)" style="width:17px;height:17px;accent-color:var(--pur)"></label>':'';
-    var abatBtn='';
-    if(isActiveNow){
-      var abatTitle=isCoveredNow?(isAbatNow?'Desfazer abatimento. O lançamento vinculado em Gastos voltará a entrar no total deste mês.':'Marcar como já paga/adiantada. O lançamento vinculado em Gastos continuará visível, mas será desconsiderado dos totais deste mês.'):(isAbatNow?'Desfazer abatimento desta parcela.':'Marcar esta parcela como já paga/adiantada neste mês.');
-      abatBtn='<button class="bs '+(isAbatNow?'bgrn':'be')+'" title="'+abatTitle+'" style="'+(isAbatNow?'background:var(--grn);color:#fff;border-color:var(--grn)':'')+'" onclick="window.toggleAbatimento(\''+inst.id+'\')">'+(isAbatNow?'&#10003; Abatido neste mês':'Abater este mês')+'</button>';
-    }else abatBtn='<button class="bs bca" disabled style="opacity:.65;cursor:not-allowed">Ainda não começou</button>';
-    var linked=linkedExpenseForInstallment(inst),chrono=(linked&&linked.date)||inst.purchaseDate||'';
-    var meta='<div class="tlnote" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="padding:2px 6px;background:'+g.color+'18;color:'+g.color+';border-radius:5px;font-size:10px;font-weight:800">'+safeTxt(g.label)+'</span>'+(chrono?'<span style="font-size:10px;color:var(--mt2)">registrada em '+new Date(chrono+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'})+'</span>':'')+'</div>'+(inst.notes?'<div class="tlnote">'+safeTxt(inst.notes)+'</div>':'');
-    return '<div id="inst-bulk-card-'+safeAttr(inst.id)+'" class="card tlrow'+(selected?' inst-bulk-selected':'')+'" style="margin-bottom:0"><div class="tlhdr"><div style="display:flex;align-items:flex-start;min-width:0">'+check+'<div style="min-width:0"><div class="tln">'+ibadge(g,26)+' '+safeTxt(inst.label)+(isAbatNow?' <span style="font-size:10px;background:#dcfce7;color:var(--grn-d);padding:2px 7px;border-radius:6px;font-weight:700;margin-left:4px">abatido</span>':'')+'</div>'+meta+'</div></div><div class="tla" style="color:'+(isAbatNow?'var(--mt2)':g.color)+';'+(isAbatNow?'text-decoration:line-through':'')+'">'+R(inst.amount)+'<span style="font-size:11px;font-weight:400;color:var(--mt)">/mês</span></div></div>'+progressBox+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">'+(U.instBulkMode?'':abatBtn+'<button class="bs be" onclick="window.openInstEdit(\''+inst.id+'\')">Editar Detalhes</button>')+'</div></div>';
-  }
+  function rCard(inst){ return buildInstallmentCard(inst, now); }
   var body=allInst.length?'<div class="cards-grid" style="margin-bottom:32px">'+allInst.map(rCard).join('')+'</div>':'';
   if(!baseInst.length){
     body=emptyStateCard('💳','Parcelou uma comprinha? É só informar aqui','Registre compras parceladas ou importe direto de uma planilha.<br><br>Você vai acompanhar a soma das suas parcelas ativas, além da quantidade de parcelas que faltam para concluir.<br><br>Ah, e claro, simule o valor de novas compras parceladas pra saber se encaixa no seu bolso.','<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn-import" onclick="window.openAddInst()">+ Adicionar manualmente</button><button class="btn-import" onclick="window.openImport(\'installments\')">'+ICO.excel+' Importar parcelas</button></div>');
@@ -8453,9 +8647,13 @@ function rInstEdit(){
   var editTot=Math.max(0,Number(info.tot)||0);
   var isDel = U.del === 'inst-'+id;
   var isConv = U.del === 'conv-'+id;
+  var linkedForDel = linkedExpenseForInstallment(inst);
+  var delWarnTxt = linkedForDel
+    ? 'Tem certeza? Isso apaga esta parcela de todos os meses e também o lançamento em Gastos vinculado a ela ("'+safeTxt(linkedForDel.description||'')+'").'
+    : 'Tem certeza? Isso apagará esta parcela de todos os meses.';
   var delBlock = isDel
     ? '<div style="background:var(--red-l);padding:14px;border-radius:12px;margin-top:4px;border:1px solid #fecaca">'
-        +'<div style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:10px;text-align:center">Tem certeza? Isso apagará esta parcela de todos os meses.</div>'
+        +'<div style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:10px;text-align:center">'+delWarnTxt+'</div>'
         +'<div style="display:flex;gap:8px"><button class="bgrn" style="background:var(--red);margin-top:0" onclick="window.delInstDo(\''+id+'\')">Sim, excluir</button><button class="bgh" style="margin-top:0" onclick="window.delX()">Cancelar</button></div>'
       +'</div>'
     : '<button class="bred" onclick="window.delC(\'inst-'+id+'\')">Excluir esta parcela</button>';
@@ -9949,7 +10147,28 @@ window.deleteInstallmentBulk=function(){
   D.installments=D.installments.filter(function(i){return ids.indexOf(i.id)===-1;});U.instBulkSel={};sset(D);render();
 };
 
-window.setFilter=function(f){U.filter=f;render();};
+window.setFilter=function(f){U.filter=f;renderGastosPreserveScroll();};
+window.toggleExpenseFilters=function(){
+  U.expFiltersOpen=!U.expFiltersOpen;
+  var p=document.getElementById('exp-filter-panel'),b=document.getElementById('exp-filter-btn');
+  if(p)p.style.display=U.expFiltersOpen?'grid':'none';
+  if(b)b.setAttribute('aria-expanded',U.expFiltersOpen?'true':'false');
+};
+window.clearExpenseFilters=function(){
+  U.filter='all';U.filterBank='all';U.filterDate=null;U.searchTerm='';
+  renderGastosPreserveScroll();
+};
+window.toggleExpenseSearch=function(){
+  U.expSearchOpen=!U.expSearchOpen;
+  if(!U.expSearchOpen) U.searchTerm='';
+  renderGastosPreserveScroll();
+  if(U.expSearchOpen) setTimeout(function(){var el=document.getElementById('exp-search-input');if(el)el.focus();},60);
+};
+window.setExpenseSearch=function(v){
+  U.searchTerm=v;
+  renderGastosPreserveScroll();
+  setTimeout(function(){var el=document.getElementById('exp-search-input');if(el){el.focus();var l=el.value.length;el.setSelectionRange(l,l);}},0);
+};
 window.setTabView=function(tab, mode){
   if(['gastos','prev','dash'].indexOf(tab) < 0) return;
   var v = mode === 'kanban' ? 'kanban' : 'list';
@@ -10451,12 +10670,20 @@ window.saveEdit=function(){
   sset(D);window.goMain();
 };
 
-window.delC=function(id){U.del=id;render();};
-window.delX=function(){U.del=null;render();};
+window.delC=function(id){U.del=id;if(!refreshExpenseRow(id))render();};
+window.delX=function(){var id=U.del;U.del=null;if(!id||!refreshExpenseRow(id))render();};
 window.delDo=function(id){
   var exp=D.expenses.find(function(e){return e.id===id;});var inst=exp?linkedInstallmentForExpense(exp):null;
-  if(inst){delete inst.coveredExpenseId;delete inst.coveredExpenseMonth;}
-  D.expenses=D.expenses.filter(function(e){return e.id!==id;});U.del=null;sset(D);render();
+  if(inst){D.installments=D.installments.filter(function(i){return i.id!==inst.id;});}
+  D.expenses=D.expenses.filter(function(e){return e.id!==id;});U.del=null;sset(D);
+  var row=document.getElementById('exp-bulk-row-'+id);
+  if(row){
+    row.remove();
+    refreshExpenseTotal();
+    refreshMainHeader();
+  } else {
+    render();
+  }
 };
 
 window.openPlanEdit=function(id){U.planEd=id;U.scr='planEdit';render();};
@@ -10493,7 +10720,12 @@ window.toggleAbatimento=function(instId){
   } else {
     D.instAbatimentos[m].push(instId);
   }
-  sset(D);render();
+  sset(D);
+  // Atualiza só o card, o resumo da aba e o cabeçalho — sem recarregar a tela toda.
+  var okCard=refreshInstallmentCard(instId);
+  refreshInstallmentSummary();
+  refreshMainHeader();
+  if(!okCard) render();
 };
 window.openAddInst=function(){U.scr='addInst';render();};
 
@@ -10753,7 +10985,7 @@ window.saveInst=function(id){
 
 window.delInstDo=function(id){
   var inst=D.installments.find(function(i){return i.id===id;});var linkedExp=inst?linkedExpenseForInstallment(inst):null;
-  if(linkedExp){D.expenses=D.expenses.map(function(e){if(e.id!==linkedExp.id)return e;var u=Object.assign({},e);delete u.isInstallment;delete u.parcAtual;delete u.parcTotal;u.notInstallment=true;u.group=u.sourceGroup||'outros';u.updatedAt=new Date().toISOString();return u;});}
+  if(linkedExp){D.expenses=D.expenses.filter(function(e){return e.id!==linkedExp.id;});}
   D.installments=D.installments.filter(function(i){return i.id!==id;});U.del=null;sset(D);window.goMain();
 };
 // Tira uma parcela do controle de parcelas e volta o lançamento vinculado (se houver) a ser um gasto
@@ -11864,7 +12096,7 @@ window._runExport=function(types){
     if(type==='gastos'){
       filename='gastos-'+m;
       rows.push(tsv(['Nome','Valor','Data','Categoria']));
-      var exps=D.expenses.filter(function(e){return e.date&&e.date.slice(0,7)===m;})
+      var exps=D.expenses.filter(function(e){return expenseAccountingMonth(e)===m;})
         .slice().sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''));});
       exps.forEach(function(e){
         var g=gBy(e.group);
@@ -11909,7 +12141,7 @@ window._runExport=function(types){
 
     var allRecords=[];
     if(types.indexOf('gastos')!==-1){
-      D.expenses.filter(function(e){return e.date&&e.date.slice(0,7)===m;}).forEach(function(e){
+      D.expenses.filter(function(e){return expenseAccountingMonth(e)===m;}).forEach(function(e){
         allRecords.push({nome:e.description||gBy(e.group).label,valor:e.amount,extra:fmtDate(e.date),tipo:'Gasto',group:e.group});
       });
     }
